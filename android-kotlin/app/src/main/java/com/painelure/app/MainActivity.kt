@@ -54,7 +54,7 @@ import org.json.JSONObject
 import java.time.YearMonth
 import java.nio.charset.Charset
 
-private const val API_BASE = "https://painelure2-api.onrender.com"
+private const val API_BASE = "https://painelure-cloudflare.jeffef.workers.dev"
 
 private fun repairText(value: String): String {
     var current = value
