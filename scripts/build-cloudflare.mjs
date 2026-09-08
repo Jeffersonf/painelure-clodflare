@@ -17,7 +17,7 @@ const files = [
   '.nojekyll'
 ];
 
-const directories = ['assets', 'data', 'font', 'modules'];
+const directories = ['assets', 'data', 'modules'];
 
 function copyPublicFiles(output) {
   fs.rmSync(output, { recursive: true, force: true });
