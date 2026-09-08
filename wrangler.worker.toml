@@ -9,7 +9,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "painelure-cloudflare"
-database_id = "COLOQUE_O_DATABASE_ID_AQUI"
+database_id = "aa6f970a-7578-441f-8e1a-184605f39ee8"
 migrations_dir = "migrations"
 
 [vars]
