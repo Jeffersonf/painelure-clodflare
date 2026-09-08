@@ -118,12 +118,8 @@
 
   function sharePointProxyUrl(url) {
     const configured = String(window.PAINELURE_API_URL || "").replace(/\/+$/, "");
-    const renderApi = "https://painelure2-api.onrender.com";
-    const host = location.hostname;
-    const localStatic = (host === "localhost" || host === "127.0.0.1") && location.port !== "4173";
-    const base = configured || (host.endsWith("github.io") || localStatic || location.protocol === "file:" ? renderApi : "");
     const path = `/api/sharepoint-list?url=${encodeURIComponent(url)}`;
-    return base ? `${base}${path}` : path;
+    return configured ? `${configured}${path}` : path;
   }
 
   async function fetchSharePointViaProxy(url, options = {}) {

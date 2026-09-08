@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server/index.js",
     "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "migrate:d1": "node scripts/migrate-d1.mjs",
     "check": "node scripts/check-js.js && node scripts/check-access-scope.js && node scripts/check-android-access.js && node scripts/check-android-modules.js && node scripts/check-car-normalizer.js && node scripts/check-satisfaction-normalizer.js && node scripts/check-backend-routes.js && node scripts/check-official-transition.js",
     "seed:online": "node scripts/seed-online.js",
     "pins:reset-online": "node scripts/reset-online-pins.js",

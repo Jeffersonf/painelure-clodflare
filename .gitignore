@@ -25,6 +25,7 @@ android-kotlin/app/src/main/assets/painelure/
 .cloudflare-public/
 .cloudflare-worker-public/
 .wrangler/
+.d1-seed.sql
 
 # Local Android validation screenshots/build snapshots
 /android-*.png

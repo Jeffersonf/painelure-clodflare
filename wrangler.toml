@@ -3,4 +3,10 @@ pages_build_output_dir = ".cloudflare-public"
 compatibility_date = "2026-09-08"
 
 [vars]
-PAINELURE_API_ORIGIN = "https://painelure2-api.onrender.com"
+PAGES_MODE = "1"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "painelure-cloudflare"
+database_id = "COLOQUE_O_DATABASE_ID_AQUI"
+migrations_dir = "migrations"
