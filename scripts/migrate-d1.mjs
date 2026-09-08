@@ -50,10 +50,14 @@ async function main() {
     appData: dataPayload.data?.appData || {}
   };
   const sources = Object.fromEntries((sourcesPayload.sources || []).map(source => [source.key, source]));
+  const storePayload = JSON.stringify(store);
   const statements = [
-    `INSERT INTO app_state (id, payload, source, updated_at) VALUES ('main', ${sql(JSON.stringify(store))}, 'migration-render', ${sql(store.updatedAt)}) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at;`,
-    `INSERT INTO app_snapshots (id, payload, source, created_at) VALUES (${sql(crypto.randomUUID())}, ${sql(JSON.stringify(store))}, 'migration-render', ${sql(now)});`
+    `INSERT INTO app_state (id, payload, source, updated_at) VALUES ('main', '', 'migration-render', ${sql(store.updatedAt)}) ON CONFLICT(id) DO UPDATE SET payload='', source=excluded.source, updated_at=excluded.updated_at;`,
+    `INSERT INTO app_snapshots (id, payload, source, created_at) VALUES (${sql(crypto.randomUUID())}, ${sql(JSON.stringify({ source: 'migration-render', migratedMetadataOnly: true }))}, 'migration-render', ${sql(now)});`
   ];
+  for (let index = 0; index < storePayload.length; index += 40000) {
+    statements.push(`UPDATE app_state SET payload = payload || ${sql(storePayload.slice(index, index + 40000))} WHERE id = 'main';`);
+  }
 
   for (const user of usersPayload.users || []) {
     const pin = String(user.pin || initialPin);
@@ -77,7 +81,7 @@ async function main() {
   fs.writeFileSync('.d1-seed.sql', `${statements.join('\n')}\n`, 'utf8');
   console.log(`Exportados ${Object.keys(store.appData).length} blocos de dados, ${(usersPayload.users || []).length} usuários, ${Object.keys(sources).length} fontes, ${(snapshotsPayload.snapshots || []).length} snapshots, ${(auditPayload.events || []).length} eventos e ${(importsPayload.imports || []).length} importações.`);
 
-  const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['wrangler', 'd1', 'execute', database, '--remote', '--config=wrangler.worker.toml', '--file=.d1-seed.sql'], { stdio: 'inherit' });
+  const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['--yes', 'wrangler@latest', 'd1', 'execute', database, '--remote', '--config=wrangler.worker.toml', '--file=.d1-seed.sql'], { stdio: 'inherit' });
   if (result.status !== 0) process.exit(result.status || 1);
   console.log('Dados migrados para o D1. O arquivo .d1-seed.sql permanece ignorado pelo Git.');
 }
