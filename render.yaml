@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: painelure2-api
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: PGSSL
+        value: "true"
+      - key: PAINELURE_ADMIN_KEY
+        sync: false
+      - key: PAINELURE_ADMIN_USER
+        sync: false
+      - key: PAINELURE_ADMIN_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
