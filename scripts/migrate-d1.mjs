@@ -81,7 +81,9 @@ async function main() {
   fs.writeFileSync('.d1-seed.sql', `${statements.join('\n')}\n`, 'utf8');
   console.log(`Exportados ${Object.keys(store.appData).length} blocos de dados, ${(usersPayload.users || []).length} usuários, ${Object.keys(sources).length} fontes, ${(snapshotsPayload.snapshots || []).length} snapshots, ${(auditPayload.events || []).length} eventos e ${(importsPayload.imports || []).length} importações.`);
 
-  const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['--yes', 'wrangler@latest', 'd1', 'execute', database, '--remote', '--config=wrangler.worker.toml', '--file=.d1-seed.sql'], { stdio: 'inherit' });
+  const command = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  const result = spawnSync(command, ['--yes', 'wrangler@latest', 'd1', 'execute', database, '--remote', '--config=wrangler.worker.toml', '--file=.d1-seed.sql'], { stdio: 'inherit', shell: process.platform === 'win32' });
+  if (result.error) throw result.error;
   if (result.status !== 0) process.exit(result.status || 1);
   console.log('Dados migrados para o D1. O arquivo .d1-seed.sql permanece ignorado pelo Git.');
 }
