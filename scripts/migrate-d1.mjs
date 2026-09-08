@@ -51,7 +51,6 @@ async function main() {
   };
   const sources = Object.fromEntries((sourcesPayload.sources || []).map(source => [source.key, source]));
   const statements = [
-    'BEGIN TRANSACTION;',
     `INSERT INTO app_state (id, payload, source, updated_at) VALUES ('main', ${sql(JSON.stringify(store))}, 'migration-render', ${sql(store.updatedAt)}) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at;`,
     `INSERT INTO app_snapshots (id, payload, source, created_at) VALUES (${sql(crypto.randomUUID())}, ${sql(JSON.stringify(store))}, 'migration-render', ${sql(now)});`
   ];
@@ -75,7 +74,6 @@ async function main() {
   for (const item of importsPayload.imports || []) {
     statements.push(`INSERT OR IGNORE INTO import_runs (id, source_key, rows_count, status, detail, created_at) VALUES (${sql(item.id)}, ${sql(item.sourceKey || '')}, ${Number(item.rowsCount || 0)}, ${sql(item.status || 'ok')}, ${sql(item.detail || '')}, ${sql(item.createdAt || now)});`);
   }
-  statements.push('COMMIT;');
   fs.writeFileSync('.d1-seed.sql', `${statements.join('\n')}\n`, 'utf8');
   console.log(`Exportados ${Object.keys(store.appData).length} blocos de dados, ${(usersPayload.users || []).length} usuários, ${Object.keys(sources).length} fontes, ${(snapshotsPayload.snapshots || []).length} snapshots, ${(auditPayload.events || []).length} eventos e ${(importsPayload.imports || []).length} importações.`);
 
