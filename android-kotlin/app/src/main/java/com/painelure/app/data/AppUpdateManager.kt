@@ -23,29 +23,62 @@ data class AppReleaseInfo(
 )
 
 object AppUpdateManager {
+    private const val CLOUDFLARE_VERSION_URL = "https://painelure-cloudflare-pages.pages.dev/version.json"
     private const val GITHUB_REPO = "Jeffersonf/painelure-clodflare"
     private const val GITHUB_API = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
 
     suspend fun checkForUpdates(currentVersionName: String): Result<AppReleaseInfo> = withContext(Dispatchers.IO) {
         runCatching {
+            // 1. Tentar primeiro o endpoint direto do Cloudflare Pages (rápido, sem 404 e público)
+            val cfResult = runCatching {
+                val url = URL(CLOUDFLARE_VERSION_URL)
+                val conn = (url.openConnection() as HttpURLConnection).apply {
+                    requestMethod = "GET"
+                    setRequestProperty("User-Agent", "PainelURE-Android-App")
+                    connectTimeout = 8000
+                    readTimeout = 8000
+                }
+                if (conn.responseCode == 200) {
+                    val body = conn.inputStream.bufferedReader().use { it.readText() }
+                    val json = JSONObject(body)
+                    val tagName = json.optString("tagName", json.optString("versionName", "11.9.0")).removePrefix("v").trim()
+                    val notes = json.optString("notes", "Nova versão disponível.").trim()
+                    val apkUrl = json.optString("apkUrl", "https://painelure-cloudflare-pages.pages.dev/painelure.apk")
+                    val isNewer = compareVersions(tagName, currentVersionName) > 0
+                    AppReleaseInfo(
+                        tagName = tagName,
+                        versionName = tagName,
+                        releaseNotes = notes,
+                        apkDownloadUrl = apkUrl,
+                        apkSize = 0L,
+                        isNewer = isNewer
+                    )
+                } else null
+            }.getOrNull()
+
+            if (cfResult != null) {
+                return@runCatching cfResult
+            }
+
+            // 2. Fallback para a API do GitHub Releases
             val url = URL(GITHUB_API)
             val conn = (url.openConnection() as HttpURLConnection).apply {
                 requestMethod = "GET"
                 setRequestProperty("Accept", "application/vnd.github.v3+json")
                 setRequestProperty("User-Agent", "PainelURE-Android-App")
-                connectTimeout = 10000
-                readTimeout = 10000
+                connectTimeout = 8000
+                readTimeout = 8000
             }
 
             if (conn.responseCode != 200) {
-                error("GitHub API retornou código ${conn.responseCode}")
+                error("Verificação retornou código " + conn.responseCode)
             }
 
             val responseBody = conn.inputStream.bufferedReader().use { it.readText() }
             val json = JSONObject(responseBody)
             val tagName = json.optString("tag_name", "").removePrefix("v").trim()
             val releaseNotes = json.optString("body", "").trim()
-            val assets = json.optJSONArray("assets") ?: error("Nenhum arquivo encontrado no release")
+            val assets = json.optJSONArray("assets") ?: error("Nenhum arquivo no release")
 
             var downloadUrl = ""
             var size = 0L
@@ -61,7 +94,7 @@ object AppUpdateManager {
             }
 
             if (downloadUrl.isBlank()) {
-                error("Nenhum APK publicado neste release")
+                downloadUrl = "https://painelure-cloudflare-pages.pages.dev/painelure.apk"
             }
 
             val isNewer = compareVersions(tagName, currentVersionName) > 0
@@ -116,7 +149,6 @@ object AppUpdateManager {
                 }
             }
 
-            // Dispara o instalador nativo do Android
             withContext(Dispatchers.Main) {
                 installApk(context, apkFile)
             }
@@ -127,7 +159,7 @@ object AppUpdateManager {
         val apkUri: Uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(
                 context,
-                "${context.packageName}.fileprovider",
+                context.packageName + ".fileprovider",
                 apkFile
             )
         } else {

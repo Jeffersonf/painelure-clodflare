@@ -4,8 +4,7 @@ android { namespace 'com.painelure.app'; compileSdk 36
     defaultConfig { applicationId 'com.painelure.app'; minSdk 26; targetSdk 36; versionCode 138; versionName '11.9.0' }
     buildTypes { release { signingConfig signingConfigs.debug } }
     buildFeatures { compose true }
-    // O aplicativo é 100% nativo; não empacotar os assets web legados.
-    sourceSets { main { assets.srcDirs = [] } }
+    sourceSets { main { assets.srcDirs = ['src/main/assets'] } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
 }
 tasks.withType(Test).configureEach {
