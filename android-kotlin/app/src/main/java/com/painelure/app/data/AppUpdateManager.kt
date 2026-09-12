@@ -23,7 +23,7 @@ data class AppReleaseInfo(
 )
 
 object AppUpdateManager {
-    private const val GITHUB_REPO = "Jeffersonf/painelure-clodflare-clodflare"
+    private const val GITHUB_REPO = "Jeffersonf/painelure-clodflare"
     private const val GITHUB_API = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
 
     suspend fun checkForUpdates(currentVersionName: String): Result<AppReleaseInfo> = withContext(Dispatchers.IO) {
