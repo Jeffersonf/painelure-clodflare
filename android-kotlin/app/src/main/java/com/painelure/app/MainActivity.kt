@@ -40,6 +40,7 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     private var webView: WebView? = null
+    private var onExitPrompt: (() -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,15 +50,16 @@ class MainActivity : ComponentActivity() {
                 if (webView?.canGoBack() == true) {
                     webView?.goBack()
                 } else {
-                    isEnabled = false
-                    onBackPressedDispatcher.onBackPressed()
+                    onExitPrompt?.invoke() ?: finish()
                 }
             }
         })
 
         setContent {
             PainelUREApp(
-                onWebViewCreated = { webView = it }
+                onWebViewCreated = { webView = it },
+                onSetupExitPrompt = { callback -> onExitPrompt = callback },
+                onExitApp = { finish() }
             )
         }
     }
@@ -65,11 +67,18 @@ class MainActivity : ComponentActivity() {
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun PainelUREApp(onWebViewCreated: (WebView) -> Unit) {
+fun PainelUREApp(
+    onWebViewCreated: (WebView) -> Unit,
+    onSetupExitPrompt: (() -> Unit) -> Unit,
+    onExitApp: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var showExitDialog by remember { mutableStateOf(false) }
+    var autoReleaseInfo by remember { mutableStateOf<AppReleaseInfo?>(null) }
+
     var isLoading by remember { mutableStateOf(true) }
     var loadProgress by remember { mutableFloatStateOf(0f) }
 
@@ -77,7 +86,33 @@ fun PainelUREApp(onWebViewCreated: (WebView) -> Unit) {
     val localFallbackUrl = "file:///android_asset/web/index.html"
 
     val darkBackground = Color(0xFF090C15)
-    val limeAccent = Color(0xFF35C96F)
+    val accentColor = Color(0xFF6366F1)
+
+    LaunchedEffect(Unit) {
+        onSetupExitPrompt {
+            showExitDialog = true
+        }
+    }
+
+    val currentVersion = remember {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "11.9.0"
+        }.getOrDefault("11.9.0")
+    }
+
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) {
+            val result = AppUpdateManager.checkForUpdates(currentVersion)
+            result.onSuccess { info ->
+                if (info.isNewer) {
+                    withContext(Dispatchers.Main) {
+                        autoReleaseInfo = info
+                        showUpdateDialog = true
+                    }
+                }
+            }
+        }
+    }
 
     MaterialTheme {
         Box(
@@ -175,31 +210,44 @@ fun PainelUREApp(onWebViewCreated: (WebView) -> Unit) {
                         .fillMaxWidth()
                         .height(3.dp)
                         .align(Alignment.TopCenter),
-                    color = limeAccent,
+                    color = accentColor,
                     trackColor = Color.Transparent
                 )
             }
 
-            FloatingActionButton(
-                onClick = { showUpdateDialog = true },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 18.dp)
-                    .size(46.dp),
-                shape = RoundedCornerShape(14.dp),
-                containerColor = Color(0xFF161C2C).copy(alpha = 0.92f),
-                contentColor = limeAccent,
-                elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.SystemUpdate,
-                    contentDescription = "Verificar Atualização",
-                    modifier = Modifier.size(20.dp)
+            if (showExitDialog) {
+                AlertDialog(
+                    onDismissRequest = { showExitDialog = false },
+                    containerColor = Color(0xFF131826),
+                    titleContentColor = Color.White,
+                    textContentColor = Color.White,
+                    shape = RoundedCornerShape(20.dp),
+                    title = {
+                        Text("Sair do PainelURE?", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    },
+                    text = {
+                        Text("Deseja realmente fechar o aplicativo?", color = Color(0xFF9AA3B5), fontSize = 14.sp)
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = onExitApp,
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF4444)),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text("Sair", fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showExitDialog = false }) {
+                            Text("Cancelar", color = Color.White)
+                        }
+                    }
                 )
             }
 
             if (showUpdateDialog) {
                 NativeUpdateDialog(
+                    initialInfo = autoReleaseInfo,
                     onDismiss = { showUpdateDialog = false }
                 )
             }
@@ -208,14 +256,17 @@ fun PainelUREApp(onWebViewCreated: (WebView) -> Unit) {
 }
 
 @Composable
-fun NativeUpdateDialog(onDismiss: () -> Unit) {
+fun NativeUpdateDialog(
+    initialInfo: AppReleaseInfo? = null,
+    onDismiss: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var checking by remember { mutableStateOf(true) }
+    var checking by remember { mutableStateOf(initialInfo == null) }
     var downloading by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
-    var statusText by remember { mutableStateOf("Verificando atualizações...") }
-    var releaseInfo by remember { mutableStateOf<AppReleaseInfo?>(null) }
+    var statusText by remember { mutableStateOf(initialInfo?.let { "Nova versão " + it.versionName + " disponível!" } ?: "Verificando atualizações...") }
+    var releaseInfo by remember { mutableStateOf(initialInfo) }
     var errorMsg by remember { mutableStateOf("") }
 
     val currentVersion = remember {
@@ -224,26 +275,28 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
         }.getOrDefault("11.9.0")
     }
 
-    val limeAccent = Color(0xFF35C96F)
+    val accentColor = Color(0xFF6366F1)
     val textMuted = Color(0xFF9AA3B5)
     val darkCard = Color(0xFF131826)
 
     LaunchedEffect(Unit) {
-        val result = AppUpdateManager.checkForUpdates(currentVersion)
-        checking = false
-        result.fold(
-            onSuccess = { info ->
-                releaseInfo = info
-                if (info.isNewer) {
-                    statusText = "Nova versão " + info.versionName + " disponível!"
-                } else {
-                    statusText = "Seu aplicativo já está na versão mais recente (v" + currentVersion + ")."
+        if (releaseInfo == null) {
+            val result = AppUpdateManager.checkForUpdates(currentVersion)
+            checking = false
+            result.fold(
+                onSuccess = { info ->
+                    releaseInfo = info
+                    if (info.isNewer) {
+                        statusText = "Nova versão " + info.versionName + " disponível!"
+                    } else {
+                        statusText = "Seu aplicativo já está na versão mais recente (v" + currentVersion + ")."
+                    }
+                },
+                onFailure = { err ->
+                    errorMsg = err.message ?: "Não foi possível verificar atualizações no momento."
                 }
-            },
-            onFailure = { err ->
-                errorMsg = err.message ?: "Não foi possível verificar atualizações no momento."
-            }
-        )
+            )
+        }
     }
 
     AlertDialog(
@@ -259,14 +312,14 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
             ) {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = limeAccent.copy(alpha = 0.15f),
+                    color = accentColor.copy(alpha = 0.15f),
                     modifier = Modifier.size(34.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.SystemUpdate, null, tint = limeAccent, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.SystemUpdate, null, tint = accentColor, modifier = Modifier.size(18.dp))
                     }
                 }
-                Text("Atualização do App", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("Atualização Disponível", fontWeight = FontWeight.Bold, fontSize = 18.sp)
             }
         },
         text = {
@@ -279,7 +332,7 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = limeAccent)
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = accentColor)
                         Spacer(Modifier.width(12.dp))
                         Text(statusText, style = MaterialTheme.typography.bodyMedium, color = Color.White)
                     }
@@ -290,7 +343,7 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
                         Text(
                             statusText,
                             fontWeight = FontWeight.SemiBold,
-                            color = if (info.isNewer) limeAccent else Color.White
+                            color = if (info.isNewer) accentColor else Color.White
                         )
 
                         if (info.releaseNotes.isNotBlank()) {
@@ -319,7 +372,7 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
                                         .fillMaxWidth()
                                         .height(8.dp)
                                         .clip(RoundedCornerShape(4.dp)),
-                                    color = limeAccent,
+                                    color = accentColor,
                                     trackColor = Color.White.copy(alpha = 0.1f)
                                 )
                                 Text(
@@ -350,13 +403,13 @@ fun NativeUpdateDialog(onDismiss: () -> Unit) {
                         }
                     },
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = limeAccent, contentColor = Color(0xFF090C15))
+                    colors = ButtonDefaults.buttonColors(containerColor = accentColor, contentColor = Color.White)
                 ) {
                     Text("Baixar e Atualizar", fontWeight = FontWeight.Bold)
                 }
             } else if (!checking && !downloading) {
                 TextButton(onClick = onDismiss) {
-                    Text("OK", color = limeAccent)
+                    Text("OK", color = accentColor)
                 }
             }
         },
