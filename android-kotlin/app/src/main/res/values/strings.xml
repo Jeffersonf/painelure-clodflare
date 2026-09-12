@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Finanza</string>
+    <string name="app_name">PainelURE</string>
     <string name="widget_summary_desc">Resumo financeiro do mes</string>
     <string name="widget_agenda_desc">Proximos vencimentos e agenda</string>
     <string name="widget_quick_expense_desc">Atalho rapido para lancar gasto</string>

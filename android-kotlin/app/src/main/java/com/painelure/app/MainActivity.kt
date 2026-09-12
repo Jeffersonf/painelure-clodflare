@@ -54,7 +54,7 @@ import org.json.JSONObject
 import java.time.YearMonth
 import java.nio.charset.Charset
 
-private const val API_BASE = "https://painelure-cloudflare.jeffef.workers.dev"
+private const val API_BASE = "https://painelure2-api.onrender.com"
 
 private fun repairText(value: String): String {
     var current = value
@@ -2248,6 +2248,7 @@ private fun AccountActionGroup(title: String, actions: List<AccountAction>) {
 @Composable
 private fun NativeAccountWithProfileV2(name: String, avatar: String, role: String, repository: PainelRepository, token: String, onTheme: () -> Unit, onLogout: () -> Unit, canAdmin: Boolean, admin: () -> Unit) {
     var profileOpen by remember { mutableStateOf(false) }
+    var updateOpen by remember { mutableStateOf(false) }
     var displayName by remember(name) { mutableStateOf(name) }
     var displayAvatar by remember(avatar) { mutableStateOf(avatar) }
     val avatarImage = remember(displayAvatar) { decodeAvatar(displayAvatar) }
@@ -2285,12 +2286,14 @@ private fun NativeAccountWithProfileV2(name: String, avatar: String, role: Strin
         }
         item { AccountActionGroup("Preferências e segurança", buildList {
             add(AccountAction(Icons.Default.Edit, "Editar meu perfil", "Nome, foto e PIN de acesso", Lime) { profileOpen = true })
+            add(AccountAction(Icons.Default.SystemUpdate, "Atualização do App", "Verificar e baixar nova versão do GitHub", AccentLime) { updateOpen = true })
             add(AccountAction(Icons.Default.DarkMode, "Alternar tema", "Escolha a aparência mais confortável", AccentBlue, onTheme))
             if (canAdmin) add(AccountAction(Icons.Default.AdminPanelSettings, "Administração", "Usuários, permissões e auditoria", AccentPurple, admin))
         }) }
         item { AccountActionGroup("Sessão", listOf(AccountAction(Icons.Default.Logout, "Sair da conta", "Encerrar a sessão neste aparelho", MaterialTheme.colorScheme.error, onLogout))) }
     }
     if (profileOpen) NativeProfileDialog(repository, token, displayName, displayAvatar, { profileOpen = false }) { updated -> displayName = updated.name; displayAvatar = updated.avatar; profileOpen = false }
+    if (updateOpen) NativeUpdateDialog { updateOpen = false }
 }
 
 @Composable
@@ -2398,4 +2401,139 @@ private fun NativeProfileDialog(repository: PainelRepository, token: String, cur
             }, modifier = Modifier.fillMaxWidth().height(50.dp), shape = RoundedCornerShape(14.dp), colors = ButtonDefaults.buttonColors(containerColor = Lime, contentColor = BackgroundDark)) { if (busy) CircularProgressIndicator(Modifier.size(19.dp), strokeWidth = 2.dp) else Text("Salvar alterações") }
         }
     }
+}
+
+
+@Composable
+private fun NativeUpdateDialog(close: () -> Unit) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var checking by remember { mutableStateOf(true) }
+    var downloading by remember { mutableStateOf(false) }
+    var progress by remember { mutableFloatStateOf(0f) }
+    var statusText by remember { mutableStateOf("Verificando atualizações no GitHub...") }
+    var releaseInfo by remember { mutableStateOf<com.painelure.app.data.AppReleaseInfo?>(null) }
+    var errorMsg by remember { mutableStateOf("") }
+
+    val currentVersion = remember {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "11.9.0"
+        }.getOrDefault("11.9.0")
+    }
+
+    LaunchedEffect(Unit) {
+        val result = com.painelure.app.data.AppUpdateManager.checkForUpdates(currentVersion)
+        checking = false
+        result.fold(
+            onSuccess = { info ->
+                releaseInfo = info
+                if (info.isNewer) {
+                    statusText = "Nova versão ${info.versionName} disponível!"
+                } else {
+                    statusText = "O aplicativo já está na versão mais recente (v$currentVersion)."
+                }
+            },
+            onFailure = { err ->
+                errorMsg = err.message ?: "Falha ao verificar atualizações no GitHub."
+            }
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = { if (!downloading) close() },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Icon(Icons.Default.SystemUpdate, null, tint = Lime)
+                Text("Atualização do App")
+            }
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("Versão instalada: v$currentVersion", color = Muted, style = MaterialTheme.typography.bodySmall)
+
+                if (checking) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp, color = Lime)
+                        Spacer(Modifier.width(12.dp))
+                        Text(statusText, style = MaterialTheme.typography.bodyMedium)
+                    }
+                } else if (errorMsg.isNotBlank()) {
+                    Text(errorMsg, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+                } else {
+                    releaseInfo?.let { info ->
+                        Text(statusText, fontWeight = FontWeight.Bold, color = if (info.isNewer) SuccessGreen else MaterialTheme.colorScheme.onSurface)
+
+                        if (info.isNewer) {
+                            if (info.releaseNotes.isNotBlank()) {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    modifier = Modifier.fillMaxWidth().heightIn(max = 140.dp).verticalScroll(rememberScrollState())
+                                ) {
+                                    Text(
+                                        info.releaseNotes,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        modifier = Modifier.padding(10.dp)
+                                    )
+                                }
+                            }
+
+                            if (downloading) {
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    LinearProgressIndicator(
+                                        progress = { progress },
+                                        modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)),
+                                        color = Lime,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                    Text(
+                                        "Baixando APK do GitHub: ${(progress * 100).toInt()}%",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Muted
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (releaseInfo?.isNewer == true && !downloading) {
+                Button(
+                    onClick = {
+                        downloading = true
+                        statusText = "Baixando atualização..."
+                        scope.launch {
+                            val res = com.painelure.app.data.AppUpdateManager.downloadAndInstallApk(context, releaseInfo!!.apkDownloadUrl) { p ->
+                                progress = p
+                            }
+                            downloading = false
+                            res.onFailure { e ->
+                                errorMsg = e.message ?: "Erro ao baixar ou instalar APK."
+                            }
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Lime, contentColor = BackgroundDark)
+                ) {
+                    Text("Baixar e Atualizar")
+                }
+            } else if (!checking && !downloading) {
+                TextButton(onClick = close) {
+                    Text("OK")
+                }
+            }
+        },
+        dismissButton = {
+            if (!downloading) {
+                TextButton(onClick = close) {
+                    Text("Fechar")
+                }
+            }
+        }
+    )
 }
