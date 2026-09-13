@@ -1,7 +1,7 @@
 plugins { id 'com.android.application'; id 'org.jetbrains.kotlin.android'; id 'org.jetbrains.kotlin.plugin.compose' }
 android { namespace 'com.painelure.app'; compileSdk 36
-    buildDir = file("$rootDir/build-output-v56")
-    defaultConfig { applicationId 'com.painelure.app'; minSdk 26; targetSdk 36; versionCode 138; versionName '11.9.0' }
+    buildDir = file("$rootDir/build-output-v57")
+    defaultConfig { applicationId 'com.painelure.app'; minSdk 26; targetSdk 36; versionCode 139; versionName '11.10.0' }
     buildTypes { release { signingConfig signingConfigs.debug } }
     buildFeatures { compose true }
     sourceSets { main { assets.srcDirs = ['src/main/assets'] } }

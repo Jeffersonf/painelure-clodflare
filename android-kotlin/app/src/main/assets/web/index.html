@@ -94,7 +94,7 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   overflow-x: hidden;
-  padding-bottom: calc(var(--nav-bar-height) + 28px);
+  padding-bottom: 30px;
   transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s ease;
 }
 
@@ -133,14 +133,19 @@ body {
   transition: width 0.22s ease, opacity 0.3s ease;
 }
 
-/* ── NAVBAR SUPERIOR ── */
+/* ── NAVBAR SUPERIOR FIXA À PÁGINA (ROLA JUNTO COM A PÁGINA) ── */
 .topbar-wrapper {
-  position: sticky;
-  top: 12px;
-  z-index: 100;
-  padding: 0 20px;
-  max-width: 1440px;
-  margin: 0 auto;
+  position: relative;
+  width: 100%;
+  z-index: 900;
+  padding: 12px 24px;
+  background: rgba(10, 15, 29, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--card-border);
+}
+[data-theme="light"] .topbar-wrapper {
+  background: rgba(255, 255, 255, 0.82);
 }
 
 .topbar {
@@ -148,14 +153,13 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 58px;
-  padding: 8px 18px;
-  border-radius: var(--radius-lg);
-  background: var(--card-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--card-border);
-  box-shadow: var(--shadow-lg);
+  min-height: 54px;
+  padding: 0;
+  max-width: 1440px;
+  margin: 0 auto;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .brand-section {
@@ -256,167 +260,154 @@ body {
 .user-name { font-size: 12.5px; font-weight: 700; }
 .user-tag { font-size: 10px; color: var(--text-muted); }
 
-/* ── NOVA NAVBAR INFERIOR: DESIGN ELEGANTE COM 5 PRINCIPAIS + BOTÃO MAIS ── */
-.bottom-nav-fixed {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
+/* ── ESTRUTURA DO LAYOUT COM SIDEBAR FIXA ABERTA ── */
+.page-layout-wrapper {
   display: flex;
-  justify-content: center;
-  padding: 0 16px 12px;
-  pointer-events: none;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.native-bottom-nav {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  width: min(520px, 100%);
-  height: var(--nav-bar-height);
+.app-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 16px;
+  margin: 20px 0 20px 20px;
   background: var(--card-bg);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
-  border: 1px solid var(--card-border);
-  border-radius: 24px;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
-  padding: 4px 8px;
-}
-
-.nav-tab-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  height: 100%;
-  border: none;
-  background: transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-radius: 16px;
-  padding: 4px 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  -webkit-tap-highlight-color: transparent;
-}
-.nav-tab-item .tab-icon {
-  font-size: 20px;
-  line-height: 1;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-.nav-tab-item .tab-label {
-  font-size: 10px;
-  font-weight: 700;
-  margin-top: 3px;
-  letter-spacing: 0.3px;
-  transition: color 0.2s ease;
-}
-
-.nav-tab-item:hover {
-  color: var(--text-main);
-  background: var(--bg-subtle);
-}
-.nav-tab-item:hover .tab-icon {
-  transform: translateY(-2px);
-}
-
-.nav-tab-item.active {
-  color: var(--accent-primary);
-}
-.nav-tab-item.active .tab-icon {
-  transform: scale(1.18) translateY(-2px);
-  filter: drop-shadow(0 2px 8px var(--accent-glow));
-}
-.nav-tab-item.active .tab-label {
-  color: var(--accent-primary);
-  font-weight: 800;
-}
-.nav-tab-item.active::after {
-  content: "";
-  position: absolute;
-  bottom: 5px;
-  width: 14px;
-  height: 3px;
-  background: var(--accent-primary);
-  border-radius: 99px;
-  box-shadow: 0 0 8px var(--accent-primary);
-}
-
-/* Gaveta do Menu "Mais Categorias" */
-.more-categories-drawer {
-  position: fixed;
-  bottom: calc(var(--nav-bar-height) + 20px);
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  width: min(460px, calc(100vw - 32px));
-  background: var(--card-bg);
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--card-border);
   border-radius: var(--radius-lg);
-  padding: 16px;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
-  z-index: 1050;
-  display: none;
-  opacity: 0;
-  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-  pointer-events: auto;
-}
-.more-categories-drawer.is-open {
-  display: block;
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  padding: 16px 12px;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  z-index: 100;
 }
 
-.drawer-header {
+.sidebar-title {
+  padding: 6px 12px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--card-border);
-  margin-bottom: 12px;
 }
-.drawer-title { font-size: 13px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.6px; }
 
-.drawer-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.drawer-item {
+.sidebar-nav-list {
   display: flex;
   flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav-item {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 12px 8px;
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.16s ease;
+  width: 100%;
+  text-decoration: none;
+}
+.sidebar-nav-item .icon {
+  font-size: 17px;
+  line-height: 1;
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sidebar-nav-item:hover {
   background: var(--bg-subtle);
   color: var(--text-main);
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.15s ease;
+  border-color: var(--card-border);
 }
-.drawer-item:hover {
-  background: var(--card-hover);
-  border-color: var(--card-border-focus);
-  transform: translateY(-2px);
-}
-.drawer-item.active {
-  border-color: var(--accent-primary);
-  background: rgba(99, 102, 241, 0.12);
+.sidebar-nav-item.active {
+  background: rgba(99, 102, 241, 0.14);
   color: var(--accent-primary);
+  border-color: rgba(99, 102, 241, 0.35);
+  font-weight: 700;
 }
-.drawer-item span { font-size: 24px; margin-bottom: 4px; }
-.drawer-item strong { font-size: 11px; font-weight: 700; text-align: center; }
+.sidebar-nav-item .badge {
+  margin-left: auto;
+  font-size: 10.5px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--card-border);
+}
+.sidebar-nav-item.active .badge {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--accent-primary);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.mobile-sidebar-toggle {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 960px) {
+  .mobile-sidebar-toggle { display: inline-flex; }
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    z-index: 1200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .sidebar-backdrop.is-open { opacity: 1; pointer-events: auto; }
+  .app-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    margin: 0;
+    border-radius: 0;
+    max-height: 100vh;
+    z-index: 1250;
+    transform: translateX(-105%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .app-sidebar.is-open { transform: translateX(0); }
+}
 
 /* ── ÁREA DE CONTEÚDO PRINCIPAL ── */
 .app-container {
   max-width: 1440px;
-  margin: 20px auto;
+  margin: 20px auto 40px auto; flex: 1; min-width: 0;
   padding: 0 20px;
   position: relative;
   z-index: 1;
@@ -996,7 +987,7 @@ body {
 }
 
 @media (max-width: 768px) {
-  .topbar-wrapper { top: 8px; padding: 0 10px; }
+  .topbar-wrapper { padding: 10px 14px; }
   .topbar { padding: 8px 14px; min-height: 52px; border-radius: var(--radius-md); }
   .brand-logo { font-size: 19px; }
   .brand-logo .brand-city { font-size: 19px; }
@@ -1036,9 +1027,14 @@ body {
 <div class="topbar-wrapper">
   <header class="topbar">
 
-    <div class="brand-section" onclick="switchView('overview')">
-      <div class="brand-logo">
-        <span>painel</span><strong>ure</strong><span class="brand-city">itapeva</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button class="mobile-sidebar-toggle" onclick="toggleSidebar(true)" title="Menu de categorias">
+        <span>☰</span> <span>Menu</span>
+      </button>
+      <div class="brand-section" onclick="switchView('overview')">
+        <div class="brand-logo">
+          <span>painel</span><strong>ure</strong><span class="brand-city">itapeva</span>
+        </div>
       </div>
     </div>
 
@@ -1111,8 +1107,71 @@ body {
   </div>
 </div>
 
-<!-- ══ CONTEÚDO PRINCIPAL ══ -->
-<main class="app-container">
+<!-- ══ LAYOUT COM SIDEBAR FIXA E CONTEÚDO PRINCIPAL ══ -->
+<div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar(false)"></div>
+
+<div class="page-layout-wrapper">
+
+  <!-- BARRA LATERAL PROVISÓRIA FIXA E SEMPRE ABERTA -->
+  <aside id="appSidebar" class="app-sidebar" aria-label="Menu Lateral de Categorias">
+    <div class="sidebar-title">
+      <span>Categorias</span>
+      <button style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:14px;" class="mobile-sidebar-toggle" onclick="toggleSidebar(false)">✕</button>
+    </div>
+    <nav class="sidebar-nav-list">
+      <button class="sidebar-nav-item active" data-view="overview" onclick="switchView('overview');toggleSidebar(false);">
+        <span class="icon">📊</span>
+        <span>Painel Geral</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="network" onclick="switchView('network');toggleSidebar(false);">
+        <span class="icon">🌐</span>
+        <span>Redes &amp; Câmeras</span>
+        <span class="badge" style="background:rgba(239,68,68,0.15);color:var(--danger);border-color:rgba(239,68,68,0.3);">Ao Vivo</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="ctc" onclick="switchView('ctc');toggleSidebar(false);">
+        <span class="icon">📩</span>
+        <span>Chamados CTC</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="supervision" onclick="switchView('supervision');toggleSidebar(false);">
+        <span class="icon">🎓</span>
+        <span>Supervisão</span>
+        <span class="badge">Metas</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="schools" onclick="switchView('schools');toggleSidebar(false);">
+        <span class="icon">🏫</span>
+        <span>Escolas</span>
+        <span class="badge">21</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="fleet" onclick="switchView('fleet');toggleSidebar(false);">
+        <span class="icon">🚗</span>
+        <span>Carros Oficiais</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="directory" onclick="switchView('directory');toggleSidebar(false);">
+        <span class="icon">📞</span>
+        <span>Contatos &amp; Ramais</span>
+        <span class="badge">44</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="rede-2026" onclick="switchView('rede-2026');toggleSidebar(false);">
+        <span class="icon">📋</span>
+        <span>Redes 2026</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="inventory" onclick="switchView('inventory');toggleSidebar(false);">
+        <span class="icon">🖥️</span>
+        <span>Equipamentos</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="internal" onclick="switchView('internal');toggleSidebar(false);">
+        <span class="icon">☕</span>
+        <span>Café &amp; Rifa</span>
+      </button>
+      <button class="sidebar-nav-item" data-view="satisfaction" onclick="switchView('satisfaction');toggleSidebar(false);">
+        <span class="icon">📝</span>
+        <span>Pesquisa</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- ══ CONTEÚDO PRINCIPAL ══ -->
+  <main class="app-container">
 
   <!-- CABEÇALHO DINÂMICO -->
   <section class="page-hero">
@@ -1129,7 +1188,7 @@ body {
       <div class="shortcut-card" onclick="switchView('schools')">
         <div class="shortcut-card-top"><span class="shortcut-icon-badge">🏫</span><span class="shortcut-arrow">›</span></div>
         <strong class="shortcut-title">Escolas</strong>
-        <span class="shortcut-note">34 unidades ativas</span>
+        <span class="shortcut-note">21 unidades ativas</span>
       </div>
       <div class="shortcut-card" onclick="switchView('ctc')">
         <div class="shortcut-card-top"><span class="shortcut-icon-badge">📩</span><span class="shortcut-arrow">›</span></div>
@@ -1178,8 +1237,109 @@ body {
       </div>
     </div>
 
-    <!-- Indicadores no Dashboard -->
+    <!-- Indicadores no Dashboard com Cards de Alertas Operacionais -->
     <div class="bento-grid">
+      
+      <!-- CARD DE ALERTA 1: ZABBIX DESASTRE -->
+      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.45);background:linear-gradient(135deg, rgba(239,68,68,0.12) 0%, var(--card-bg) 100%);">
+        <div class="stat-header">
+          <span class="stat-tag" style="color:var(--danger);font-weight:800;">🚨 Zabbix: Escolas em Desastre (Queda de Link)</span>
+          <div class="stat-icon-wrap" style="background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.35);color:var(--danger);">⚠️</div>
+        </div>
+        <div class="stat-main">
+          <span class="stat-number" id="zabbixAlertCount" style="color:var(--danger);">4</span>
+          <span class="stat-badge" id="zabbixAlertBadge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">DESASTRE (Sem Ping)</span>
+        </div>
+        <div id="zabbixAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;max-height:280px;overflow-y:auto;padding-right:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Gerson de Barros</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 17:06:00 (há 25m)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Silverio Monteiro</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 02:46:07 (há 1d 14h)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Turvo dos Almeidas</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 13:51:32 (há 2d 3h)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Boa Vista Intervales</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 13:26:06 (há 2d 4h)</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;">
+          <span>Sem resposta ICMP Ping no Zabbix</span>
+          <span style="color:var(--accent-primary);font-weight:700;">Ver Monitor Ao Vivo ↗</span>
+        </div>
+      </div>
+
+      <!-- CARD DE ALERTA 2: MERAKI APS OFFLINE -->
+      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg, rgba(245,158,11,0.08) 0%, var(--card-bg) 100%);">
+        <div class="stat-header">
+          <span class="stat-tag" style="color:var(--warning);font-weight:800;">📡 Meraki: Escolas com APs Offline</span>
+          <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.18);border-color:rgba(245,158,11,0.35);color:var(--warning);">📶</div>
+        </div>
+        <div class="stat-main">
+          <span class="stat-number" id="merakiAlertCount" style="color:#f59e0b;">21</span>
+          <span class="stat-badge" id="merakiAlertBadge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">21 APs Offline na Região</span>
+        </div>
+        <div id="merakiAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;max-height:280px;overflow-y:auto;padding-right:4px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Gerson de Barros</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Turvo dos Almeidas</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Boa Vista Intervales</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">PEI EE Francelina Franco</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">2/11 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">PEI EE Cinira Daniel da Silva</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">1/8 offline</span>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;">
+          <span>Dispositivos desconectados / Total</span>
+          <span style="color:var(--accent-primary);font-weight:700;">Ver Painel Meraki ↗</span>
+        </div>
+      </div>
+
+      <!-- CARDS TRADICIONAIS DO PAINEL -->
       <div class="bento-card bento-col-3 stat-card" onclick="switchView('supervision')" style="cursor:pointer;">
         <div class="stat-header"><span class="stat-tag">Supervisores</span><div class="stat-icon-wrap">🎓</div></div>
         <div class="stat-main"><span class="stat-number">6</span><span class="stat-badge positive">Gabinete</span></div>
@@ -1217,13 +1377,39 @@ body {
     <div class="supervision-hero-banner">
       <div>
         <h2>🧭 Painel Integrado de Supervisores Educacionais</h2>
-        <p>Acompanhamento das metas pedagógicas de maio/2026, escolas atribuídas e justificativas oficiais.</p>
+        <p>Acompanhamento das metas pedagógicas, escolas atribuídas e justificativas oficiais.</p>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <button class="chip active" onclick="refreshSupervisionTable()">🔄 Sincronizar</button>
         <a class="action-pill-btn" href="https://docs.google.com/spreadsheets/d/e/2PACX-1vSkqZydw5EWNLREBCXdG-VpqcoOfuOf-AI2gYawdaeEwDNitR2m37okLvurfscimlSQMtpbHg_H_bzz/pub?output=csv" target="_blank" style="padding:6px 14px;font-size:12px;">
           📄 Planilha Oficial (CSV) ↗
         </a>
+      </div>
+    </div>
+
+    <!-- SELETOR DE MÊS BEM VISÍVEL -->
+    <div class="bento-card" style="margin-bottom:18px;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;background:linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(6,182,212,0.05) 100%);border:1px solid rgba(99,102,241,0.25);">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:22px;">📅</span>
+          <div>
+            <strong style="font-size:14px;color:var(--text-main);display:block;">Período Letivo das Metas:</strong>
+            <span style="font-size:11.5px;color:var(--text-muted);">Selecione o mês de acompanhamento das visitas</span>
+          </div>
+        </div>
+
+        <div class="sector-chips" id="supervisionMonthChips" style="margin-left:8px;">
+          <button class="chip" data-month="03" onclick="setSupervisionMonth(this, 'Março')">Março/2026</button>
+          <button class="chip" data-month="04" onclick="setSupervisionMonth(this, 'Abril')">Abril/2026</button>
+          <button class="chip active" data-month="05" onclick="setSupervisionMonth(this, 'Maio')">Maio/2026</button>
+          <button class="chip" data-month="06" onclick="setSupervisionMonth(this, 'Junho')">Junho/2026</button>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;font-weight:700;color:var(--accent-primary);background:rgba(99,102,241,0.12);padding:5px 12px;border-radius:999px;border:1px solid rgba(99,102,241,0.3);">
+          📌 Mês Ativo: <span id="activeSupervisionMonthLabel">Maio / 2026</span>
+        </span>
       </div>
     </div>
 
@@ -1410,21 +1596,8 @@ body {
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <!-- Seletor de visualização de painel -->
-          <div style="display:flex;background:var(--bg-subtle);border-radius:var(--radius-full);padding:3px;border:1px solid var(--card-border);">
-            <button class="chip active" id="btnTabZabbix" onclick="switchMonitorSource('zabbix')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
-              🔴 Zabbix (Problemas)
-            </button>
-            <button class="chip" id="btnTabMeraki" onclick="switchMonitorSource('meraki')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
-              🟢 Meraki (AP/Rede)
-            </button>
-            <button class="chip" id="btnTabBoth" onclick="switchMonitorSource('both')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
-              👥 Ambos Lado a Lado
-            </button>
-          </div>
-
           <button id="btnToggleRealtime" class="action-pill-btn" onclick="toggleRealtimeMode()" style="background:var(--accent-gradient);color:#fff;font-weight:700;padding:9px 18px;box-shadow:var(--shadow-glow);display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <span id="btnRealtimeIcon">⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (1 min)</span>
+            <span id="btnRealtimeIcon">⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (5 min)</span>
           </button>
           <button class="chip" onclick="refreshMonitorImage(true)" title="Forçar recarregamento do print">
             🔄 Atualizar Foto
@@ -1435,33 +1608,20 @@ body {
         </div>
       </div>
 
-      <!-- Container das Imagens de Monitoramento -->
+      <!-- Container da Imagem de Monitoramento Unificada -->
       <div id="monitorImageCard" style="display:grid;grid-template-columns:1fr;gap:16px;">
         
-        <!-- CARD ZABBIX -->
-        <div id="monitorZabbixBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#f87171;border:1px solid rgba(248,113,113,0.3);">
-            DASHBOARD ZABBIX
+        <!-- CARD TELA COMPLETA (ZABBIX & MERAKI) -->
+        <div id="monitorBothBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:380px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:12px;left:14px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:700;color:#38bdf8;border:1px solid rgba(56,189,248,0.3);display:flex;align-items:center;gap:6px;">
+            <span>🖥️</span> PAINEL INTEGRADO (ZABBIX &amp; MERAKI)
           </div>
-          <div id="zabbixEmptyState" style="padding:40px 20px;text-align:center;">
-            <div style="font-size:38px;margin-bottom:8px;">📊</div>
-            <h4 style="font-size:15px;font-weight:700;color:var(--text-main);">Aguardando print do Zabbix</h4>
-            <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;">O robô capturará a tela do Zabbix automaticamente.</p>
+          <div id="bothEmptyState" style="padding:50px 20px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:10px;">🖥️</div>
+            <h4 style="font-size:16px;font-weight:700;color:var(--text-main);">Aguardando print da tela</h4>
+            <p style="font-size:12.5px;color:var(--text-muted);margin:6px 0 0;">O robô na URE capturará a tela com os painéis abertos automaticamente.</p>
           </div>
-          <img id="monitorZabbixImg" src="" alt="Dashboard Zabbix" style="display:none;width:100%;height:auto;max-height:80vh;object-fit:contain;" onload="onSourceLoaded('zabbix')" onerror="onSourceError('zabbix')">
-        </div>
-
-        <!-- CARD MERAKI -->
-        <div id="monitorMerakiBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:360px;display:none;flex-direction:column;align-items:center;justify-content:center;">
-          <div style="position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#34d399;border:1px solid rgba(52,211,153,0.3);">
-            DASHBOARD MERAKI
-          </div>
-          <div id="merakiEmptyState" style="padding:40px 20px;text-align:center;">
-            <div style="font-size:38px;margin-bottom:8px;">🌐</div>
-            <h4 style="font-size:15px;font-weight:700;color:var(--text-main);">Aguardando print do Meraki</h4>
-            <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;">O robô capturará a tela do Meraki automaticamente.</p>
-          </div>
-          <img id="monitorMerakiImg" src="" alt="Dashboard Meraki" style="display:none;width:100%;height:auto;max-height:80vh;object-fit:contain;" onload="onSourceLoaded('meraki')" onerror="onSourceError('meraki')">
+          <img id="monitorBothImg" src="" alt="Tela Zabbix e Meraki" style="display:none;width:100%;height:auto;max-height:85vh;object-fit:contain;" onload="onSourceLoaded('both')" onerror="onSourceError('both')">
         </div>
 
         <!-- Indicador de Carregamento Sobreposto -->
@@ -1469,10 +1629,16 @@ body {
           <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Atualizando dashboards...
         </div>
 
-        <!-- Banner com Cronômetro quando Tempo Real está ativo -->
-        <div id="realtimeActiveBanner" style="display:none;position:fixed;bottom:24px;left:24px;background:rgba(239,68,68,0.95);backdrop-filter:blur(10px);padding:8px 18px;border-radius:999px;font-size:13px;font-weight:800;color:#fff;box-shadow:0 6px 20px rgba(239,68,68,0.5);letter-spacing:0.5px;z-index:9999;align-items:center;gap:8px;">
-          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fff;animation:pulse 1s infinite;"></span>
-          TEMPO REAL (10s) • <span id="realtimeCountdown">01:00</span>
+        <!-- Banner com Cronômetro e Próxima Atualização quando Tempo Real está ativo -->
+        <div id="realtimeActiveBanner" style="display:none;position:fixed;bottom:24px;left:24px;background:rgba(239,68,68,0.95);backdrop-filter:blur(12px);padding:10px 20px;border-radius:999px;font-size:13px;font-weight:800;color:#fff;box-shadow:0 8px 24px rgba(239,68,68,0.5);letter-spacing:0.4px;z-index:9999;align-items:center;gap:12px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#fff;animation:pulse 1s infinite;"></span>
+            <span>TEMPO REAL • <span id="realtimeCountdown">05:00</span></span>
+          </div>
+          <div style="height:14px;width:1px;background:rgba(255,255,255,0.4);"></div>
+          <div style="font-size:11.5px;font-weight:600;opacity:0.95;">
+            Próximo print em: <span id="realtimeNextTick" style="font-family:var(--font-mono);font-weight:800;font-size:12.5px;">5s</span>
+          </div>
         </div>
       </div>
 
@@ -1547,64 +1713,7 @@ body {
   </div>
 
 </main>
-
-<!-- ══ NOVA GAVETA FLUTUANTE DE MAIS CATEGORIAS ══ -->
-<div id="moreCategoriesDrawer" class="more-categories-drawer">
-  <div class="drawer-header">
-    <span class="drawer-title">Todas as Categorias</span>
-    <button style="border:none;background:transparent;color:var(--text-muted);cursor:pointer;font-size:16px;" onclick="toggleMoreCategories(false)">✕</button>
-  </div>
-  <div class="drawer-grid">
-    <button class="drawer-item" data-view="schools" onclick="switchView('schools');toggleMoreCategories(false);">
-      <span>🏫</span><strong>Escolas</strong>
-    </button>
-    <button class="drawer-item" data-view="rede-2026" onclick="switchView('rede-2026');toggleMoreCategories(false);">
-      <span>📋</span><strong>Redes 2026</strong>
-    </button>
-    <button class="drawer-item" data-view="network" onclick="switchView('network');toggleMoreCategories(false);">
-      <span>🌐</span><strong>Redes &amp; Câm.</strong>
-    </button>
-    <button class="drawer-item" data-view="inventory" onclick="switchView('inventory');toggleMoreCategories(false);">
-      <span>🖥️</span><strong>Equipamentos</strong>
-    </button>
-    <button class="drawer-item" data-view="internal" onclick="switchView('internal');toggleMoreCategories(false);">
-      <span>☕</span><strong>Café / Rifa</strong>
-    </button>
-    <button class="drawer-item" data-view="satisfaction" onclick="switchView('satisfaction');toggleMoreCategories(false);">
-      <span>📝</span><strong>Pesquisa</strong>
-    </button>
-  </div>
-</div>
-
-<!-- ══ NOVA NAVBAR INFERIOR NATIVA (5 PRINCIPAIS + BOTÃO MAIS) ══ -->
-<div class="bottom-nav-fixed">
-  <nav class="native-bottom-nav" aria-label="Navegação móvel principal">
-    <button class="nav-tab-item active" data-view="overview" onclick="switchView('overview')">
-      <span class="tab-icon">📊</span>
-      <span class="tab-label">Painel</span>
-    </button>
-    <button class="nav-tab-item" data-view="ctc" onclick="switchView('ctc')">
-      <span class="tab-icon">📩</span>
-      <span class="tab-label">Chamados</span>
-    </button>
-    <button class="nav-tab-item" data-view="supervision" onclick="switchView('supervision')">
-      <span class="tab-icon">🎓</span>
-      <span class="tab-label">Supervisão</span>
-    </button>
-    <button class="nav-tab-item" data-view="fleet" onclick="switchView('fleet')">
-      <span class="tab-icon">🚗</span>
-      <span class="tab-label">Carros</span>
-    </button>
-    <button class="nav-tab-item" data-view="directory" onclick="switchView('directory')">
-      <span class="tab-icon">📞</span>
-      <span class="tab-label">Contatos</span>
-    </button>
-    <button class="nav-tab-item" id="moreTabBtn" onclick="toggleMoreCategories()">
-      <span class="tab-icon">✨</span>
-      <span class="tab-label">Mais</span>
-    </button>
-  </nav>
-</div>
+</div><!-- Fim .page-layout-wrapper -->
 
 <!-- ══ JAVASCRIPT COMPLETO ══ -->
 <script>
@@ -1645,13 +1754,13 @@ function triggerProgressBar() {
   }, 220);
 }
 
-function toggleMoreCategories(force) {
-  const drawer = document.getElementById('moreCategoriesDrawer');
-  const btn = document.getElementById('moreTabBtn');
-  if (!drawer) return;
-  const willOpen = force !== undefined ? force : !drawer.classList.contains('is-open');
-  drawer.classList.toggle('is-open', willOpen);
-  if (btn) btn.classList.toggle('active', willOpen);
+function toggleSidebar(force) {
+  const sidebar = document.getElementById('appSidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  if (!sidebar) return;
+  const willOpen = force !== undefined ? force : !sidebar.classList.contains('is-open');
+  sidebar.classList.toggle('is-open', willOpen);
+  if (backdrop) backdrop.classList.toggle('is-open', willOpen);
 }
 
 /* ── 1. NAVEGAÇÃO DE TELAS ── */
@@ -1662,7 +1771,7 @@ const viewHeaders = {
   fleet:        { t: 'Frota Oficial URE', s: 'Agendamentos e reservas de veículos institucionais.' },
   directory:    { t: 'Lista de Ramais e Servidores', s: 'Lista telefônica e contatos de todos os setores da URE Itapeva.' },
   'rede-2026':  { t: 'Redes e Comunicados 2026', s: 'Repositório de editais, orientações técnicas e publicações oficiais.' },
-  schools:      { t: 'Rede de Escolas Estaduais', s: '34 unidades escolares, equipes gestoras, notas e contatos.' },
+  schools:      { t: 'Rede de Escolas Estaduais', s: '21 unidades escolares, equipes gestoras, notas e contatos.' },
   network:      { t: 'Infraestrutura e Videomonitoramento', s: 'Status de links Intragov, banda e funcionamento de DVRs/câmeras.' },
   inventory:    { t: 'Inventário e Equipamentos', s: 'Painel gerencial de notebooks, desktops e conectividade SETEC.' },
   internal:     { t: 'Controle Interno e Integração', s: 'Gestão da rifa, vaquinha do café e compras compartilhadas.' },
@@ -1684,21 +1793,10 @@ function switchView(viewKey, pushHash = true) {
   const target = document.getElementById('view-' + viewKey);
   if (target) target.style.display = 'block';
 
-  // Atualiza abas da bottom nav
-  document.querySelectorAll('.nav-tab-item').forEach(btn => {
+  // Atualiza itens da Sidebar Lateral
+  document.querySelectorAll('.sidebar-nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === viewKey);
   });
-
-  // Atualiza itens do drawer
-  document.querySelectorAll('.drawer-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.view === viewKey);
-  });
-
-  // Fecha o drawer de mais se trocou de view
-  const drawer = document.getElementById('moreCategoriesDrawer');
-  if (drawer && drawer.classList.contains('is-open')) {
-    toggleMoreCategories(false);
-  }
 
   // Atualiza título da hero
   const meta = viewHeaders[viewKey] || { t: 'PainelURE', s: 'DRE Itapeva' };
@@ -1770,7 +1868,47 @@ function setContactSector(btn) {
   filterContacts();
 }
 
-/* ── 3. ESCOLAS ── */
+/* Status de Conectividade Zabbix e Meraki por Escola */
+let schoolConnectivityStatus = {
+  'EE Professor Gerson de Barros Margarido': {
+    zabbix: { status: 'Desastre', time: '17:06:00', duration: '25m 39s' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'EE Professor Silverio Monteiro': {
+    zabbix: { status: 'Desastre', time: '02:46:07 (12/09)', duration: '1d 14h' },
+    meraki: { offline: 0, total: 10, hasRedDot: false }
+  },
+  'EE Bairro Turvo dos Almeidas': {
+    zabbix: { status: 'Desastre', time: '13:51:32 (11/09)', duration: '2d 3h' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'EE Bairro Boa Vista Intervales': {
+    zabbix: { status: 'Desastre', time: '13:26:06 (11/09)', duration: '2d 4h' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'PEI EE Professora Francelina Franco': {
+    zabbix: null,
+    meraki: { offline: 2, total: 11, hasRedDot: true }
+  },
+  'PEI EE Professora Cinira Daniel da Silva': {
+    zabbix: null,
+    meraki: { offline: 1, total: 8, hasRedDot: true }
+  },
+  'PEI EE Professor Jose Vasques Ferrari': {
+    zabbix: null,
+    meraki: { offline: 1, total: 13, hasRedDot: true }
+  },
+  'PEI EE Jeminiano David Muzel': {
+    zabbix: null,
+    meraki: { offline: 1, total: 10, hasRedDot: true }
+  },
+  'PEI EE Professor Joao Baptista do Amaral Vasconcellos': {
+    zabbix: null,
+    meraki: { offline: 1, total: 12, hasRedDot: true }
+  }
+};
+
+/* ── 3. ESCOLAS COM MARCAÇÕES DE DESASTRE E APS OFFLINE ── */
 function renderSchools(list) {
   const g = document.getElementById('schoolsGrid');
   if (!g) return;
@@ -1780,11 +1918,13 @@ function renderSchools(list) {
   }
   g.innerHTML = list.map(s => {
     const director = (s.director || s.viceDirector || '').split(';')[0].trim();
+    const conn = schoolConnectivityStatus[s.name] || null;
+
     return `
-    <div class="contact-card-pro">
+    <div class="contact-card-pro" style="${conn?.zabbix ? 'border-color: rgba(239,68,68,0.4);' : (conn?.meraki?.hasRedDot ? 'border-color: rgba(245,158,11,0.35);' : '')}">
       <div class="cp-top">
-        <div class="cp-avatar" style="background:rgba(6,182,212,0.1);color:var(--accent-secondary);border-color:rgba(6,182,212,0.25);">
-          ${s.initials || s.cie?.slice(0, 2) || 'EE'}
+        <div class="cp-avatar" style="background:${conn?.zabbix ? 'rgba(239,68,68,0.15)' : 'rgba(6,182,212,0.1)'};color:${conn?.zabbix ? 'var(--danger)' : 'var(--accent-secondary)'};border-color:${conn?.zabbix ? 'rgba(239,68,68,0.3)' : 'rgba(6,182,212,0.25)'};">
+          ${conn?.zabbix ? '⚠️' : (s.initials || s.cie?.slice(0, 2) || 'EE')}
         </div>
         <div class="cp-identity">
           <div class="cp-name" title="${s.name}">${s.name}</div>
@@ -1792,6 +1932,25 @@ function renderSchools(list) {
         </div>
         <span class="cp-sector-badge" style="background:rgba(16,185,129,0.1);color:var(--success);border-color:rgba(16,185,129,0.25);">Ativa</span>
       </div>
+
+      <!-- BADGES DE CONECTIVIDADE NO CARD DA ESCOLA -->
+      ${conn ? `
+      <div style="display:flex;flex-direction:column;gap:4px;background:var(--bg-subtle);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);font-size:11.5px;">
+        ${conn.zabbix ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="color:var(--danger);font-weight:700;">🚨 Zabbix Desastre:</span>
+          <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda às ${conn.zabbix.time}</span>
+        </div>` : ''}
+        ${conn.meraki ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;color:var(--text-main);">
+            ${conn.meraki.hasRedDot ? '🔴' : '🟢'} <strong>Meraki APs:</strong>
+          </span>
+          <span style="font-family:var(--font-mono);font-weight:700;color:${conn.meraki.hasRedDot ? '#fca5a5' : 'var(--success)'};">
+            ${conn.meraki.offline}/${conn.meraki.total} offline
+          </span>
+        </div>` : ''}
+      </div>` : ''}
 
       ${director ? `
       <div style="background:var(--bg-subtle);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--card-border);font-size:12px;">
@@ -1827,9 +1986,22 @@ function setSchoolCity(btn) {
 }
 
 /* ── 4. SUPERVISÃO REFINADA E PODEROSA ── */
+let currentSupervisionMonth = '05';
+let currentSupervisionMonthName = 'Maio';
+
+function setSupervisionMonth(btn, monthName) {
+  currentSupervisionMonth = btn.dataset.month || '05';
+  currentSupervisionMonthName = monthName || 'Maio';
+  document.querySelectorAll('#supervisionMonthChips .chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const lbl = document.getElementById('activeSupervisionMonthLabel');
+  if (lbl) lbl.textContent = `${currentSupervisionMonthName} / 2026`;
+  renderSupervisionTable();
+}
+
 function getSupervisorJustification(name) {
   try {
-    const draft = sessionStorage.getItem('sup_draft_' + name);
+    const draft = sessionStorage.getItem('sup_draft_' + currentSupervisionMonth + '_' + name);
     if (draft !== null) return draft;
   } catch(e) {}
   return '';
@@ -1840,7 +2012,7 @@ function saveSupervisorJustification(idx, name) {
   if (!ta) return;
   const val = ta.value.trim();
   try {
-    sessionStorage.setItem('sup_draft_' + name, val);
+    sessionStorage.setItem('sup_draft_' + currentSupervisionMonth + '_' + name, val);
   } catch(e) {}
   const st = document.querySelector(`small[data-sup-status="${idx}"]`);
   if (st) {
@@ -2131,30 +2303,76 @@ function filterRede2026() {
 /* ══════════════════════════════════════════════════════════════════════════
    MONITORAMENTO AO VIVO ZABBIX/MERAKI (ROBÔ HEADLESS & MODO TEMPO REAL)
    ══════════════════════════════════════════════════════════════════════════ */
-let monitorSubTab = 'dvrs';
 let monitorPollTimer = null;
 let monitorRealtimeRemaining = 0;
 let monitorCountdownInterval = null;
+let monitorNextTick = 5;
 
-function switchNetworkSubTab(tab) {
-  monitorSubTab = tab;
-  const btnDvrs = document.getElementById('netTabBtnDvrs');
-  const btnLive = document.getElementById('netTabBtnLive');
-  const panelDvrs = document.getElementById('netSubPanelDvrs');
-  const panelLive = document.getElementById('netSubPanelLive');
 
-  if (tab === 'live') {
-    btnDvrs?.classList.remove('active');
-    btnLive?.classList.add('active');
-    if (panelDvrs) panelDvrs.style.display = 'none';
-    if (panelLive) panelLive.style.display = 'block';
-    initLiveMonitor();
-  } else {
-    btnLive?.classList.remove('active');
-    btnDvrs?.classList.add('active');
-    if (panelLive) panelLive.style.display = 'none';
-    if (panelDvrs) panelDvrs.style.display = 'block';
-    stopLiveMonitor();
+function renderLiveAlerts(alerts) {
+  if (!alerts || typeof alerts !== 'object') return;
+  
+  // 1. Zabbix Alertas
+  if (Array.isArray(alerts.zabbix)) {
+    const zCount = document.getElementById('zabbixAlertCount');
+    const zBadge = document.getElementById('zabbixAlertBadge');
+    const zList = document.getElementById('zabbixAlertList');
+    
+    if (zCount) zCount.textContent = alerts.zabbix.length;
+    if (zBadge) zBadge.textContent = alerts.zabbix.length > 0 ? `${alerts.zabbix.length} DESASTRE(S)` : 'NORMAL';
+    
+    if (zList) {
+      if (alerts.zabbix.length === 0) {
+        zList.innerHTML = `<div style="padding:10px;text-align:center;color:var(--success);font-weight:700;background:rgba(16,185,129,0.08);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">✅ Nenhuma escola em desastre no Zabbix</div>`;
+      } else {
+        zList.innerHTML = alerts.zabbix.map(item => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);gap:8px;">
+            <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+              <span style="color:#ef4444;flex-shrink:0;">🔴</span>
+              <strong style="color:var(--text-main);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.name || ''}">${item.name || item.school || 'Escola'}</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;font-size:11px;white-space:nowrap;flex-shrink:0;">${item.time ? item.time : 'Sem Ping'}</span>
+          </div>
+        `).join('');
+      }
+    }
+  }
+
+  // 2. Meraki Alertas
+  if (Array.isArray(alerts.meraki)) {
+    const mCount = document.getElementById('merakiAlertCount');
+    const mBadge = document.getElementById('merakiAlertBadge');
+    const mList = document.getElementById('merakiAlertList');
+    
+    const offlineItems = alerts.meraki.filter(it => Number(it.offline) > 0);
+    const totalOfflineAps = alerts.meraki.reduce((sum, it) => sum + (Number(it.offline) || 0), 0);
+    
+    if (mCount) mCount.textContent = totalOfflineAps;
+    if (mBadge) mBadge.textContent = `${totalOfflineAps} APs Offline (${offlineItems.length} Escolas)`;
+    
+    if (mList) {
+      if (offlineItems.length === 0) {
+        mList.innerHTML = `<div style="padding:10px;text-align:center;color:var(--success);font-weight:700;background:rgba(16,185,129,0.08);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">✅ Todos os APs Meraki operando normalmente</div>`;
+      } else {
+        mList.innerHTML = offlineItems.map(item => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:${item.offline >= (item.total || 1) ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)'};border-radius:6px;border:1px solid ${item.offline >= (item.total || 1) ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'};">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);font-size:12px;">${item.name || item.school || 'Escola'}</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:${item.offline >= (item.total || 1) ? '#fca5a5' : '#fcd34d'};font-weight:700;font-size:11.5px;">${item.offline}/${item.total || item.offline} offline</span>
+          </div>
+        `).join('');
+      }
+    }
+  }
+
+  // 3. Atualizar status de cada escola para refletir na aba Escolas
+  if (alerts.schoolsMap && typeof alerts.schoolsMap === 'object') {
+    schoolConnectivityStatus = Object.assign({}, schoolConnectivityStatus, alerts.schoolsMap);
+    if (activeView === 'schools') {
+      filterSchools();
+    }
   }
 }
 
@@ -2186,84 +2404,19 @@ async function checkMonitorStatus() {
       setRealtimeUI(false);
     }
 
-    // Se estiver sem imagem carregada e o servidor já tem imagem
-    const img = document.getElementById('monitorLiveImg');
-    if (data.active && (!img.src || img.style.display === 'none')) {
+    // Aplica alertas dinâmicos do Zabbix e Meraki
+    if (data.alerts) {
+      renderLiveAlerts(data.alerts);
+    }
+
+    // Se estiver sem imagem carregada e o robô estiver ativo
+    const imgBoth = document.getElementById('monitorBothImg');
+    if (data.active && (!imgBoth || !imgBoth.src || imgBoth.style.display === 'none')) {
       refreshMonitorImage(false);
-    } else if (!data.active) {
-      showMonitorEmpty();
     }
   } catch (e) {
     // Falhas de rede transitórias
   }
-}
-
-let monitorCurrentSource = 'zabbix';
-
-function switchMonitorSource(source) {
-  monitorCurrentSource = source;
-  const btnZabbix = document.getElementById('btnTabZabbix');
-  const btnMeraki = document.getElementById('btnTabMeraki');
-  const btnBoth = document.getElementById('btnTabBoth');
-  const boxZabbix = document.getElementById('monitorZabbixBox');
-  const boxMeraki = document.getElementById('monitorMerakiBox');
-  const grid = document.getElementById('monitorImageCard');
-
-  [btnZabbix, btnMeraki, btnBoth].forEach(b => b?.classList.remove('active'));
-
-  if (source === 'zabbix') {
-    btnZabbix?.classList.add('active');
-    if (boxZabbix) boxZabbix.style.display = 'flex';
-    if (boxMeraki) boxMeraki.style.display = 'none';
-    if (grid) grid.style.gridTemplateColumns = '1fr';
-  } else if (source === 'meraki') {
-    btnMeraki?.classList.add('active');
-    if (boxZabbix) boxZabbix.style.display = 'none';
-    if (boxMeraki) boxMeraki.style.display = 'flex';
-    if (grid) grid.style.gridTemplateColumns = '1fr';
-  } else {
-    btnBoth?.classList.add('active');
-    if (boxZabbix) boxZabbix.style.display = 'flex';
-    if (boxMeraki) boxMeraki.style.display = 'flex';
-    if (grid) grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(500px, 1fr))';
-  }
-}
-
-async function checkMonitorStatus() {
-  try {
-    const res = await fetch('/api/monitor/status', { cache: 'no-store' });
-    if (!res.ok) return;
-    const data = await res.json();
-    
-    // Atualiza badge de robô conectado
-    const badge = document.getElementById('monitorLiveBadge');
-    if (badge) badge.style.display = data.active ? 'inline-flex' : 'none';
-
-    // Última atualização
-    const lastLbl = document.getElementById('monitorLastUpdate');
-    if (lastLbl) {
-      if (data.lastCaptureAt) {
-        const d = new Date(data.lastCaptureAt);
-        lastLbl.textContent = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR');
-      } else {
-        lastLbl.textContent = 'Nenhuma captura recebida';
-      }
-    }
-
-    // Modo Tempo Real
-    if (data.realtime && data.remainingMs > 0) {
-      setRealtimeUI(true, data.remainingMs);
-    } else {
-      setRealtimeUI(false);
-    }
-
-    // Carrega imagens se ainda não estiverem carregadas
-    const imgZ = document.getElementById('monitorZabbixImg');
-    const imgM = document.getElementById('monitorMerakiImg');
-    if (data.active && (!imgZ.src || !imgM.src)) {
-      refreshMonitorImage(false);
-    }
-  } catch (e) {}
 }
 
 function refreshMonitorImage(showLoader = true) {
@@ -2271,15 +2424,16 @@ function refreshMonitorImage(showLoader = true) {
   if (showLoader && loading) loading.style.display = 'block';
 
   const ts = Date.now();
-  const imgZ = document.getElementById('monitorZabbixImg');
-  const imgM = document.getElementById('monitorMerakiImg');
-  if (imgZ) imgZ.src = '/api/monitor/image?source=zabbix&t=' + ts;
-  if (imgM) imgM.src = '/api/monitor/image?source=meraki&t=' + ts;
+  const imgBoth = document.getElementById('monitorBothImg');
+  if (imgBoth) {
+    imgBoth.src = '/api/monitor/image?source=latest&t=' + ts;
+  }
 }
 
 function onSourceLoaded(source) {
   const empty = document.getElementById(source + 'EmptyState');
-  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
+  const imgName = source === 'zabbix' ? 'Zabbix' : (source === 'meraki' ? 'Meraki' : 'Both');
+  const img = document.getElementById('monitor' + imgName + 'Img');
   const loading = document.getElementById('monitorImgLoading');
 
   if (empty) empty.style.display = 'none';
@@ -2289,7 +2443,8 @@ function onSourceLoaded(source) {
 
 function onSourceError(source) {
   const empty = document.getElementById(source + 'EmptyState');
-  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
+  const imgName = source === 'zabbix' ? 'Zabbix' : (source === 'meraki' ? 'Meraki' : 'Both');
+  const img = document.getElementById('monitor' + imgName + 'Img');
   const loading = document.getElementById('monitorImgLoading');
 
   if (loading) loading.style.display = 'none';
@@ -2313,7 +2468,7 @@ async function toggleRealtimeMode() {
     if (res.ok) {
       const data = await res.json();
       if (data.realtime) {
-        setRealtimeUI(true, data.remainingMs || 60000);
+        setRealtimeUI(true, data.remainingMs || (5 * 60 * 1000));
         refreshMonitorImage(true);
       } else {
         setRealtimeUI(false);
@@ -2332,13 +2487,14 @@ function setRealtimeUI(active, remainingMs = 0) {
   const btnLbl = document.getElementById('btnRealtimeLabel');
   const btnIcon = document.getElementById('btnRealtimeIcon');
   const countdownLbl = document.getElementById('realtimeCountdown');
+  const nextTickLbl = document.getElementById('realtimeNextTick');
 
   if (active) {
     monitorRealtimeRemaining = remainingMs;
     if (banner) banner.style.display = 'flex';
     if (statusTag) {
       statusTag.className = 'stat-badge warning-badge';
-      statusTag.textContent = '🔴 TEMPO REAL (10s)';
+      statusTag.textContent = '🔴 TEMPO REAL (5s)';
     }
     if (btn) {
       btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
@@ -2348,8 +2504,22 @@ function setRealtimeUI(active, remainingMs = 0) {
     if (btnLbl) btnLbl.textContent = 'Desativar Tempo Real';
 
     if (!monitorCountdownInterval) {
+      monitorNextTick = 5;
+      if (nextTickLbl) nextTickLbl.textContent = '5s';
+
       monitorCountdownInterval = setInterval(() => {
         monitorRealtimeRemaining -= 1000;
+        monitorNextTick -= 1;
+
+        if (monitorNextTick <= 0) {
+          monitorNextTick = 5;
+          refreshMonitorImage(false);
+        }
+
+        if (nextTickLbl) {
+          nextTickLbl.textContent = monitorNextTick + 's';
+        }
+
         if (monitorRealtimeRemaining <= 0) {
           clearInterval(monitorCountdownInterval);
           monitorCountdownInterval = null;
@@ -2365,6 +2535,7 @@ function setRealtimeUI(active, remainingMs = 0) {
     }
   } else {
     monitorRealtimeRemaining = 0;
+    monitorNextTick = 5;
     if (monitorCountdownInterval) {
       clearInterval(monitorCountdownInterval);
       monitorCountdownInterval = null;
@@ -2379,7 +2550,7 @@ function setRealtimeUI(active, remainingMs = 0) {
       btn.style.boxShadow = 'var(--shadow-glow)';
     }
     if (btnIcon) btnIcon.textContent = '⚡';
-    if (btnLbl) btnLbl.textContent = 'Ativar Modo Tempo Real (1 min)';
+    if (btnLbl) btnLbl.textContent = 'Ativar Modo Tempo Real (5 min)';
   }
 }
 
@@ -2388,12 +2559,9 @@ function initLiveMonitor() {
   refreshMonitorImage(false);
 
   if (!monitorPollTimer) {
-    // Polling de 5s no status e refresh da imagem caso esteja em tempo real
+    // Checagem de status periódico a cada 5s
     monitorPollTimer = setInterval(() => {
       checkMonitorStatus();
-      if (monitorRealtimeRemaining > 0) {
-        refreshMonitorImage(false);
-      }
     }, 5000);
   }
 }
@@ -2544,6 +2712,8 @@ const savedView = initialHash || localStorage.getItem('painelure_active_view') |
 const validViews = ['overview', 'schools', 'ctc', 'supervision', 'fleet', 'directory', 'rede-2026', 'network', 'inventory', 'internal', 'satisfaction'];
 const targetInitial = validViews.includes(savedView) ? savedView : 'overview';
 switchView(targetInitial, false);
+checkMonitorStatus();
+setInterval(checkMonitorStatus, 5000);
 
 window.addEventListener('hashchange', () => {
   const hash = (window.location.hash || '').replace(/^#/, '');
