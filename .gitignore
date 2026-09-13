@@ -30,3 +30,7 @@ android-kotlin/app/src/main/assets/painelure/
 # Local Android validation screenshots/build snapshots
 /android-*.png
 android-kotlin/build-output-v*/
+
+# Headless Monitor Agent local data and credentials
+painelure-agent/.browser_data/
+painelure-agent/config.json

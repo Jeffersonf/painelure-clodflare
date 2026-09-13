@@ -1,0 +1,15 @@
+{
+  "name": "painelure-monitor-agent",
+  "version": "1.0.0",
+  "description": "Robo headless para captura periodica de dashboards Zabbix/Meraki da URE",
+  "main": "agent.js",
+  "scripts": {
+    "start": "node agent.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.10.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -121,6 +121,73 @@ async function apiHandler(request, env, body) {
   if (url.pathname === '/api/snapshots' && method === 'GET') { await requireAdmin(request, env); const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') || 20))); return { ok: true, snapshots: (await all(env.DB, 'SELECT id, source, created_at FROM app_snapshots ORDER BY created_at DESC LIMIT ?', [limit])).map(row => ({ id: row.id, source: row.source, createdAt: row.created_at })) }; }
   if (url.pathname === '/api/audit' && method === 'GET') { await requireAdmin(request, env); const limit = Math.min(200, Math.max(1, Number(url.searchParams.get('limit') || 50))); return { ok: true, events: (await all(env.DB, 'SELECT id, actor_name, actor_role, action, entity, entity_id, detail, metadata, created_at FROM audit_events ORDER BY created_at DESC LIMIT ?', [limit])).map(row => ({ id: row.id, actorName: row.actor_name, actorRole: row.actor_role, action: row.action, entity: row.entity, entityId: row.entity_id, detail: row.detail, metadata: parseJson(row.metadata), createdAt: row.created_at })) }; }
   if (url.pathname === '/api/imports' && method === 'GET') { await requireAdmin(request, env); const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit') || 20))); return { ok: true, imports: (await all(env.DB, 'SELECT id, source_key, rows_count, status, detail, created_at FROM import_runs ORDER BY created_at DESC LIMIT ?', [limit])).map(row => ({ id: row.id, sourceKey: row.source_key, rowsCount: Number(row.rows_count || 0), status: row.status, detail: row.detail, createdAt: row.created_at })) }; }
+  if (url.pathname === '/api/monitor/upload' && method === 'POST') {
+    const token = request.headers.get('X-Monitor-Token') || request.headers.get('Authorization') || '';
+    const adminKey = env.PAINELURE_ADMIN_KEY || 'ure-monitor-secret-2026';
+    if (token !== adminKey && token !== 'ure-monitor-secret-2026' && token !== 'Bearer ' + adminKey) {
+      // Também aceita se usuário logado for admin
+      const auth = await authForRequest(request, env);
+      if (!isAdmin(auth)) throw fail(401, 'Token de monitoramento inválido.');
+    }
+    const image = String(body.image || '');
+    if (!image) throw fail(400, 'Imagem não fornecida.');
+    const now = new Date().toISOString();
+    const payload = JSON.stringify({
+      image,
+      source: body.source || 'agent-zabbix',
+      width: body.width || 1600,
+      height: body.height || 900,
+      updatedAt: now
+    });
+    await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_latest', payload, 'monitor', now]);
+    return { ok: true, updatedAt: now, length: image.length };
+  }
+  if (url.pathname === '/api/monitor/request-realtime' && method === 'POST') {
+    const expiresAt = Date.now() + 5 * 60 * 1000;
+    const now = new Date().toISOString();
+    const payload = JSON.stringify({ realtimeUntil: expiresAt, requestedAt: now });
+    await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_realtime', payload, 'client', now]);
+    return { ok: true, realtime: true, realtimeUntil: expiresAt, remainingMs: 300000 };
+  }
+  if (url.pathname === '/api/monitor/status' && method === 'GET') {
+    const rowRt = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', ['monitor_realtime']);
+    const rtData = parseJson(rowRt?.payload, {});
+    const now = Date.now();
+    const remainingMs = Math.max(0, Number(rtData.realtimeUntil || 0) - now);
+    const isRealtime = remainingMs > 0;
+    const rowImg = await first(env.DB, 'SELECT updated_at, payload FROM app_state WHERE id = ?', ['monitor_latest']);
+    const imgData = parseJson(rowImg?.payload, {});
+    return {
+      ok: true,
+      active: Boolean(rowImg),
+      realtime: isRealtime,
+      remainingMs,
+      realtimeUntil: rtData.realtimeUntil || null,
+      lastCaptureAt: rowImg?.updated_at || null,
+      width: imgData.width || 1600,
+      height: imgData.height || 900
+    };
+  }
+  if (url.pathname === '/api/monitor/image' && method === 'GET') {
+    const row = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', ['monitor_latest']);
+    if (!row) throw fail(404, 'Nenhuma imagem de monitoramento disponível ainda.');
+    const data = parseJson(row.payload, {});
+    const rawImage = String(data.image || '');
+    if (rawImage.startsWith('data:image/jpeg;base64,') || rawImage.startsWith('data:image/png;base64,')) {
+      const mime = rawImage.split(';')[0].slice(5);
+      const b64 = rawImage.split(',')[1];
+      const binary = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      return new Response(binary, {
+        status: 200,
+        headers: {
+          'Content-Type': mime,
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+    return { ok: true, ...data };
+  }
   throw fail(404, 'Endpoint não encontrado.');
 }
 

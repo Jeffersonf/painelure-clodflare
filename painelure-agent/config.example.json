@@ -1,0 +1,24 @@
+{
+  "serverUrl": "https://painelure-cloudflare-pages.pages.dev",
+  "agentSecretToken": "ure-monitor-secret-2026",
+  "dashboardUrl": "http://10.x.x.x/zabbix/zabbix.php?action=dashboard.view",
+  "loginUrl": "http://10.x.x.x/zabbix/index.php",
+  "auth": {
+    "enabled": true,
+    "userInputSelector": "input[name='name']",
+    "passwordInputSelector": "input[name='password']",
+    "submitButtonSelector": "button[type='submit']",
+    "username": "Admin",
+    "password": ""
+  },
+  "viewport": {
+    "width": 1600,
+    "height": 900
+  },
+  "intervals": {
+    "checkRealtimePollMs": 5000,
+    "normalCaptureMs": 3600000,
+    "realtimeCaptureMs": 10000
+  },
+  "jpegQuality": 75
+}

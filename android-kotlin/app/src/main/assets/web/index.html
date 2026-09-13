@@ -1387,34 +1387,109 @@ body {
     <div class="contacts-grid" id="schoolsGrid"></div>
   </div>
 
-  <!-- ── 8. REDES & CÂMERAS ── -->
+  <!-- ── 8. REDES & CÂMERAS (COM MONITOR AO VIVO ZABBIX/MERAKI) ── -->
   <div id="view-network" class="view-panel" style="display:none;">
-    <div class="directory-toolbar">
-      <div class="dir-search-box">
-        <span style="color:var(--text-muted);">🔍</span>
-        <input type="text" id="networkSearch" placeholder="Buscar por unidade, tecnologia ou status de DVR..." oninput="filterNetwork()">
+
+    <!-- Seletor de Sub-abas da Rede -->
+    <div style="display:flex;gap:10px;margin-bottom:18px;border-bottom:1px solid var(--card-border);padding-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+      <div style="display:flex;gap:8px;">
+        <button class="chip active" id="netTabBtnDvrs" onclick="switchNetworkSubTab('dvrs')">📡 DVRs &amp; Links Escolas</button>
+        <button class="chip" id="netTabBtnLive" onclick="switchNetworkSubTab('live')">🖥️ Monitor Ao Vivo (Zabbix/Meraki)</button>
       </div>
-      <div class="sector-chips">
-        <button class="chip active" data-net="" onclick="setNetStatusFilter(this)">Todas as Unidades</button>
-        <button class="chip" data-net="ok" onclick="setNetStatusFilter(this)">✅ Câmeras OK</button>
-        <button class="chip" data-net="warn" onclick="setNetStatusFilter(this)">⚠️ Em Manutenção</button>
-      </div>
-    </div>
-    <div class="bento-card" style="padding:0;overflow:hidden;">
-      <div class="table-wrap">
-        <table class="obsidian-table">
-          <thead>
-            <tr>
-              <th>Unidade Escolar</th>
-              <th style="width:140px;">Banda / CIE</th>
-              <th>Status do DVR &amp; Câmeras</th>
-              <th style="width:110px;text-align:center;">Situação</th>
-            </tr>
-          </thead>
-          <tbody id="networkTableBody"></tbody>
-        </table>
+      <div id="monitorLiveBadge" style="display:none;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px;background:rgba(16,185,129,0.15);color:var(--success);border:1px solid rgba(16,185,129,0.3);">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success);animation:pulse 2s infinite;"></span>
+        Robô Conectado
       </div>
     </div>
+
+    <!-- SUB-ABA 1: DVRs e Links das Escolas -->
+    <div id="netSubPanelDvrs">
+      <div class="directory-toolbar">
+        <div class="dir-search-box">
+          <span style="color:var(--text-muted);">🔍</span>
+          <input type="text" id="networkSearch" placeholder="Buscar por unidade, tecnologia ou status de DVR..." oninput="filterNetwork()">
+        </div>
+        <div class="sector-chips">
+          <button class="chip active" data-net="" onclick="setNetStatusFilter(this)">Todas as Unidades</button>
+          <button class="chip" data-net="ok" onclick="setNetStatusFilter(this)">✅ Câmeras OK</button>
+          <button class="chip" data-net="warn" onclick="setNetStatusFilter(this)">⚠️ Em Manutenção</button>
+        </div>
+      </div>
+      <div class="bento-card" style="padding:0;overflow:hidden;">
+        <div class="table-wrap">
+          <table class="obsidian-table">
+            <thead>
+              <tr>
+                <th>Unidade Escolar</th>
+                <th style="width:140px;">Banda / CIE</th>
+                <th>Status do DVR &amp; Câmeras</th>
+                <th style="width:110px;text-align:center;">Situação</th>
+              </tr>
+            </thead>
+            <tbody id="networkTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-ABA 2: Monitor Zabbix / Meraki Headless com Modo Tempo Real -->
+    <div id="netSubPanelLive" style="display:none;">
+      
+      <!-- Card de Controle e Status do Monitoramento -->
+      <div class="bento-card" style="margin-bottom:18px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <strong style="font-size:16px;color:var(--text-main);">Painel do Zabbix &amp; Meraki URE</strong>
+            <span id="monitorStatusTag" class="stat-badge neutral">MODO NORMAL (A CADA 1H)</span>
+          </div>
+          <p style="font-size:12.5px;color:var(--text-muted);margin-top:4px;">
+            Captura automática gerada pelo robô do PC interno da URE. Última foto: <span id="monitorLastUpdate" style="font-family:var(--font-mono);font-weight:700;color:var(--text-main);">Verificando...</span>
+          </p>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button id="btnToggleRealtime" class="action-pill-btn" onclick="activateRealtimeMode()" style="background:var(--accent-gradient);color:#fff;font-weight:700;padding:9px 18px;box-shadow:var(--shadow-glow);display:flex;align-items:center;gap:8px;">
+            <span>⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (5 min)</span>
+          </button>
+          <button class="chip" onclick="refreshMonitorImage(true)" title="Forçar recarregamento do print">
+            🔄 Atualizar Foto
+          </button>
+          <button class="chip" onclick="toggleFullscreenMonitor()" title="Tela Cheia">
+            ⛶ Expandir
+          </button>
+        </div>
+      </div>
+
+      <!-- Container do Print com Zoom e Moldura Elegante -->
+      <div class="bento-card" id="monitorImageCard" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+        
+        <!-- Alerta quando ainda não há captura -->
+        <div id="monitorEmptyState" style="display:none;padding:40px 20px;text-align:center;">
+          <div style="font-size:44px;margin-bottom:12px;">🖥️</div>
+          <h3 style="font-size:16px;font-weight:700;color:var(--text-main);">Aguardando primeira captura do robô</h3>
+          <p style="font-size:13px;color:var(--text-muted);max-width:540px;margin:8px auto 16px;">
+            Inicie o <code>iniciar-monitor.bat</code> no computador da rede interna da URE para que os prints do dashboard apareçam aqui automaticamente.
+          </p>
+          <span style="font-size:11.5px;color:var(--accent-primary);font-family:var(--font-mono);">Endpoint: /api/monitor/upload</span>
+        </div>
+
+        <!-- Imagem de Monitoramento -->
+        <img id="monitorLiveImg" src="" alt="Dashboard Zabbix/Meraki da URE" style="display:none;width:100%;height:auto;max-height:85vh;object-fit:contain;border-radius:inherit;" onload="onMonitorImageLoaded()" onerror="onMonitorImageError()">
+        
+        <!-- Indicador de Carregamento Sobreposto -->
+        <div id="monitorImgLoading" style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.15);display:none;">
+          <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Atualizando...
+        </div>
+
+        <!-- Banner com Cronômetro quando Tempo Real está ativo -->
+        <div id="realtimeActiveBanner" style="display:none;position:absolute;top:14px;left:14px;background:rgba(239,68,68,0.9);backdrop-filter:blur(8px);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800;color:#fff;box-shadow:0 4px 14px rgba(239,68,68,0.4);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1s infinite;"></span>
+          TEMPO REAL (10s) • <span id="realtimeCountdown">05:00</span>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   <!-- ── 9. EQUIPAMENTOS ── -->

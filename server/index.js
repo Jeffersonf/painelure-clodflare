@@ -1827,6 +1827,85 @@ async function handleApi(req, res, pathname) {
     return;
   }
 
+  let monitorState = {
+    latestImage: null,
+    latestImageUpdatedAt: null,
+    realtimeUntil: 0
+  };
+
+  if (req.method === "POST" && pathname === "/api/monitor/upload") {
+    const token = req.headers["x-monitor-token"] || req.headers["authorization"] || "";
+    const adminKey = ADMIN_KEY || "ure-monitor-secret-2026";
+    if (token !== adminKey && token !== "ure-monitor-secret-2026" && token !== "Bearer " + adminKey) {
+      if (!currentSession(req)) {
+        send(res, 401, { ok: false, error: "Token de monitoramento invalido." });
+        return;
+      }
+    }
+    const body = JSON.parse(await readBody(req) || "{}");
+    const image = String(body.image || "");
+    if (!image) {
+      send(res, 400, { ok: false, error: "Imagem nao fornecida." });
+      return;
+    }
+    const now = new Date().toISOString();
+    monitorState.latestImage = {
+      image,
+      source: body.source || "agent-zabbix",
+      width: body.width || 1600,
+      height: body.height || 900,
+      updatedAt: now
+    };
+    monitorState.latestImageUpdatedAt = now;
+    send(res, 200, { ok: true, updatedAt: now, length: image.length });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/monitor/request-realtime") {
+    const expiresAt = Date.now() + 5 * 60 * 1000;
+    monitorState.realtimeUntil = expiresAt;
+    send(res, 200, { ok: true, realtime: true, realtimeUntil: expiresAt, remainingMs: 300000 });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/monitor/status") {
+    const now = Date.now();
+    const remainingMs = Math.max(0, monitorState.realtimeUntil - now);
+    send(res, 200, {
+      ok: true,
+      active: Boolean(monitorState.latestImage),
+      realtime: remainingMs > 0,
+      remainingMs,
+      realtimeUntil: monitorState.realtimeUntil || null,
+      lastCaptureAt: monitorState.latestImageUpdatedAt || null,
+      width: monitorState.latestImage?.width || 1600,
+      height: monitorState.latestImage?.height || 900
+    });
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/monitor/image") {
+    if (!monitorState.latestImage) {
+      send(res, 404, { ok: false, error: "Nenhuma imagem de monitoramento disponivel ainda." });
+      return;
+    }
+    const rawImage = String(monitorState.latestImage.image || "");
+    if (rawImage.startsWith("data:image/jpeg;base64,") || rawImage.startsWith("data:image/png;base64,")) {
+      const mime = rawImage.split(";")[0].slice(5);
+      const b64 = rawImage.split(",")[1];
+      const buffer = Buffer.from(b64, "base64");
+      res.writeHead(200, {
+        "Content-Type": mime,
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        "Access-Control-Allow-Origin": "*"
+      });
+      res.end(buffer);
+      return;
+    }
+    send(res, 200, { ok: true, ...monitorState.latestImage });
+    return;
+  }
+
   if (req.method === "PUT" && pathname === "/api/internal") {
     if (!requireInternalWriter(req, res)) return;
     const body = JSON.parse(await readBody(req) || "{}");
