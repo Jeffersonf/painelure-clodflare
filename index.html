@@ -1650,9 +1650,15 @@ const viewHeaders = {
   satisfaction: { t: 'Pesquisa de Satisfação Presencial', s: 'Métricas e avaliação do atendimento ao público na diretoria.' }
 };
 
-function switchView(viewKey) {
+function switchView(viewKey, pushHash = true) {
   triggerProgressBar();
   activeView = viewKey;
+  try {
+    localStorage.setItem('painelure_active_view', viewKey);
+    if (pushHash && window.location.hash !== '#' + viewKey) {
+      history.replaceState(null, '', '#' + viewKey);
+    }
+  } catch(e) {}
 
   // Atualiza painéis visíveis
   document.querySelectorAll('.view-panel').forEach(el => el.style.display = 'none');
@@ -2220,7 +2226,20 @@ if (savedTheme) {
   if (icon) icon.textContent = savedTheme === 'light' ? '☀️' : '🌙';
 }
 applySessionUI(getActiveSession());
-switchView('overview');
+
+// Restaura a view atual pela URL (#network, etc.) ou memória local
+const initialHash = (window.location.hash || '').replace(/^#/, '');
+const savedView = initialHash || localStorage.getItem('painelure_active_view') || 'overview';
+const validViews = ['overview', 'schools', 'ctc', 'supervision', 'fleet', 'directory', 'rede-2026', 'network', 'inventory', 'internal', 'satisfaction'];
+const targetInitial = validViews.includes(savedView) ? savedView : 'overview';
+switchView(targetInitial, false);
+
+window.addEventListener('hashchange', () => {
+  const hash = (window.location.hash || '').replace(/^#/, '');
+  if (hash && validViews.includes(hash) && hash !== activeView) {
+    switchView(hash, false);
+  }
+});
 </script>
 
 </body>
