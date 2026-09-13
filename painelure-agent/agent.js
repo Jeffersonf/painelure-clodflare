@@ -62,12 +62,16 @@ async function captureUrl(browser, url, sourceName) {
     page = await browser.newPage();
     await page.setViewport({ width: 1600, height: 900 });
     
-    // Navega sem travar se algum recurso ficar pendente
-    await page.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(e => {
-      console.warn(`[AGENT] ${sourceName} carregado com aviso: ${e.message}`);
-    });
+    // Timeout curto de 15s para nao travar
+    await Promise.race([
+      page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }),
+      new Promise(r => setTimeout(r, 8000))
+    ]).catch(e => console.log(`[AGENT] Info: ${e.message}`));
 
-    console.log(`[AGENT] Capturando screenshot de ${sourceName}...`);
+    // Aguarda 3 segundos para renderizar o layout
+    await new Promise(r => setTimeout(r, 3000));
+
+    console.log(`[AGENT] Tirando print de ${sourceName}...`);
     const buffer = await page.screenshot({ type: 'jpeg', quality: config.jpegQuality || 75 });
     await sendToServer(buffer, sourceName);
   } catch (err) {
@@ -81,18 +85,24 @@ async function doCaptures() {
   if (isBusy) return;
   isBusy = true;
   let browser = null;
+  const tempProfile = path.join(require('os').tmpdir(), 'chrome-monitor-profile-' + Date.now());
+
   try {
     const executablePath = getChromePath();
-    console.log('[AGENT] Abrindo navegador Chrome (' + (executablePath || 'padrao') + ')...');
+    console.log('[AGENT] Iniciando navegador Chrome rápido...');
+    
     browser = await puppeteer.launch({
       executablePath,
-      headless: 'new',
+      headless: true,
       ignoreHTTPSErrors: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--disable-extensions',
+        '--disable-background-networking',
+        `--user-data-dir=${tempProfile}`,
         '--window-size=1600,900'
       ]
     });
@@ -104,6 +114,7 @@ async function doCaptures() {
     console.error('[AGENT] Erro no navegador:', e.message);
   } finally {
     if (browser) await browser.close().catch(() => {});
+    try { fs.rmSync(tempProfile, { recursive: true, force: true }); } catch (e) {}
     isBusy = false;
   }
 }
