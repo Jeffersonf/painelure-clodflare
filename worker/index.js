@@ -142,6 +142,10 @@ async function apiHandler(request, env, body) {
     const sourceKey = body.source === 'meraki' ? 'monitor_meraki' : (body.source === 'zabbix' ? 'monitor_zabbix' : 'monitor_latest');
     await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', [sourceKey, payload, 'monitor', now]);
     await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_latest', payload, 'monitor', now]);
+    if (body.alerts && typeof body.alerts === 'object') {
+      const alertsPayload = JSON.stringify(body.alerts);
+      await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_alerts', alertsPayload, 'monitor', now]);
+    }
     return { ok: true, source: body.source, updatedAt: now, length: image.length };
   }
   if (url.pathname === '/api/monitor/request-realtime' && method === 'POST') {
@@ -169,6 +173,8 @@ async function apiHandler(request, env, body) {
     const rowMeraki = await first(env.DB, 'SELECT updated_at FROM app_state WHERE id = ?', ['monitor_meraki']);
     const rowLatest = await first(env.DB, 'SELECT updated_at, payload FROM app_state WHERE id = ?', ['monitor_latest']);
     const imgData = parseJson(rowLatest?.payload, {});
+    const rowAlerts = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_alerts']);
+    const alertsData = parseJson(rowAlerts?.payload, null);
     return {
       ok: true,
       active: Boolean(rowLatest || rowZabbix || rowMeraki),
@@ -180,6 +186,8 @@ async function apiHandler(request, env, body) {
       remainingMs,
       realtimeUntil: rtData.realtimeUntil || null,
       lastCaptureAt: rowLatest?.updated_at || null,
+      alerts: alertsData,
+      alertsUpdatedAt: rowAlerts?.updated_at || null,
       width: imgData.width || 1600,
       height: imgData.height || 900
     };
