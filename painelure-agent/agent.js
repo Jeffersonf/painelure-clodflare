@@ -1,6 +1,6 @@
 /**
- * PainelURE Dual Monitor Agent (Meraki + Zabbix)
- * Captura as telas dos dashboards e envia para o PainelURE.
+ * PainelURE Monitor Agent
+ * Captura Zabbix e Meraki de forma confiavel e rapida.
  */
 
 const fs = require('fs');
@@ -10,103 +10,86 @@ const puppeteer = require('puppeteer');
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 
-let browser = null;
-let pageZabbix = null;
-let pageMeraki = null;
 let isRealtimeActive = false;
 let lastCaptureTime = 0;
-let isCapturing = false;
+let isBusy = false;
 
-async function initBrowser() {
-  console.log('[AGENT] Iniciando navegador...');
-  
-  // Opções leves sem travar em userDataDir
-  browser = await puppeteer.launch({
-    headless: 'new',
-    ignoreHTTPSErrors: true,
-    timeout: 60000,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
-      '--disable-extensions',
-      '--no-first-run',
-      '--window-size=1600,900'
-    ]
+async function sendToServer(buffer, sourceName) {
+  const base64Image = buffer.toString('base64');
+  const payload = {
+    image: 'data:image/jpeg;base64,' + base64Image,
+    source: sourceName,
+    timestamp: new Date().toISOString()
+  };
+
+  const uploadUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/upload';
+  const res = await fetch(uploadUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Monitor-Token': config.agentSecretToken || ''
+    },
+    body: JSON.stringify(payload)
   });
 
-  const zUrl = String(config.zabbixUrl || '').trim();
-  const mUrl = String(config.merakiUrl || '').trim();
-
-  if (zUrl) {
-    console.log('[AGENT] Abrindo aba Zabbix...');
-    pageZabbix = await browser.newPage();
-    await pageZabbix.setViewport({ width: 1600, height: 900 });
-    pageZabbix.goto(zUrl, { timeout: 30000 }).catch(e => console.warn('[AGENT] Zabbix:', e.message));
+  if (res.ok) {
+    const sizeKb = (buffer.length / 1024).toFixed(1);
+    const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
+    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
+  } else {
+    console.error('[AGENT] Erro servidor:', res.status, await res.text());
   }
-
-  if (mUrl) {
-    console.log('[AGENT] Abrindo aba Meraki...');
-    pageMeraki = await browser.newPage();
-    await pageMeraki.setViewport({ width: 1600, height: 900 });
-    pageMeraki.goto(mUrl, { timeout: 30000 }).catch(e => console.warn('[AGENT] Meraki:', e.message));
-  }
-
-  // Espera 5 segundos para renderizar a primeira tela
-  console.log('[AGENT] Aguardando renderizacao inicial (5s)...');
-  await new Promise(r => setTimeout(r, 5000));
 }
 
-async function captureAndSend(page, sourceName) {
-  if (!page || page.isClosed()) return;
+async function captureUrl(browser, url, sourceName) {
+  if (!url) return;
+  console.log(`[AGENT] Capturando ${sourceName}...`);
+  let page = null;
   try {
-    const screenshotBuffer = await page.screenshot({
-      type: 'jpeg',
-      quality: config.jpegQuality || 75
+    page = await browser.newPage();
+    await page.setViewport({ width: 1600, height: 900 });
+    await page.goto(url, { waitUntil: 'networkidle0', timeout: 20000 }).catch(e => {
+      console.warn(`[AGENT] Aviso ao carregar ${sourceName}: ${e.message}`);
     });
+    
+    // Pequena pausa para os graficos renderizarem
+    await new Promise(r => setTimeout(r, 2000));
 
-    const base64Image = screenshotBuffer.toString('base64');
-    const payload = {
-      image: 'data:image/jpeg;base64,' + base64Image,
-      source: sourceName,
-      timestamp: new Date().toISOString()
-    };
-
-    const uploadUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/upload';
-    const res = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Monitor-Token': config.agentSecretToken || ''
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      const sizeKb = (screenshotBuffer.length / 1024).toFixed(1);
-      const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
-      console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
-    } else {
-      console.error('[AGENT] Resposta servidor:', res.status, await res.text());
-    }
+    const buffer = await page.screenshot({ type: 'jpeg', quality: config.jpegQuality || 75 });
+    await sendToServer(buffer, sourceName);
   } catch (err) {
-    console.error(`[AGENT] Erro ao capturar ${sourceName}:`, err.message);
+    console.error(`[AGENT] Falha em ${sourceName}:`, err.message);
+  } finally {
+    if (page) await page.close().catch(() => {});
   }
 }
 
 async function doCaptures() {
-  if (isCapturing) return;
-  isCapturing = true;
+  if (isBusy) return;
+  isBusy = true;
+  let browser = null;
   try {
-    if (!browser) await initBrowser();
-    if (pageZabbix) await captureAndSend(pageZabbix, 'zabbix');
-    if (pageMeraki) await captureAndSend(pageMeraki, 'meraki');
+    console.log('[AGENT] Iniciando Chromium para captura...');
+    browser = await puppeteer.launch({
+      headless: 'new',
+      ignoreHTTPSErrors: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--window-size=1600,900'
+      ]
+    });
+
+    if (config.zabbixUrl) await captureUrl(browser, config.zabbixUrl, 'zabbix');
+    if (config.merakiUrl) await captureUrl(browser, config.merakiUrl, 'meraki');
     lastCaptureTime = Date.now();
-  } catch (err) {
-    console.error('[AGENT] Erro geral:', err.message);
+  } catch (e) {
+    console.error('[AGENT] Erro no ciclo de captura:', e.message);
   } finally {
-    isCapturing = false;
+    if (browser) await browser.close().catch(() => {});
+    isBusy = false;
   }
 }
 
@@ -129,7 +112,7 @@ async function main() {
   console.log('==================================================');
   console.log('   PainelURE Monitor Zabbix & Meraki Ativo        ');
   console.log('==================================================');
-  await initBrowser();
+  
   await doCaptures();
 
   setInterval(pollServer, config.intervals?.checkRealtimePollMs || 5000);
