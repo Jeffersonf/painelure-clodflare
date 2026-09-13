@@ -96,18 +96,18 @@ try {
 async function doCaptures() {
   if (isBusy) return;
   isBusy = true;
+  let browser = null;
 
   try {
     const executablePath = getChromePath();
-    console.log('[AGENT] Acessando Zabbix e Meraki em segundo plano (invisível)...');
+    console.log('[AGENT] Iniciando Chrome em segundo plano...');
     
-    // Perfil dedicado e persistente para guardar cookies/sessão das contas
     const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
     if (!fs.existsSync(dedicatedProfile)) {
       fs.mkdirSync(dedicatedProfile, { recursive: true });
     }
 
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       executablePath,
       headless: 'new',
       ignoreHTTPSErrors: true,
@@ -122,21 +122,25 @@ async function doCaptures() {
       ]
     });
 
-    // Captura separada do Zabbix
+    // 1. Zabbix
     if (config.zabbixUrl) {
+      console.log('[AGENT] [1/2] Capturando Zabbix...');
       await captureUrl(browser, config.zabbixUrl, 'zabbix');
     }
 
-    // Captura separada do Meraki
+    // 2. Meraki
     if (config.merakiUrl) {
+      console.log('[AGENT] [2/2] Capturando Meraki...');
       await captureUrl(browser, config.merakiUrl, 'meraki');
     }
 
     lastCaptureTime = Date.now();
-    await browser.close().catch(() => {});
   } catch (e) {
     console.error('[AGENT] Erro na captura:', e.message);
   } finally {
+    if (browser) {
+      try { await browser.close(); } catch (e) {}
+    }
     isBusy = false;
   }
 }
