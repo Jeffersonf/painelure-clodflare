@@ -1410,8 +1410,8 @@ body {
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <button id="btnToggleRealtime" class="action-pill-btn" onclick="activateRealtimeMode()" style="background:var(--accent-gradient);color:#fff;font-weight:700;padding:9px 18px;box-shadow:var(--shadow-glow);display:flex;align-items:center;gap:8px;">
-            <span>⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (5 min)</span>
+          <button id="btnToggleRealtime" class="action-pill-btn" onclick="toggleRealtimeMode()" style="background:var(--accent-gradient);color:#fff;font-weight:700;padding:9px 18px;box-shadow:var(--shadow-glow);display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <span id="btnRealtimeIcon">⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (1 min)</span>
           </button>
           <button class="chip" onclick="refreshMonitorImage(true)" title="Forçar recarregamento do print">
             🔄 Atualizar Foto
@@ -2204,32 +2204,40 @@ function showMonitorEmpty() {
   if (img) img.style.display = 'none';
 }
 
-async function activateRealtimeMode() {
+async function toggleRealtimeMode() {
   const btn = document.getElementById('btnToggleRealtime');
   const lbl = document.getElementById('btnRealtimeLabel');
-  if (lbl) lbl.textContent = 'Ativando...';
+  const isCurrentlyActive = monitorRealtimeRemaining > 0;
+  
+  if (lbl) lbl.textContent = isCurrentlyActive ? 'Desativando...' : 'Ativando...';
 
   try {
     const res = await fetch('/api/monitor/request-realtime', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: isCurrentlyActive ? 'stop' : 'start' })
     });
     if (res.ok) {
       const data = await res.json();
-      setRealtimeUI(true, data.remainingMs || 300000);
-      refreshMonitorImage(true);
+      if (data.realtime) {
+        setRealtimeUI(true, data.remainingMs || 60000);
+        refreshMonitorImage(true);
+      } else {
+        setRealtimeUI(false);
+      }
     }
   } catch (err) {
-    alert('Não foi possível ativar o modo tempo real: ' + err.message);
-  } finally {
-    if (lbl && !monitorRealtimeRemaining) lbl.textContent = 'Ativar Modo Tempo Real (5 min)';
+    alert('Erro ao alternar modo tempo real: ' + err.message);
+    setRealtimeUI(isCurrentlyActive, monitorRealtimeRemaining);
   }
 }
 
 function setRealtimeUI(active, remainingMs = 0) {
   const banner = document.getElementById('realtimeActiveBanner');
   const statusTag = document.getElementById('monitorStatusTag');
+  const btn = document.getElementById('btnToggleRealtime');
   const btnLbl = document.getElementById('btnRealtimeLabel');
+  const btnIcon = document.getElementById('btnRealtimeIcon');
   const countdownLbl = document.getElementById('realtimeCountdown');
 
   if (active) {
@@ -2237,9 +2245,14 @@ function setRealtimeUI(active, remainingMs = 0) {
     if (banner) banner.style.display = 'flex';
     if (statusTag) {
       statusTag.className = 'stat-badge warning-badge';
-      statusTag.textContent = '🔴 TEMPO REAL ATIVO (A CADA 10S)';
+      statusTag.textContent = '🔴 TEMPO REAL (10s)';
     }
-    if (btnLbl) btnLbl.textContent = 'Modo Tempo Real Ativo';
+    if (btn) {
+      btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      btn.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.45)';
+    }
+    if (btnIcon) btnIcon.textContent = '⏹️';
+    if (btnLbl) btnLbl.textContent = 'Desativar Tempo Real';
 
     if (!monitorCountdownInterval) {
       monitorCountdownInterval = setInterval(() => {
@@ -2268,7 +2281,12 @@ function setRealtimeUI(active, remainingMs = 0) {
       statusTag.className = 'stat-badge neutral';
       statusTag.textContent = 'MODO NORMAL (A CADA 1H)';
     }
-    if (btnLbl) btnLbl.textContent = 'Ativar Modo Tempo Real (5 min)';
+    if (btn) {
+      btn.style.background = 'var(--accent-gradient)';
+      btn.style.boxShadow = 'var(--shadow-glow)';
+    }
+    if (btnIcon) btnIcon.textContent = '⚡';
+    if (btnLbl) btnLbl.textContent = 'Ativar Modo Tempo Real (1 min)';
   }
 }
 

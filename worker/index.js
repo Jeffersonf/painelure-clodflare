@@ -143,11 +143,19 @@ async function apiHandler(request, env, body) {
     return { ok: true, updatedAt: now, length: image.length };
   }
   if (url.pathname === '/api/monitor/request-realtime' && method === 'POST') {
-    const expiresAt = Date.now() + 5 * 60 * 1000;
+    const action = body.action || (body.cancel ? 'stop' : 'start');
+    if (action === 'stop' || action === 'cancel') {
+      const now = new Date().toISOString();
+      const payload = JSON.stringify({ realtimeUntil: 0, requestedAt: now });
+      await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_realtime', payload, 'client', now]);
+      return { ok: true, realtime: false, realtimeUntil: null, remainingMs: 0 };
+    }
+    const durationMs = 60 * 1000; // 1 minuto
+    const expiresAt = Date.now() + durationMs;
     const now = new Date().toISOString();
     const payload = JSON.stringify({ realtimeUntil: expiresAt, requestedAt: now });
     await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_realtime', payload, 'client', now]);
-    return { ok: true, realtime: true, realtimeUntil: expiresAt, remainingMs: 300000 };
+    return { ok: true, realtime: true, realtimeUntil: expiresAt, remainingMs: durationMs };
   }
   if (url.pathname === '/api/monitor/status' && method === 'GET') {
     const rowRt = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', ['monitor_realtime']);
