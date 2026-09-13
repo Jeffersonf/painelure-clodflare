@@ -81,17 +81,30 @@ async function captureUrl(browser, url, sourceName) {
   }
 }
 
+let screenshot = null;
+try {
+  screenshot = require('screenshot-desktop');
+} catch (e) {}
+
 async function doCaptures() {
   if (isBusy) return;
   isBusy = true;
-  let browser = null;
-  const tempProfile = path.join(require('os').tmpdir(), 'chrome-monitor-profile-' + Date.now());
 
   try {
+    if (screenshot) {
+      console.log('[AGENT] Capturando tela do PC (com Meraki e Zabbix abertos)...');
+      const imgBuffer = await screenshot({ format: 'jpg' });
+      await sendToServer(imgBuffer, 'zabbix-meraki-screen');
+      lastCaptureTime = Date.now();
+      isBusy = false;
+      return;
+    }
+
+    // Fallback: caso screenshot-desktop nao esteja disponivel, tenta puppeteer
     const executablePath = getChromePath();
     console.log('[AGENT] Iniciando navegador Chrome rápido...');
-    
-    browser = await puppeteer.launch({
+    const tempProfile = path.join(require('os').tmpdir(), 'chrome-monitor-profile-' + Date.now());
+    const browser = await puppeteer.launch({
       executablePath,
       headless: true,
       ignoreHTTPSErrors: true,
@@ -110,11 +123,11 @@ async function doCaptures() {
     if (config.zabbixUrl) await captureUrl(browser, config.zabbixUrl, 'zabbix');
     if (config.merakiUrl) await captureUrl(browser, config.merakiUrl, 'meraki');
     lastCaptureTime = Date.now();
-  } catch (e) {
-    console.error('[AGENT] Erro no navegador:', e.message);
-  } finally {
-    if (browser) await browser.close().catch(() => {});
+    await browser.close().catch(() => {});
     try { fs.rmSync(tempProfile, { recursive: true, force: true }); } catch (e) {}
+  } catch (e) {
+    console.error('[AGENT] Erro na captura:', e.message);
+  } finally {
     isBusy = false;
   }
 }
