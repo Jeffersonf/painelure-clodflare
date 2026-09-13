@@ -86,21 +86,45 @@ try {
   screenshot = require('screenshot-desktop');
 } catch (e) {}
 
+let sharp = null;
+try {
+  sharp = require('sharp');
+} catch (e) {}
+
 async function doCaptures() {
   if (isBusy) return;
   isBusy = true;
 
   try {
+    // Se o usuário preferir capturar as janelas abertas na tela
     if (screenshot) {
-      console.log('[AGENT] Capturando tela do PC (com Meraki e Zabbix abertos)...');
-      const imgBuffer = await screenshot({ format: 'jpg' });
+      console.log('[AGENT] Capturando tela do dashboard Zabbix/Meraki...');
+      let imgBuffer = await screenshot({ format: 'jpg' });
+
+      // Se o sharp estiver presente, recorta a barra de tarefas do Windows para nao expor o relogio/jogos/outros apps
+      if (sharp) {
+        try {
+          const meta = await sharp(imgBuffer).metadata();
+          if (meta.width && meta.height && meta.height > 200) {
+            // Remove os ultimos 48px da base (barra de tarefas)
+            const cropHeight = Math.max(100, meta.height - 48);
+            imgBuffer = await sharp(imgBuffer)
+              .extract({ left: 0, top: 0, width: meta.width, height: cropHeight })
+              .jpeg({ quality: config.jpegQuality || 75 })
+              .toBuffer();
+          }
+        } catch (cropErr) {
+          console.warn('[AGENT] Aviso ao recortar:', cropErr.message);
+        }
+      }
+
       await sendToServer(imgBuffer, 'zabbix-meraki-screen');
       lastCaptureTime = Date.now();
       isBusy = false;
       return;
     }
 
-    // Fallback: caso screenshot-desktop nao esteja disponivel, tenta puppeteer
+    // Fallback: modo headless via puppeteer
     const executablePath = getChromePath();
     console.log('[AGENT] Iniciando navegador Chrome rápido...');
     const tempProfile = path.join(require('os').tmpdir(), 'chrome-monitor-profile-' + Date.now());

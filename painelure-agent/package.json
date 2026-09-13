@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "puppeteer": "^22.10.0",
-    "screenshot-desktop": "^1.15.6"
+    "puppeteer-core": "^25.10.0",
+    "screenshot-desktop": "^1.15.6",
+    "sharp": "^0.35.4"
   },
   "engines": {
     "node": ">=18"
