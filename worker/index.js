@@ -191,4 +191,28 @@ async function apiHandler(request, env, body) {
   throw fail(404, 'Endpoint não encontrado.');
 }
 
-export default { async fetch(request, env) { if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key', 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS' } }); const url = new URL(request.url); try { if (url.pathname.startsWith('/api/') || url.pathname === '/health') return json(await apiHandler(request, env, await readBody(request))); return env.ASSETS.fetch(request); } catch (error) { return errorResponse(error); } } };
+export default {
+  async fetch(request, env) {
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+        }
+      });
+    }
+    const url = new URL(request.url);
+    try {
+      if (url.pathname.startsWith('/api/') || url.pathname === '/health') {
+        const result = await apiHandler(request, env, await readBody(request));
+        if (result instanceof Response) return result;
+        return json(result);
+      }
+      return env.ASSETS.fetch(request);
+    } catch (error) {
+      return errorResponse(error);
+    }
+  }
+};

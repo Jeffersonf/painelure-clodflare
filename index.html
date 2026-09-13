@@ -2100,6 +2100,214 @@ function filterRede2026() {
   renderRede2026Table(res);
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MONITORAMENTO AO VIVO ZABBIX/MERAKI (ROBÔ HEADLESS & MODO TEMPO REAL)
+   ══════════════════════════════════════════════════════════════════════════ */
+let monitorSubTab = 'dvrs';
+let monitorPollTimer = null;
+let monitorRealtimeRemaining = 0;
+let monitorCountdownInterval = null;
+
+function switchNetworkSubTab(tab) {
+  monitorSubTab = tab;
+  const btnDvrs = document.getElementById('netTabBtnDvrs');
+  const btnLive = document.getElementById('netTabBtnLive');
+  const panelDvrs = document.getElementById('netSubPanelDvrs');
+  const panelLive = document.getElementById('netSubPanelLive');
+
+  if (tab === 'live') {
+    btnDvrs?.classList.remove('active');
+    btnLive?.classList.add('active');
+    if (panelDvrs) panelDvrs.style.display = 'none';
+    if (panelLive) panelLive.style.display = 'block';
+    initLiveMonitor();
+  } else {
+    btnLive?.classList.remove('active');
+    btnDvrs?.classList.add('active');
+    if (panelLive) panelLive.style.display = 'none';
+    if (panelDvrs) panelDvrs.style.display = 'block';
+    stopLiveMonitor();
+  }
+}
+
+async function checkMonitorStatus() {
+  try {
+    const res = await fetch('/api/monitor/status', { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    // Atualiza badge de robô conectado
+    const badge = document.getElementById('monitorLiveBadge');
+    if (badge) badge.style.display = data.active ? 'inline-flex' : 'none';
+
+    // Última atualização
+    const lastLbl = document.getElementById('monitorLastUpdate');
+    if (lastLbl) {
+      if (data.lastCaptureAt) {
+        const d = new Date(data.lastCaptureAt);
+        lastLbl.textContent = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR');
+      } else {
+        lastLbl.textContent = 'Nenhuma captura recebida';
+      }
+    }
+
+    // Modo Tempo Real
+    if (data.realtime && data.remainingMs > 0) {
+      setRealtimeUI(true, data.remainingMs);
+    } else {
+      setRealtimeUI(false);
+    }
+
+    // Se estiver sem imagem carregada e o servidor já tem imagem
+    const img = document.getElementById('monitorLiveImg');
+    if (data.active && (!img.src || img.style.display === 'none')) {
+      refreshMonitorImage(false);
+    } else if (!data.active) {
+      showMonitorEmpty();
+    }
+  } catch (e) {
+    // Falhas de rede transitórias
+  }
+}
+
+function refreshMonitorImage(showLoader = true) {
+  const loading = document.getElementById('monitorImgLoading');
+  if (showLoader && loading) loading.style.display = 'block';
+
+  const img = document.getElementById('monitorLiveImg');
+  if (img) {
+    img.src = '/api/monitor/image?t=' + Date.now();
+  }
+}
+
+function onMonitorImageLoaded() {
+  const empty = document.getElementById('monitorEmptyState');
+  const img = document.getElementById('monitorLiveImg');
+  const loading = document.getElementById('monitorImgLoading');
+
+  if (empty) empty.style.display = 'none';
+  if (img) img.style.display = 'block';
+  if (loading) loading.style.display = 'none';
+}
+
+function onMonitorImageError() {
+  const loading = document.getElementById('monitorImgLoading');
+  if (loading) loading.style.display = 'none';
+  showMonitorEmpty();
+}
+
+function showMonitorEmpty() {
+  const empty = document.getElementById('monitorEmptyState');
+  const img = document.getElementById('monitorLiveImg');
+  if (empty) empty.style.display = 'block';
+  if (img) img.style.display = 'none';
+}
+
+async function activateRealtimeMode() {
+  const btn = document.getElementById('btnToggleRealtime');
+  const lbl = document.getElementById('btnRealtimeLabel');
+  if (lbl) lbl.textContent = 'Ativando...';
+
+  try {
+    const res = await fetch('/api/monitor/request-realtime', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setRealtimeUI(true, data.remainingMs || 300000);
+      refreshMonitorImage(true);
+    }
+  } catch (err) {
+    alert('Não foi possível ativar o modo tempo real: ' + err.message);
+  } finally {
+    if (lbl && !monitorRealtimeRemaining) lbl.textContent = 'Ativar Modo Tempo Real (5 min)';
+  }
+}
+
+function setRealtimeUI(active, remainingMs = 0) {
+  const banner = document.getElementById('realtimeActiveBanner');
+  const statusTag = document.getElementById('monitorStatusTag');
+  const btnLbl = document.getElementById('btnRealtimeLabel');
+  const countdownLbl = document.getElementById('realtimeCountdown');
+
+  if (active) {
+    monitorRealtimeRemaining = remainingMs;
+    if (banner) banner.style.display = 'flex';
+    if (statusTag) {
+      statusTag.className = 'stat-badge warning-badge';
+      statusTag.textContent = '🔴 TEMPO REAL ATIVO (A CADA 10S)';
+    }
+    if (btnLbl) btnLbl.textContent = 'Modo Tempo Real Ativo';
+
+    if (!monitorCountdownInterval) {
+      monitorCountdownInterval = setInterval(() => {
+        monitorRealtimeRemaining -= 1000;
+        if (monitorRealtimeRemaining <= 0) {
+          clearInterval(monitorCountdownInterval);
+          monitorCountdownInterval = null;
+          setRealtimeUI(false);
+          checkMonitorStatus();
+        } else if (countdownLbl) {
+          const totalSec = Math.floor(monitorRealtimeRemaining / 1000);
+          const m = String(Math.floor(totalSec / 60)).padStart(2, '0');
+          const s = String(totalSec % 60).padStart(2, '0');
+          countdownLbl.textContent = m + ':' + s;
+        }
+      }, 1000);
+    }
+  } else {
+    monitorRealtimeRemaining = 0;
+    if (monitorCountdownInterval) {
+      clearInterval(monitorCountdownInterval);
+      monitorCountdownInterval = null;
+    }
+    if (banner) banner.style.display = 'none';
+    if (statusTag) {
+      statusTag.className = 'stat-badge neutral';
+      statusTag.textContent = 'MODO NORMAL (A CADA 1H)';
+    }
+    if (btnLbl) btnLbl.textContent = 'Ativar Modo Tempo Real (5 min)';
+  }
+}
+
+function initLiveMonitor() {
+  checkMonitorStatus();
+  refreshMonitorImage(false);
+
+  if (!monitorPollTimer) {
+    // Polling de 5s no status e refresh da imagem caso esteja em tempo real
+    monitorPollTimer = setInterval(() => {
+      checkMonitorStatus();
+      if (monitorRealtimeRemaining > 0) {
+        refreshMonitorImage(false);
+      }
+    }, 5000);
+  }
+}
+
+function stopLiveMonitor() {
+  if (monitorPollTimer) {
+    clearInterval(monitorPollTimer);
+    monitorPollTimer = null;
+  }
+  if (monitorCountdownInterval) {
+    clearInterval(monitorCountdownInterval);
+    monitorCountdownInterval = null;
+  }
+}
+
+function toggleFullscreenMonitor() {
+  const card = document.getElementById('monitorImageCard');
+  if (!card) return;
+  if (!document.fullscreenElement) {
+    card.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
 /* ── 8. TRANSIÇÃO E TEMA CLARO/ESCURO ── */
 function toggleTheme() {
   const html = document.documentElement;
