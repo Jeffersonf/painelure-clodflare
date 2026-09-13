@@ -112,6 +112,7 @@ async function scrapeChromeAlerts() {
     };
 
     const zabbixMap = new Map();
+    const merakiMap = new Map();
 
     for (const page of pages) {
       const url = page.url() || '';
@@ -126,19 +127,16 @@ async function scrapeChromeAlerts() {
               const text = r.innerText || '';
               // Verifica se a linha indica Severidade "Desastre"
               if (/desastre/i.test(text)) {
-                // Pega os textos das colunas
                 const cells = Array.from(r.querySelectorAll('td')).map(td => td.innerText.trim());
                 
-                // Extrai hora / data (ex: 17:06:00 ou 12-09-2026 02:46:07)
                 const timeMatch = text.match(/(\d{2}-\d{2}-\d{4}\s+)?\b\d{2}:\d{2}:\d{2}\b/);
                 const timeStr = timeMatch ? timeMatch[0] : '';
                 
-                // Acha o Host (ex: FW-043412, 043412_RT, FW-035336, FW-926036)
                 let hostStr = '';
                 for (const c of cells) {
                   const m = c.match(/\b(FW-|RT-|SW-)?(\d{5,6})(-RT|_RT|-sw\d*)?\b/i);
                   if (m) {
-                    hostStr = m[2]; // pega os 5 ou 6 digitos do CIE
+                    hostStr = m[2];
                     break;
                   }
                 }
@@ -147,8 +145,7 @@ async function scrapeChromeAlerts() {
                   list.push({
                     cie: hostStr,
                     time: timeStr,
-                    status: 'Desastre',
-                    rawText: text.slice(0, 120)
+                    status: 'Desastre'
                   });
                 }
               }
@@ -156,7 +153,6 @@ async function scrapeChromeAlerts() {
             return list;
           });
 
-          // Consolida por escola (evita duplicar FW-043412 e 043412_RT)
           rawProblems.forEach(p => {
             const schoolName = getSchoolNameByCie(p.cie) || ('Escola CIE ' + p.cie);
             if (!zabbixMap.has(p.cie)) {
@@ -178,57 +174,58 @@ async function scrapeChromeAlerts() {
         try {
           const rawMeraki = await page.evaluate(() => {
             const list = [];
-            // Linhas da tabela do Organization Overview
-            const rows = document.querySelectorAll('table tbody tr, div[role="row"]');
-            for (const r of rows) {
-              const text = r.innerText || '';
-              // Verifica se tem bolinha vermelha ou status de alerta
-              const hasRed = Boolean(
-                r.querySelector('.status-red, .offline, .critical, [style*="red"], [style*="#ef4444"], [style*="#d9534f"], [data-status="offline"]') ||
-                r.innerHTML.includes('background-color: rgb(239, 68, 68)') ||
-                r.innerHTML.includes('background-color: #ef4444') ||
-                r.innerHTML.includes('red')
-              );
+            const table = document.querySelector('table');
+            if (!table) return list;
 
-              // Procura código CIE da escola na coluna Name (5 ou 6 dígitos)
-              const cieMatch = text.match(/\b(\d{5,6})\b/);
+            // Mapeia os índices dos cabeçalhos
+            const ths = Array.from(table.querySelectorAll('thead th, tr th')).map(th => th.innerText.trim().toLowerCase());
+            let nameIdx = ths.findIndex(h => h.includes('name') || h.includes('nome'));
+            let devicesIdx = ths.findIndex(h => h === 'devices' || h.includes('dispositiv'));
+            let offlineIdx = ths.findIndex(h => h.includes('offline'));
+
+            const rows = table.querySelectorAll('tbody tr');
+            for (const r of rows) {
+              const cells = Array.from(r.querySelectorAll('td'));
+              if (!cells.length) continue;
+
+              const rowText = r.innerText || '';
+              const cieMatch = rowText.match(/\b(\d{5,6})\b/);
               if (!cieMatch) continue;
               const cie = cieMatch[1];
 
-              // Procura Devices e Offline devices (ex: Devices 12, Offline devices 1)
-              // Ou padrão direto em colunas numéricas
-              const cells = Array.from(r.querySelectorAll('td, div[role="cell"]')).map(c => c.innerText.trim());
-              
               let total = 0;
               let offline = 0;
 
-              // Tenta localizar nas colunas numéricas
-              for (let i = 0; i < cells.length; i++) {
-                const val = parseInt(cells[i], 10);
-                if (!isNaN(val)) {
-                  if (total === 0 && val > 0 && val < 100) {
-                    total = val;
-                  } else if (total > 0 && offline === 0 && val >= 0 && val <= total) {
-                    offline = val;
-                    break;
-                  }
-                }
+              if (devicesIdx !== -1 && cells[devicesIdx]) {
+                total = parseInt(cells[devicesIdx].innerText.replace(/\D/g, ''), 10) || 0;
+              }
+              if (offlineIdx !== -1 && cells[offlineIdx]) {
+                offline = parseInt(cells[offlineIdx].innerText.replace(/\D/g, ''), 10) || 0;
               }
 
-              // Se não achou nas colunas, tenta regex geral
+              // Fallback se não pegou por coluna fixa
               if (total === 0) {
-                const ratioMatch = text.match(/(\d+)\s+devices.*?(\d+)\s+offline/i) || text.match(/(\d+)\s*\/\s*(\d+)/);
-                if (ratioMatch) {
-                  total = parseInt(ratioMatch[1], 10);
-                  offline = parseInt(ratioMatch[2], 10);
+                const numMatches = rowText.match(/\b\d{1,3}\b/g);
+                if (numMatches && numMatches.length >= 2) {
+                  // Primeiro costuma ser o total de devices, segundo offline
+                  total = parseInt(numMatches[1], 10) || 0;
+                  offline = parseInt(numMatches[2], 10) || 0;
                 }
               }
 
-              if (offline > 0 || hasRed) {
+              // Detecta bolinha vermelha
+              const hasRed = Boolean(
+                r.querySelector('.status-red, .offline, .critical, [style*="red"], [style*="#ef4444"], [style*="#d9534f"]') ||
+                r.innerHTML.includes('rgb(239, 68, 68)') ||
+                r.innerHTML.includes('#ef4444') ||
+                offline > 0
+              );
+
+              if (hasRed || offline > 0) {
                 list.push({
                   cie,
                   total: Math.max(total, offline, 1),
-                  offline: offline > 0 ? offline : 1,
+                  offline: Math.max(offline, 1),
                   hasRedDot: true
                 });
               }
@@ -236,18 +233,18 @@ async function scrapeChromeAlerts() {
             return list;
           });
 
-          if (rawMeraki && rawMeraki.length > 0) {
-            alerts.meraki = rawMeraki.map(m => {
+          rawMeraki.forEach(m => {
+            if (!merakiMap.has(m.cie)) {
               const name = getSchoolNameByCie(m.cie) || ('Escola CIE ' + m.cie);
-              return {
+              merakiMap.set(m.cie, {
                 cie: m.cie,
                 name,
                 total: m.total,
                 offline: m.offline,
                 hasRedDot: m.hasRedDot
-              };
-            });
-          }
+              });
+            }
+          });
         } catch (mErr) {
           console.warn('[AGENT] Erro ao ler aba Meraki:', mErr.message);
         }
@@ -255,8 +252,8 @@ async function scrapeChromeAlerts() {
     }
 
     alerts.zabbix = Array.from(zabbixMap.values());
+    alerts.meraki = Array.from(merakiMap.values());
 
-    // Popula schoolsMap
     alerts.zabbix.forEach(z => {
       if (!alerts.schoolsMap[z.name]) alerts.schoolsMap[z.name] = {};
       alerts.schoolsMap[z.name].zabbix = { status: 'Desastre', time: z.time || 'Agora' };
