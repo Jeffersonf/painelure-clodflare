@@ -6,7 +6,13 @@
 const fs = require('fs');
 const path = require('path');
 const screenshot = require('screenshot-desktop');
-const sharp = require('sharp');
+
+let sharp = null;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  // sharp não instalado, prossegue sem ele enviando o print direto
+}
 
 const CONFIG_FILE = path.join(__dirname, 'config.json');
 let config = {};
@@ -25,10 +31,10 @@ let isRealtimeActive = false;
 let lastCaptureTime = 0;
 let isBusy = false;
 
-async function sendToServer(buffer, sourceName = 'desktop') {
+async function sendToServer(buffer, mimeType = 'image/jpeg', sourceName = 'desktop') {
   const base64Image = buffer.toString('base64');
   const payload = {
-    image: 'data:image/jpeg;base64,' + base64Image,
+    image: `data:${mimeType};base64,` + base64Image,
     source: sourceName,
     timestamp: new Date().toISOString()
   };
@@ -61,15 +67,24 @@ async function captureDesktop() {
     
     // Captura o display principal
     const rawPng = await screenshot({ format: 'png' });
-    
-    // Redimensiona e comprime para JPEG para envio rápido e leve
-    const compressedJpg = await sharp(rawPng)
-      .resize({ width: 1920, height: 1080, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: JPEG_QUALITY, progressive: true })
-      .toBuffer();
+    let finalBuffer = rawPng;
+    let mime = 'image/png';
 
-    // Envia tanto como 'desktop' / 'latest' e também para preencher Zabbix/Meraki se ambos estiverem lado a lado
-    await sendToServer(compressedJpg, 'both');
+    // Se sharp estiver instalado, converte para JPEG comprimido
+    if (sharp) {
+      try {
+        finalBuffer = await sharp(rawPng)
+          .resize({ width: 1920, height: 1080, fit: 'inside', withoutEnlargement: true })
+          .jpeg({ quality: JPEG_QUALITY, progressive: true })
+          .toBuffer();
+        mime = 'image/jpeg';
+      } catch (sharpErr) {
+        console.warn('[AGENT] Aviso compressão sharp:', sharpErr.message);
+      }
+    }
+
+    // Envia para o servidor
+    await sendToServer(finalBuffer, mime, 'both');
     
     lastCaptureTime = Date.now();
   } catch (err) {
