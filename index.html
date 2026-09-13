@@ -1250,7 +1250,7 @@ body {
           <span class="stat-number" id="zabbixAlertCount" style="color:var(--danger);">4</span>
           <span class="stat-badge" id="zabbixAlertBadge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">DESASTRE (Sem Ping)</span>
         </div>
-        <div id="zabbixAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div id="zabbixAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;max-height:280px;overflow-y:auto;padding-right:4px;">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="color:#ef4444;">🔴</span>
@@ -1289,14 +1289,14 @@ body {
       <!-- CARD DE ALERTA 2: MERAKI APS OFFLINE -->
       <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg, rgba(245,158,11,0.08) 0%, var(--card-bg) 100%);">
         <div class="stat-header">
-          <span class="stat-tag" style="color:var(--warning);font-weight:800;">📡 Meraki: Escolas com Bolinha Vermelha (APs Offline)</span>
+          <span class="stat-tag" style="color:var(--warning);font-weight:800;">📡 Meraki: Escolas com APs Offline</span>
           <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.18);border-color:rgba(245,158,11,0.35);color:var(--warning);">📶</div>
         </div>
         <div class="stat-main">
           <span class="stat-number" id="merakiAlertCount" style="color:#f59e0b;">21</span>
           <span class="stat-badge" id="merakiAlertBadge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">21 APs Offline na Região</span>
         </div>
-        <div id="merakiAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;">
+        <div id="merakiAlertList" style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;max-height:280px;overflow-y:auto;padding-right:4px;">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="color:#ef4444;">🔴</span>
@@ -2326,12 +2326,12 @@ function renderLiveAlerts(alerts) {
         zList.innerHTML = `<div style="padding:10px;text-align:center;color:var(--success);font-weight:700;background:rgba(16,185,129,0.08);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">✅ Nenhuma escola em desastre no Zabbix</div>`;
       } else {
         zList.innerHTML = alerts.zabbix.map(item => `
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <span style="color:#ef4444;">🔴</span>
-              <strong style="color:var(--text-main);font-size:12px;">${item.name || item.school || 'Escola'}</strong>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);gap:8px;">
+            <div style="display:flex;align-items:center;gap:6px;min-width:0;flex:1;">
+              <span style="color:#ef4444;flex-shrink:0;">🔴</span>
+              <strong style="color:var(--text-main);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${item.name || ''}">${item.name || item.school || 'Escola'}</strong>
             </div>
-            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;font-size:11.5px;">${item.time ? 'Queda: ' + item.time : 'Sem Ping'}</span>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;font-size:11px;white-space:nowrap;flex-shrink:0;">${item.time ? item.time : 'Sem Ping'}</span>
           </div>
         `).join('');
       }
@@ -2344,7 +2344,7 @@ function renderLiveAlerts(alerts) {
     const mBadge = document.getElementById('merakiAlertBadge');
     const mList = document.getElementById('merakiAlertList');
     
-    const offlineItems = alerts.meraki.filter(it => it.offline > 0 || it.hasRedDot);
+    const offlineItems = alerts.meraki.filter(it => Number(it.offline) > 0);
     const totalOfflineAps = alerts.meraki.reduce((sum, it) => sum + (Number(it.offline) || 0), 0);
     
     if (mCount) mCount.textContent = totalOfflineAps;

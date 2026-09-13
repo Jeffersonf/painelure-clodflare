@@ -225,11 +225,12 @@ async function scrapeChromeAlerts() {
                 }
               }
 
-              if (offline > 0 || hasRed) {
+              // Só inclui se tiver pelo menos 1 AP offline (bolinha vermelha)
+              if (offline > 0) {
                 list.push({
                   cie,
                   total: Math.max(total, offline, 1),
-                  offline: Math.max(offline, 1),
+                  offline: offline,
                   hasRedDot: true
                 });
               }
