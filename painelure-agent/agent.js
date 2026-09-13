@@ -102,8 +102,7 @@ async function doCaptures() {
   let browser = null;
 
   try {
-    const executablePath = getChromePath();
-    console.log('[AGENT] Iniciando Chrome em segundo plano...');
+    console.log('[AGENT] Abrindo navegador isolado em segundo plano...');
     
     const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
     if (!fs.existsSync(dedicatedProfile)) {
@@ -111,19 +110,23 @@ async function doCaptures() {
     }
 
     browser = await puppeteer.launch({
-      executablePath,
-      headless: 'new',
+      headless: true,
+      pipe: true,
       ignoreHTTPSErrors: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-background-networking',
+        '--disable-extensions',
+        '--no-first-run',
+        '--no-default-browser-check',
         `--user-data-dir=${dedicatedProfile}`,
         '--window-size=1600,900'
       ]
     });
+
+    console.log('[AGENT] Navegador conectado com sucesso!');
 
     // 1. Zabbix
     if (config.zabbixUrl) {
