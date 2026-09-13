@@ -174,54 +174,52 @@ async function scrapeChromeAlerts() {
         try {
           const rawMeraki = await page.evaluate(() => {
             const list = [];
-            const table = document.querySelector('table');
-            if (!table) return list;
-
-            // Mapeia os índices dos cabeçalhos
-            const ths = Array.from(table.querySelectorAll('thead th, tr th')).map(th => th.innerText.trim().toLowerCase());
-            let nameIdx = ths.findIndex(h => h.includes('name') || h.includes('nome'));
-            let devicesIdx = ths.findIndex(h => h === 'devices' || h.includes('dispositiv'));
-            let offlineIdx = ths.findIndex(h => h.includes('offline'));
-
-            const rows = table.querySelectorAll('tbody tr');
+            // O Meraki renderiza tabelas ou divs com role row
+            const rows = document.querySelectorAll('tr, [role="row"], div.TableRow, div.table-row');
+            
             for (const r of rows) {
-              const cells = Array.from(r.querySelectorAll('td'));
-              if (!cells.length) continue;
+              const text = r.innerText || '';
+              // Procura por CIE de 5 ou 6 dígitos
+              const mCie = text.match(/\b(\d{5,6})\b/);
+              if (!mCie) continue;
+              const cie = mCie[1];
 
-              const rowText = r.innerText || '';
-              const cieMatch = rowText.match(/\b(\d{5,6})\b/);
-              if (!cieMatch) continue;
-              const cie = cieMatch[1];
+              // Procura se tem indicativo de offline ou bolinha vermelha
+              const hasRed = Boolean(
+                r.querySelector('.status-red, .offline, .critical, [style*="red"], [style*="#ef4444"], [style*="#d9534f"]') ||
+                r.innerHTML.includes('background-color: rgb(239, 68, 68)') ||
+                r.innerHTML.includes('background-color: #ef4444') ||
+                r.innerHTML.includes('offline') ||
+                r.innerHTML.includes('Status: Alert')
+              );
 
+              // Tenta extrair numeros da linha: ex "910077 12 1 Wireless DE_ITAPEVA"
+              // onde 12 é devices e 1 é offline
+              const tokens = text.split(/[\t\n\r ]+/).filter(Boolean);
+              const cieIdx = tokens.indexOf(cie);
               let total = 0;
               let offline = 0;
 
-              if (devicesIdx !== -1 && cells[devicesIdx]) {
-                total = parseInt(cells[devicesIdx].innerText.replace(/\D/g, ''), 10) || 0;
-              }
-              if (offlineIdx !== -1 && cells[offlineIdx]) {
-                offline = parseInt(cells[offlineIdx].innerText.replace(/\D/g, ''), 10) || 0;
+              if (cieIdx !== -1 && tokens.length > cieIdx + 2) {
+                const num1 = parseInt(tokens[cieIdx + 1], 10);
+                const num2 = parseInt(tokens[cieIdx + 2], 10);
+                if (!isNaN(num1) && num1 >= 0 && num1 < 200) total = num1;
+                if (!isNaN(num2) && num2 >= 0 && num2 <= Math.max(total, 50)) offline = num2;
               }
 
-              // Fallback se não pegou por coluna fixa
+              // Se não achou por token relativo, tenta pelas células diretas (td / role=cell)
               if (total === 0) {
-                const numMatches = rowText.match(/\b\d{1,3}\b/g);
-                if (numMatches && numMatches.length >= 2) {
-                  // Primeiro costuma ser o total de devices, segundo offline
-                  total = parseInt(numMatches[1], 10) || 0;
-                  offline = parseInt(numMatches[2], 10) || 0;
+                const cells = Array.from(r.querySelectorAll('td, [role="cell"]')).map(c => c.innerText.trim());
+                for (let i = 0; i < cells.length; i++) {
+                  if (cells[i] === cie && i + 2 < cells.length) {
+                    total = parseInt(cells[i + 1], 10) || 0;
+                    offline = parseInt(cells[i + 2], 10) || 0;
+                    break;
+                  }
                 }
               }
 
-              // Detecta bolinha vermelha
-              const hasRed = Boolean(
-                r.querySelector('.status-red, .offline, .critical, [style*="red"], [style*="#ef4444"], [style*="#d9534f"]') ||
-                r.innerHTML.includes('rgb(239, 68, 68)') ||
-                r.innerHTML.includes('#ef4444') ||
-                offline > 0
-              );
-
-              if (hasRed || offline > 0) {
+              if (offline > 0 || hasRed) {
                 list.push({
                   cie,
                   total: Math.max(total, offline, 1),
