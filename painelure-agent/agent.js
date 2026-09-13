@@ -1,6 +1,6 @@
 /**
  * PainelURE Monitor Agent
- * Captura Zabbix e Meraki de forma confiavel e rapida.
+ * Usa o Google Chrome real instalado no PC para evitar travamentos do Chromium baixado.
  */
 
 const fs = require('fs');
@@ -13,6 +13,19 @@ const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 let isRealtimeActive = false;
 let lastCaptureTime = 0;
 let isBusy = false;
+
+// Procura o executavel do Google Chrome da maquina
+function getChromePath() {
+  const paths = [
+    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    process.env.LOCALAPPDATA + '\\Google\\Chrome\\Application\\chrome.exe'
+  ];
+  for (const p of paths) {
+    if (fs.existsSync(p)) return p;
+  }
+  return undefined; // fallback para o puppeteer padrao
+}
 
 async function sendToServer(buffer, sourceName) {
   const base64Image = buffer.toString('base64');
@@ -43,18 +56,18 @@ async function sendToServer(buffer, sourceName) {
 
 async function captureUrl(browser, url, sourceName) {
   if (!url) return;
-  console.log(`[AGENT] Capturando ${sourceName}...`);
+  console.log(`[AGENT] Acessando ${sourceName}...`);
   let page = null;
   try {
     page = await browser.newPage();
     await page.setViewport({ width: 1600, height: 900 });
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 20000 }).catch(e => {
-      console.warn(`[AGENT] Aviso ao carregar ${sourceName}: ${e.message}`);
-    });
     
-    // Pequena pausa para os graficos renderizarem
-    await new Promise(r => setTimeout(r, 2000));
+    // Navega sem travar se algum recurso ficar pendente
+    await page.goto(url, { waitUntil: 'load', timeout: 30000 }).catch(e => {
+      console.warn(`[AGENT] ${sourceName} carregado com aviso: ${e.message}`);
+    });
 
+    console.log(`[AGENT] Capturando screenshot de ${sourceName}...`);
     const buffer = await page.screenshot({ type: 'jpeg', quality: config.jpegQuality || 75 });
     await sendToServer(buffer, sourceName);
   } catch (err) {
@@ -69,8 +82,10 @@ async function doCaptures() {
   isBusy = true;
   let browser = null;
   try {
-    console.log('[AGENT] Iniciando Chromium para captura...');
+    const executablePath = getChromePath();
+    console.log('[AGENT] Abrindo navegador Chrome (' + (executablePath || 'padrao') + ')...');
     browser = await puppeteer.launch({
+      executablePath,
       headless: 'new',
       ignoreHTTPSErrors: true,
       args: [
@@ -86,7 +101,7 @@ async function doCaptures() {
     if (config.merakiUrl) await captureUrl(browser, config.merakiUrl, 'meraki');
     lastCaptureTime = Date.now();
   } catch (e) {
-    console.error('[AGENT] Erro no ciclo de captura:', e.message);
+    console.error('[AGENT] Erro no navegador:', e.message);
   } finally {
     if (browser) await browser.close().catch(() => {});
     isBusy = false;
