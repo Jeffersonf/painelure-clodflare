@@ -1241,58 +1241,101 @@ body {
     <div class="bento-grid">
       
       <!-- CARD DE ALERTA 1: ZABBIX DESASTRE -->
-      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg, rgba(239,68,68,0.09) 0%, var(--card-bg) 100%);">
+      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.45);background:linear-gradient(135deg, rgba(239,68,68,0.12) 0%, var(--card-bg) 100%);">
         <div class="stat-header">
-          <span class="stat-tag" style="color:var(--danger);">🚨 Zabbix: Incidentes em Desastre</span>
-          <div class="stat-icon-wrap" style="background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:var(--danger);">⚠️</div>
+          <span class="stat-tag" style="color:var(--danger);font-weight:800;">🚨 Zabbix: Escolas em Desastre (Queda de Link)</span>
+          <div class="stat-icon-wrap" style="background:rgba(239,68,68,0.18);border-color:rgba(239,68,68,0.35);color:var(--danger);">⚠️</div>
         </div>
         <div class="stat-main">
-          <span class="stat-number" style="color:var(--danger);">2</span>
+          <span class="stat-number" style="color:var(--danger);">4</span>
           <span class="stat-badge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">DESASTRE (Sem Ping)</span>
         </div>
         <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
-            <strong style="color:var(--text-main);">EE Professor Silverio Monteiro</strong>
-            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:600;">Queda: 16:37:05</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Gerson de Barros</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 17:06:00 (há 25m)</span>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
-            <strong style="color:var(--text-main);">EE Professor Gerson de Barros Margarido</strong>
-            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:600;">Queda: 17:09:12</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Silverio Monteiro</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 02:46:07 (há 1d 14h)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Turvo dos Almeidas</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 13:51:32 (há 2d 3h)</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Boa Vista Intervales</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda: 13:26:06 (há 2d 4h)</span>
           </div>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;">
-          <span>Clique para abrir o Monitor Ao Vivo</span>
-          <span style="color:var(--accent-primary);font-weight:700;">Ver Monitor ↗</span>
+          <span>Sem resposta ICMP Ping no Zabbix</span>
+          <span style="color:var(--accent-primary);font-weight:700;">Ver Monitor Ao Vivo ↗</span>
         </div>
       </div>
 
       <!-- CARD DE ALERTA 2: MERAKI APS OFFLINE -->
-      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(245,158,11,0.4);background:linear-gradient(135deg, rgba(245,158,11,0.09) 0%, var(--card-bg) 100%);">
+      <div class="bento-card bento-col-6 stat-card" onclick="switchView('network')" style="cursor:pointer;border-color:rgba(239,68,68,0.4);background:linear-gradient(135deg, rgba(245,158,11,0.08) 0%, var(--card-bg) 100%);">
         <div class="stat-header">
-          <span class="stat-tag" style="color:var(--warning);">📡 Meraki: Escolas com APs Offline</span>
-          <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.15);border-color:rgba(245,158,11,0.3);color:var(--warning);">📶</div>
+          <span class="stat-tag" style="color:var(--warning);font-weight:800;">📡 Meraki: Escolas com Bolinha Vermelha (APs Offline)</span>
+          <div class="stat-icon-wrap" style="background:rgba(245,158,11,0.18);border-color:rgba(245,158,11,0.35);color:var(--warning);">📶</div>
         </div>
         <div class="stat-main">
-          <span class="stat-number" style="color:var(--warning);">4</span>
-          <span class="stat-badge warning-badge">DISPOSITIVOS OFFLINE</span>
+          <span class="stat-number" style="color:#f59e0b;">21</span>
+          <span class="stat-badge" style="background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid rgba(239,68,68,0.4);">21 APs Offline na Região</span>
         </div>
         <div style="margin-top:12px;display:flex;flex-direction:column;gap:6px;font-size:12px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
-            <strong style="color:var(--text-main);">EE Bairro Turvo dos Almeidas</strong>
-            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">1 AP Offline (1/2)</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Professor Gerson de Barros</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
-            <strong style="color:var(--text-main);">EE Bairro Boa Vista Intervales</strong>
-            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">2 APs Offline (2/4)</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Turvo dos Almeidas</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
-            <strong style="color:var(--text-main);">EE Bairro Ferreira dos Matos</strong>
-            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">1 AP Offline (1/3)</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(239,68,68,0.08);border-radius:6px;border:1px solid rgba(239,68,68,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">EE Bairro Boa Vista Intervales</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">6/6 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">PEI EE Francelina Franco</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">2/11 offline</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.2);">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="color:#ef4444;">🔴</span>
+              <strong style="color:var(--text-main);">PEI EE Cinira Daniel da Silva</strong>
+            </div>
+            <span style="font-family:var(--font-mono);color:#fcd34d;font-weight:700;">1/8 offline</span>
           </div>
         </div>
         <div style="margin-top:10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;justify-content:space-between;">
-          <span>Monitoramento de redes Wi-Fi URE</span>
-          <span style="color:var(--accent-primary);font-weight:700;">Ver Detalhes ↗</span>
+          <span>Dispositivos desconectados / Total</span>
+          <span style="color:var(--accent-primary);font-weight:700;">Ver Painel Meraki ↗</span>
         </div>
       </div>
 
@@ -1825,7 +1868,47 @@ function setContactSector(btn) {
   filterContacts();
 }
 
-/* ── 3. ESCOLAS ── */
+/* Status de Conectividade Zabbix e Meraki por Escola */
+const schoolConnectivityStatus = {
+  'EE Professor Gerson de Barros Margarido': {
+    zabbix: { status: 'Desastre', time: '17:06:00', duration: '25m 39s' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'EE Professor Silverio Monteiro': {
+    zabbix: { status: 'Desastre', time: '02:46:07 (12/09)', duration: '1d 14h' },
+    meraki: { offline: 0, total: 10, hasRedDot: false }
+  },
+  'EE Bairro Turvo dos Almeidas': {
+    zabbix: { status: 'Desastre', time: '13:51:32 (11/09)', duration: '2d 3h' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'EE Bairro Boa Vista Intervales': {
+    zabbix: { status: 'Desastre', time: '13:26:06 (11/09)', duration: '2d 4h' },
+    meraki: { offline: 6, total: 6, hasRedDot: true }
+  },
+  'PEI EE Professora Francelina Franco': {
+    zabbix: null,
+    meraki: { offline: 2, total: 11, hasRedDot: true }
+  },
+  'PEI EE Professora Cinira Daniel da Silva': {
+    zabbix: null,
+    meraki: { offline: 1, total: 8, hasRedDot: true }
+  },
+  'PEI EE Professor Jose Vasques Ferrari': {
+    zabbix: null,
+    meraki: { offline: 1, total: 13, hasRedDot: true }
+  },
+  'PEI EE Jeminiano David Muzel': {
+    zabbix: null,
+    meraki: { offline: 1, total: 10, hasRedDot: true }
+  },
+  'PEI EE Professor Joao Baptista do Amaral Vasconcellos': {
+    zabbix: null,
+    meraki: { offline: 1, total: 12, hasRedDot: true }
+  }
+};
+
+/* ── 3. ESCOLAS COM MARCAÇÕES DE DESASTRE E APS OFFLINE ── */
 function renderSchools(list) {
   const g = document.getElementById('schoolsGrid');
   if (!g) return;
@@ -1835,11 +1918,13 @@ function renderSchools(list) {
   }
   g.innerHTML = list.map(s => {
     const director = (s.director || s.viceDirector || '').split(';')[0].trim();
+    const conn = schoolConnectivityStatus[s.name] || null;
+
     return `
-    <div class="contact-card-pro">
+    <div class="contact-card-pro" style="${conn?.zabbix ? 'border-color: rgba(239,68,68,0.4);' : (conn?.meraki?.hasRedDot ? 'border-color: rgba(245,158,11,0.35);' : '')}">
       <div class="cp-top">
-        <div class="cp-avatar" style="background:rgba(6,182,212,0.1);color:var(--accent-secondary);border-color:rgba(6,182,212,0.25);">
-          ${s.initials || s.cie?.slice(0, 2) || 'EE'}
+        <div class="cp-avatar" style="background:${conn?.zabbix ? 'rgba(239,68,68,0.15)' : 'rgba(6,182,212,0.1)'};color:${conn?.zabbix ? 'var(--danger)' : 'var(--accent-secondary)'};border-color:${conn?.zabbix ? 'rgba(239,68,68,0.3)' : 'rgba(6,182,212,0.25)'};">
+          ${conn?.zabbix ? '⚠️' : (s.initials || s.cie?.slice(0, 2) || 'EE')}
         </div>
         <div class="cp-identity">
           <div class="cp-name" title="${s.name}">${s.name}</div>
@@ -1847,6 +1932,25 @@ function renderSchools(list) {
         </div>
         <span class="cp-sector-badge" style="background:rgba(16,185,129,0.1);color:var(--success);border-color:rgba(16,185,129,0.25);">Ativa</span>
       </div>
+
+      <!-- BADGES DE CONECTIVIDADE NO CARD DA ESCOLA -->
+      ${conn ? `
+      <div style="display:flex;flex-direction:column;gap:4px;background:var(--bg-subtle);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--card-border);font-size:11.5px;">
+        ${conn.zabbix ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="color:var(--danger);font-weight:700;">🚨 Zabbix Desastre:</span>
+          <span style="font-family:var(--font-mono);color:#fca5a5;font-weight:700;">Queda às ${conn.zabbix.time}</span>
+        </div>` : ''}
+        ${conn.meraki ? `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="display:flex;align-items:center;gap:4px;color:var(--text-main);">
+            ${conn.meraki.hasRedDot ? '🔴' : '🟢'} <strong>Meraki APs:</strong>
+          </span>
+          <span style="font-family:var(--font-mono);font-weight:700;color:${conn.meraki.hasRedDot ? '#fca5a5' : 'var(--success)'};">
+            ${conn.meraki.offline}/${conn.meraki.total} offline
+          </span>
+        </div>` : ''}
+      </div>` : ''}
 
       ${director ? `
       <div style="background:var(--bg-subtle);padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--card-border);font-size:12px;">
