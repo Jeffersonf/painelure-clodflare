@@ -139,8 +139,10 @@ async function apiHandler(request, env, body) {
       height: body.height || 900,
       updatedAt: now
     });
+    const sourceKey = body.source === 'meraki' ? 'monitor_meraki' : (body.source === 'zabbix' ? 'monitor_zabbix' : 'monitor_latest');
+    await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', [sourceKey, payload, 'monitor', now]);
     await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_latest', payload, 'monitor', now]);
-    return { ok: true, updatedAt: now, length: image.length };
+    return { ok: true, source: body.source, updatedAt: now, length: image.length };
   }
   if (url.pathname === '/api/monitor/request-realtime' && method === 'POST') {
     const action = body.action || (body.cancel ? 'stop' : 'start');
@@ -163,21 +165,32 @@ async function apiHandler(request, env, body) {
     const now = Date.now();
     const remainingMs = Math.max(0, Number(rtData.realtimeUntil || 0) - now);
     const isRealtime = remainingMs > 0;
-    const rowImg = await first(env.DB, 'SELECT updated_at, payload FROM app_state WHERE id = ?', ['monitor_latest']);
-    const imgData = parseJson(rowImg?.payload, {});
+    const rowZabbix = await first(env.DB, 'SELECT updated_at FROM app_state WHERE id = ?', ['monitor_zabbix']);
+    const rowMeraki = await first(env.DB, 'SELECT updated_at FROM app_state WHERE id = ?', ['monitor_meraki']);
+    const rowLatest = await first(env.DB, 'SELECT updated_at, payload FROM app_state WHERE id = ?', ['monitor_latest']);
+    const imgData = parseJson(rowLatest?.payload, {});
     return {
       ok: true,
-      active: Boolean(rowImg),
+      active: Boolean(rowLatest || rowZabbix || rowMeraki),
+      hasZabbix: Boolean(rowZabbix),
+      hasMeraki: Boolean(rowMeraki),
+      zabbixUpdatedAt: rowZabbix?.updated_at || null,
+      merakiUpdatedAt: rowMeraki?.updated_at || null,
       realtime: isRealtime,
       remainingMs,
       realtimeUntil: rtData.realtimeUntil || null,
-      lastCaptureAt: rowImg?.updated_at || null,
+      lastCaptureAt: rowLatest?.updated_at || null,
       width: imgData.width || 1600,
       height: imgData.height || 900
     };
   }
   if (url.pathname === '/api/monitor/image' && method === 'GET') {
-    const row = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', ['monitor_latest']);
+    const sourceParam = url.searchParams.get('source') || '';
+    const key = sourceParam === 'zabbix' ? 'monitor_zabbix' : (sourceParam === 'meraki' ? 'monitor_meraki' : 'monitor_latest');
+    let row = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', [key]);
+    if (!row && key !== 'monitor_latest') {
+      row = await first(env.DB, 'SELECT payload FROM app_state WHERE id = ?', ['monitor_latest']);
+    }
     if (!row) throw fail(404, 'Nenhuma imagem de monitoramento disponível ainda.');
     const data = parseJson(row.payload, {});
     const rawImage = String(data.image || '');

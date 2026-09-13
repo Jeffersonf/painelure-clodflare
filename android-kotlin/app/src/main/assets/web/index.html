@@ -1405,11 +1405,24 @@ body {
             </div>
           </div>
           <p style="font-size:12.5px;color:var(--text-muted);margin-top:4px;">
-            Captura do PC da rede interna da URE. Última atualização: <span id="monitorLastUpdate" style="font-family:var(--font-mono);font-weight:700;color:var(--text-main);">Carregando...</span>
+            Captura isolada em segundo plano no PC da URE. Última atualização: <span id="monitorLastUpdate" style="font-family:var(--font-mono);font-weight:700;color:var(--text-main);">Carregando...</span>
           </p>
         </div>
 
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <!-- Seletor de visualização de painel -->
+          <div style="display:flex;background:var(--bg-subtle);border-radius:var(--radius-full);padding:3px;border:1px solid var(--card-border);">
+            <button class="chip active" id="btnTabZabbix" onclick="switchMonitorSource('zabbix')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
+              🔴 Zabbix (Problemas)
+            </button>
+            <button class="chip" id="btnTabMeraki" onclick="switchMonitorSource('meraki')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
+              🟢 Meraki (AP/Rede)
+            </button>
+            <button class="chip" id="btnTabBoth" onclick="switchMonitorSource('both')" style="border:none;margin:0;padding:5px 14px;font-size:12px;font-weight:700;">
+              👥 Ambos Lado a Lado
+            </button>
+          </div>
+
           <button id="btnToggleRealtime" class="action-pill-btn" onclick="toggleRealtimeMode()" style="background:var(--accent-gradient);color:#fff;font-weight:700;padding:9px 18px;box-shadow:var(--shadow-glow);display:flex;align-items:center;gap:8px;cursor:pointer;">
             <span id="btnRealtimeIcon">⚡</span> <span id="btnRealtimeLabel">Ativar Modo Tempo Real (1 min)</span>
           </button>
@@ -1422,30 +1435,44 @@ body {
         </div>
       </div>
 
-      <!-- Container do Print com Moldura e Zoom -->
-      <div class="bento-card" id="monitorImageCard" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:460px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <!-- Container das Imagens de Monitoramento -->
+      <div id="monitorImageCard" style="display:grid;grid-template-columns:1fr;gap:16px;">
         
-        <!-- Alerta quando aguardando primeira captura -->
-        <div id="monitorEmptyState" style="padding:50px 20px;text-align:center;">
-          <div style="font-size:46px;margin-bottom:12px;">🖥️</div>
-          <h3 style="font-size:16px;font-weight:700;color:var(--text-main);">Aguardando sincronização do agente no PC da URE</h3>
-          <p style="font-size:13px;color:var(--text-muted);max-width:560px;margin:8px auto 16px;">
-            O agente está ativo no PC da URE. Assim que o print das telas do Zabbix e Meraki for concluído, ele aparecerá aqui automaticamente.
-          </p>
+        <!-- CARD ZABBIX -->
+        <div id="monitorZabbixBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#f87171;border:1px solid rgba(248,113,113,0.3);">
+            DASHBOARD ZABBIX
+          </div>
+          <div id="zabbixEmptyState" style="padding:40px 20px;text-align:center;">
+            <div style="font-size:38px;margin-bottom:8px;">📊</div>
+            <h4 style="font-size:15px;font-weight:700;color:var(--text-main);">Aguardando print do Zabbix</h4>
+            <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;">O robô capturará a tela do Zabbix automaticamente.</p>
+          </div>
+          <img id="monitorZabbixImg" src="" alt="Dashboard Zabbix" style="display:none;width:100%;height:auto;max-height:80vh;object-fit:contain;" onload="onSourceLoaded('zabbix')" onerror="onSourceError('zabbix')">
         </div>
 
-        <!-- Imagem de Monitoramento -->
-        <img id="monitorLiveImg" src="" alt="Dashboard Zabbix/Meraki da URE" style="display:none;width:100%;height:auto;max-height:85vh;object-fit:contain;border-radius:inherit;" onload="onMonitorImageLoaded()" onerror="onMonitorImageError()">
-        
+        <!-- CARD MERAKI -->
+        <div id="monitorMerakiBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:360px;display:none;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#34d399;border:1px solid rgba(52,211,153,0.3);">
+            DASHBOARD MERAKI
+          </div>
+          <div id="merakiEmptyState" style="padding:40px 20px;text-align:center;">
+            <div style="font-size:38px;margin-bottom:8px;">🌐</div>
+            <h4 style="font-size:15px;font-weight:700;color:var(--text-main);">Aguardando print do Meraki</h4>
+            <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;">O robô capturará a tela do Meraki automaticamente.</p>
+          </div>
+          <img id="monitorMerakiImg" src="" alt="Dashboard Meraki" style="display:none;width:100%;height:auto;max-height:80vh;object-fit:contain;" onload="onSourceLoaded('meraki')" onerror="onSourceError('meraki')">
+        </div>
+
         <!-- Indicador de Carregamento Sobreposto -->
-        <div id="monitorImgLoading" style="position:absolute;top:14px;right:14px;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:6px 14px;border-radius:999px;font-size:11px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.15);display:none;">
-          <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Atualizando...
+        <div id="monitorImgLoading" style="position:fixed;bottom:24px;right:24px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);padding:8px 16px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.2);display:none;z-index:9999;">
+          <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Atualizando dashboards...
         </div>
 
         <!-- Banner com Cronômetro quando Tempo Real está ativo -->
-        <div id="realtimeActiveBanner" style="display:none;position:absolute;top:14px;left:14px;background:rgba(239,68,68,0.92);backdrop-filter:blur(8px);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800;color:#fff;box-shadow:0 4px 14px rgba(239,68,68,0.4);letter-spacing:0.5px;display:flex;align-items:center;gap:6px;">
-          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#fff;animation:pulse 1s infinite;"></span>
-          TEMPO REAL (10s) • <span id="realtimeCountdown">05:00</span>
+        <div id="realtimeActiveBanner" style="display:none;position:fixed;bottom:24px;left:24px;background:rgba(239,68,68,0.95);backdrop-filter:blur(10px);padding:8px 18px;border-radius:999px;font-size:13px;font-weight:800;color:#fff;box-shadow:0 6px 20px rgba(239,68,68,0.5);letter-spacing:0.5px;z-index:9999;align-items:center;gap:8px;">
+          <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#fff;animation:pulse 1s infinite;"></span>
+          TEMPO REAL (10s) • <span id="realtimeCountdown">01:00</span>
         </div>
       </div>
 
@@ -2171,19 +2198,88 @@ async function checkMonitorStatus() {
   }
 }
 
+let monitorCurrentSource = 'zabbix';
+
+function switchMonitorSource(source) {
+  monitorCurrentSource = source;
+  const btnZabbix = document.getElementById('btnTabZabbix');
+  const btnMeraki = document.getElementById('btnTabMeraki');
+  const btnBoth = document.getElementById('btnTabBoth');
+  const boxZabbix = document.getElementById('monitorZabbixBox');
+  const boxMeraki = document.getElementById('monitorMerakiBox');
+  const grid = document.getElementById('monitorImageCard');
+
+  [btnZabbix, btnMeraki, btnBoth].forEach(b => b?.classList.remove('active'));
+
+  if (source === 'zabbix') {
+    btnZabbix?.classList.add('active');
+    if (boxZabbix) boxZabbix.style.display = 'flex';
+    if (boxMeraki) boxMeraki.style.display = 'none';
+    if (grid) grid.style.gridTemplateColumns = '1fr';
+  } else if (source === 'meraki') {
+    btnMeraki?.classList.add('active');
+    if (boxZabbix) boxZabbix.style.display = 'none';
+    if (boxMeraki) boxMeraki.style.display = 'flex';
+    if (grid) grid.style.gridTemplateColumns = '1fr';
+  } else {
+    btnBoth?.classList.add('active');
+    if (boxZabbix) boxZabbix.style.display = 'flex';
+    if (boxMeraki) boxMeraki.style.display = 'flex';
+    if (grid) grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(500px, 1fr))';
+  }
+}
+
+async function checkMonitorStatus() {
+  try {
+    const res = await fetch('/api/monitor/status', { cache: 'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    // Atualiza badge de robô conectado
+    const badge = document.getElementById('monitorLiveBadge');
+    if (badge) badge.style.display = data.active ? 'inline-flex' : 'none';
+
+    // Última atualização
+    const lastLbl = document.getElementById('monitorLastUpdate');
+    if (lastLbl) {
+      if (data.lastCaptureAt) {
+        const d = new Date(data.lastCaptureAt);
+        lastLbl.textContent = d.toLocaleDateString('pt-BR') + ' às ' + d.toLocaleTimeString('pt-BR');
+      } else {
+        lastLbl.textContent = 'Nenhuma captura recebida';
+      }
+    }
+
+    // Modo Tempo Real
+    if (data.realtime && data.remainingMs > 0) {
+      setRealtimeUI(true, data.remainingMs);
+    } else {
+      setRealtimeUI(false);
+    }
+
+    // Carrega imagens se ainda não estiverem carregadas
+    const imgZ = document.getElementById('monitorZabbixImg');
+    const imgM = document.getElementById('monitorMerakiImg');
+    if (data.active && (!imgZ.src || !imgM.src)) {
+      refreshMonitorImage(false);
+    }
+  } catch (e) {}
+}
+
 function refreshMonitorImage(showLoader = true) {
   const loading = document.getElementById('monitorImgLoading');
   if (showLoader && loading) loading.style.display = 'block';
 
-  const img = document.getElementById('monitorLiveImg');
-  if (img) {
-    img.src = '/api/monitor/image?t=' + Date.now();
-  }
+  const ts = Date.now();
+  const imgZ = document.getElementById('monitorZabbixImg');
+  const imgM = document.getElementById('monitorMerakiImg');
+  if (imgZ) imgZ.src = '/api/monitor/image?source=zabbix&t=' + ts;
+  if (imgM) imgM.src = '/api/monitor/image?source=meraki&t=' + ts;
 }
 
-function onMonitorImageLoaded() {
-  const empty = document.getElementById('monitorEmptyState');
-  const img = document.getElementById('monitorLiveImg');
+function onSourceLoaded(source) {
+  const empty = document.getElementById(source + 'EmptyState');
+  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
   const loading = document.getElementById('monitorImgLoading');
 
   if (empty) empty.style.display = 'none';
@@ -2191,15 +2287,12 @@ function onMonitorImageLoaded() {
   if (loading) loading.style.display = 'none';
 }
 
-function onMonitorImageError() {
+function onSourceError(source) {
+  const empty = document.getElementById(source + 'EmptyState');
+  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
   const loading = document.getElementById('monitorImgLoading');
-  if (loading) loading.style.display = 'none';
-  showMonitorEmpty();
-}
 
-function showMonitorEmpty() {
-  const empty = document.getElementById('monitorEmptyState');
-  const img = document.getElementById('monitorLiveImg');
+  if (loading) loading.style.display = 'none';
   if (empty) empty.style.display = 'block';
   if (img) img.style.display = 'none';
 }

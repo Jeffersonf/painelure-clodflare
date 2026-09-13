@@ -96,59 +96,42 @@ async function doCaptures() {
   isBusy = true;
 
   try {
-    // Se o usuário preferir capturar as janelas abertas na tela
-    if (screenshot) {
-      console.log('[AGENT] Capturando tela do dashboard Zabbix/Meraki...');
-      let imgBuffer = await screenshot({ format: 'jpg' });
-
-      // Se o sharp estiver presente, recorta a barra de tarefas do Windows para nao expor o relogio/jogos/outros apps
-      if (sharp) {
-        try {
-          const meta = await sharp(imgBuffer).metadata();
-          if (meta.width && meta.height && meta.height > 200) {
-            // Remove os ultimos 48px da base (barra de tarefas)
-            const cropHeight = Math.max(100, meta.height - 48);
-            imgBuffer = await sharp(imgBuffer)
-              .extract({ left: 0, top: 0, width: meta.width, height: cropHeight })
-              .jpeg({ quality: config.jpegQuality || 75 })
-              .toBuffer();
-          }
-        } catch (cropErr) {
-          console.warn('[AGENT] Aviso ao recortar:', cropErr.message);
-        }
-      }
-
-      await sendToServer(imgBuffer, 'zabbix-meraki-screen');
-      lastCaptureTime = Date.now();
-      isBusy = false;
-      return;
+    const executablePath = getChromePath();
+    console.log('[AGENT] Acessando Zabbix e Meraki em segundo plano (invisível)...');
+    
+    // Perfil dedicado e persistente para guardar cookies/sessão das contas
+    const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
+    if (!fs.existsSync(dedicatedProfile)) {
+      fs.mkdirSync(dedicatedProfile, { recursive: true });
     }
 
-    // Fallback: modo headless via puppeteer
-    const executablePath = getChromePath();
-    console.log('[AGENT] Iniciando navegador Chrome rápido...');
-    const tempProfile = path.join(require('os').tmpdir(), 'chrome-monitor-profile-' + Date.now());
     const browser = await puppeteer.launch({
       executablePath,
-      headless: true,
+      headless: 'new',
       ignoreHTTPSErrors: true,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
-        '--disable-extensions',
         '--disable-background-networking',
-        `--user-data-dir=${tempProfile}`,
+        `--user-data-dir=${dedicatedProfile}`,
         '--window-size=1600,900'
       ]
     });
 
-    if (config.zabbixUrl) await captureUrl(browser, config.zabbixUrl, 'zabbix');
-    if (config.merakiUrl) await captureUrl(browser, config.merakiUrl, 'meraki');
+    // Captura separada do Zabbix
+    if (config.zabbixUrl) {
+      await captureUrl(browser, config.zabbixUrl, 'zabbix');
+    }
+
+    // Captura separada do Meraki
+    if (config.merakiUrl) {
+      await captureUrl(browser, config.merakiUrl, 'meraki');
+    }
+
     lastCaptureTime = Date.now();
     await browser.close().catch(() => {});
-    try { fs.rmSync(tempProfile, { recursive: true, force: true }); } catch (e) {}
   } catch (e) {
     console.error('[AGENT] Erro na captura:', e.message);
   } finally {
@@ -171,7 +154,65 @@ async function pollServer() {
   } catch (e) {}
 }
 
+async function runLoginSetup() {
+  const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
+  console.log('====================================================');
+  console.log('  PAINELURE - CONEXÃO DE CONTAS (ZABBIX E MERAKI)    ');
+  console.log('====================================================');
+  console.log('Abrindo janela do Chrome para você realizar login...');
+  console.log('Perfil dedicado:', dedicatedProfile);
+
+  const executablePath = getChromePath();
+  const browser = await puppeteer.launch({
+    executablePath,
+    headless: false,
+    defaultViewport: null,
+    ignoreHTTPSErrors: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      `--user-data-dir=${dedicatedProfile}`,
+      '--start-maximized'
+    ]
+  });
+
+  const page1 = (await browser.pages())[0] || (await browser.newPage());
+  if (config.zabbixUrl) {
+    console.log('[1/2] Abrindo tela do Zabbix...');
+    await page1.goto(config.zabbixUrl).catch(() => {});
+  }
+
+  if (config.merakiUrl) {
+    console.log('[2/2] Abrindo tela do Meraki em nova aba...');
+    const page2 = await browser.newPage();
+    await page2.goto(config.merakiUrl).catch(() => {});
+  }
+
+  console.log('\n----------------------------------------------------');
+  console.log('👉 INSTRUÇÃO:');
+  console.log('1. Na janela do Chrome que abriu, faça login no Zabbix e no Meraki.');
+  console.log('2. Marque a opção de lembrar login se houver.');
+  console.log('3. Quando os dois dashboards estiverem abertos e logados:');
+  console.log('   Volte aqui neste terminal e aperte ENTER para salvar e fechar!');
+  console.log('----------------------------------------------------\n');
+
+  await new Promise(resolve => {
+    process.stdin.resume();
+    process.stdin.once('data', () => resolve());
+  });
+
+  console.log('Salvando sessão e fechando navegador...');
+  await browser.close();
+  console.log('✅ Sessão salva com sucesso! Agora o robô pode rodar 100% invisível em background.');
+  process.exit(0);
+}
+
 async function main() {
+  if (process.argv.includes('--login')) {
+    await runLoginSetup();
+    return;
+  }
+
   console.log('==================================================');
   console.log('   PainelURE Monitor Zabbix & Meraki Ativo        ');
   console.log('==================================================');
