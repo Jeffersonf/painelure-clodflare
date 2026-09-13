@@ -18,17 +18,20 @@ let lastCaptureTime = 0;
 let isCapturing = false;
 
 async function initBrowser() {
-  console.log('[AGENT] Conectando Chromium Headless...');
-  const userDataDir = path.join(__dirname, '.browser_data');
+  console.log('[AGENT] Iniciando navegador...');
+  
+  // Opções leves sem travar em userDataDir
   browser = await puppeteer.launch({
     headless: 'new',
-    userDataDir,
     ignoreHTTPSErrors: true,
+    timeout: 60000,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
+      '--disable-extensions',
+      '--no-first-run',
       '--window-size=1600,900'
     ]
   });
@@ -37,33 +40,27 @@ async function initBrowser() {
   const mUrl = String(config.merakiUrl || '').trim();
 
   if (zUrl) {
+    console.log('[AGENT] Abrindo aba Zabbix...');
     pageZabbix = await browser.newPage();
     await pageZabbix.setViewport({ width: 1600, height: 900 });
-    console.log('[AGENT] Navegando para Zabbix...');
-    try {
-      await pageZabbix.goto(zUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    } catch (e) {
-      console.warn('[AGENT] Zabbix carregando:', e.message);
-    }
+    pageZabbix.goto(zUrl, { timeout: 30000 }).catch(e => console.warn('[AGENT] Zabbix:', e.message));
   }
 
   if (mUrl) {
+    console.log('[AGENT] Abrindo aba Meraki...');
     pageMeraki = await browser.newPage();
     await pageMeraki.setViewport({ width: 1600, height: 900 });
-    console.log('[AGENT] Navegando para Meraki...');
-    try {
-      await pageMeraki.goto(mUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    } catch (e) {
-      console.warn('[AGENT] Meraki carregando:', e.message);
-    }
+    pageMeraki.goto(mUrl, { timeout: 30000 }).catch(e => console.warn('[AGENT] Meraki:', e.message));
   }
+
+  // Espera 5 segundos para renderizar a primeira tela
+  console.log('[AGENT] Aguardando renderizacao inicial (5s)...');
+  await new Promise(r => setTimeout(r, 5000));
 }
 
 async function captureAndSend(page, sourceName) {
   if (!page || page.isClosed()) return;
   try {
-    try { await page.reload({ waitUntil: 'domcontentloaded', timeout: 20000 }); } catch (e) {}
-
     const screenshotBuffer = await page.screenshot({
       type: 'jpeg',
       quality: config.jpegQuality || 75
@@ -77,7 +74,7 @@ async function captureAndSend(page, sourceName) {
     };
 
     const uploadUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/upload';
-    await fetch(uploadUrl, {
+    const res = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,11 +83,15 @@ async function captureAndSend(page, sourceName) {
       body: JSON.stringify(payload)
     });
 
-    const sizeKb = (screenshotBuffer.length / 1024).toFixed(1);
-    const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
-    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
+    if (res.ok) {
+      const sizeKb = (screenshotBuffer.length / 1024).toFixed(1);
+      const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
+      console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
+    } else {
+      console.error('[AGENT] Resposta servidor:', res.status, await res.text());
+    }
   } catch (err) {
-    console.error(`[AGENT] Erro ao enviar ${sourceName}:`, err.message);
+    console.error(`[AGENT] Erro ao capturar ${sourceName}:`, err.message);
   }
 }
 
@@ -102,6 +103,8 @@ async function doCaptures() {
     if (pageZabbix) await captureAndSend(pageZabbix, 'zabbix');
     if (pageMeraki) await captureAndSend(pageMeraki, 'meraki');
     lastCaptureTime = Date.now();
+  } catch (err) {
+    console.error('[AGENT] Erro geral:', err.message);
   } finally {
     isCapturing = false;
   }
