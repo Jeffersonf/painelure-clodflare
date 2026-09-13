@@ -61,15 +61,17 @@ async function captureUrl(browser, url, sourceName) {
   try {
     page = await browser.newPage();
     await page.setViewport({ width: 1600, height: 900 });
+    await page.setBypassCSP(true);
     
-    // Timeout curto de 15s para nao travar
-    await Promise.race([
-      page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 }),
-      new Promise(r => setTimeout(r, 8000))
-    ]).catch(e => console.log(`[AGENT] Info: ${e.message}`));
+    // Tenta carregar com tolerância a links internos intragov
+    try {
+      await page.goto(url, { waitUntil: 'load', timeout: 35000 });
+    } catch (navErr) {
+      console.warn(`[AGENT] Aviso navegação ${sourceName}: ${navErr.message}. Tentando capturar mesmo assim...`);
+    }
 
-    // Aguarda 3 segundos para renderizar o layout
-    await new Promise(r => setTimeout(r, 3000));
+    // Aguarda 4 segundos para renderizar gráficos e tabelas
+    await new Promise(r => setTimeout(r, 4000));
 
     console.log(`[AGENT] Tirando print de ${sourceName}...`);
     const buffer = await page.screenshot({ type: 'jpeg', quality: config.jpegQuality || 75 });
