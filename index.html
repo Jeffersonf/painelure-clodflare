@@ -1464,6 +1464,19 @@ body {
           <img id="monitorMerakiImg" src="" alt="Dashboard Meraki" style="display:none;width:100%;height:auto;max-height:80vh;object-fit:contain;" onload="onSourceLoaded('meraki')" onerror="onSourceError('meraki')">
         </div>
 
+        <!-- CARD AMBOS / TELA COMPLETA (ÁREA DE TRABALHO) -->
+        <div id="monitorBothBox" class="bento-card" style="padding:0;overflow:hidden;background:#05070d;border:1px solid var(--card-border);position:relative;min-height:360px;display:none;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:10px;left:12px;z-index:2;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;color:#38bdf8;border:1px solid rgba(56,189,248,0.3);">
+            TELA COMPLETA (ZABBIX &amp; MERAKI)
+          </div>
+          <div id="bothEmptyState" style="padding:40px 20px;text-align:center;">
+            <div style="font-size:38px;margin-bottom:8px;">🖥️</div>
+            <h4 style="font-size:15px;font-weight:700;color:var(--text-main);">Aguardando print da tela</h4>
+            <p style="font-size:12px;color:var(--text-muted);margin:4px 0 0;">O robô capturará a tela com os dois painéis abertos.</p>
+          </div>
+          <img id="monitorBothImg" src="" alt="Tela Completa Zabbix e Meraki" style="display:none;width:100%;height:auto;max-height:85vh;object-fit:contain;" onload="onSourceLoaded('both')" onerror="onSourceError('both')">
+        </div>
+
         <!-- Indicador de Carregamento Sobreposto -->
         <div id="monitorImgLoading" style="position:fixed;bottom:24px;right:24px;background:rgba(0,0,0,0.85);backdrop-filter:blur(10px);padding:8px 16px;border-radius:999px;font-size:12px;font-weight:700;color:#fff;border:1px solid rgba(255,255,255,0.2);display:none;z-index:9999;">
           <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Atualizando dashboards...
@@ -2207,6 +2220,7 @@ function switchMonitorSource(source) {
   const btnBoth = document.getElementById('btnTabBoth');
   const boxZabbix = document.getElementById('monitorZabbixBox');
   const boxMeraki = document.getElementById('monitorMerakiBox');
+  const boxBoth = document.getElementById('monitorBothBox');
   const grid = document.getElementById('monitorImageCard');
 
   [btnZabbix, btnMeraki, btnBoth].forEach(b => b?.classList.remove('active'));
@@ -2215,17 +2229,20 @@ function switchMonitorSource(source) {
     btnZabbix?.classList.add('active');
     if (boxZabbix) boxZabbix.style.display = 'flex';
     if (boxMeraki) boxMeraki.style.display = 'none';
+    if (boxBoth) boxBoth.style.display = 'none';
     if (grid) grid.style.gridTemplateColumns = '1fr';
   } else if (source === 'meraki') {
     btnMeraki?.classList.add('active');
     if (boxZabbix) boxZabbix.style.display = 'none';
     if (boxMeraki) boxMeraki.style.display = 'flex';
+    if (boxBoth) boxBoth.style.display = 'none';
     if (grid) grid.style.gridTemplateColumns = '1fr';
   } else {
     btnBoth?.classList.add('active');
-    if (boxZabbix) boxZabbix.style.display = 'flex';
-    if (boxMeraki) boxMeraki.style.display = 'flex';
-    if (grid) grid.style.gridTemplateColumns = 'repeat(auto-fit, minmax(500px, 1fr))';
+    if (boxBoth) boxBoth.style.display = 'flex';
+    if (boxZabbix) boxZabbix.style.display = 'none';
+    if (boxMeraki) boxMeraki.style.display = 'none';
+    if (grid) grid.style.gridTemplateColumns = '1fr';
   }
 }
 
@@ -2275,11 +2292,14 @@ function refreshMonitorImage(showLoader = true) {
   const imgM = document.getElementById('monitorMerakiImg');
   if (imgZ) imgZ.src = '/api/monitor/image?source=zabbix&t=' + ts;
   if (imgM) imgM.src = '/api/monitor/image?source=meraki&t=' + ts;
+  const imgBoth = document.getElementById('monitorBothImg');
+  if (imgBoth) imgBoth.src = '/api/monitor/image?source=latest&t=' + ts;
 }
 
 function onSourceLoaded(source) {
   const empty = document.getElementById(source + 'EmptyState');
-  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
+  const imgName = source === 'zabbix' ? 'Zabbix' : (source === 'meraki' ? 'Meraki' : 'Both');
+  const img = document.getElementById('monitor' + imgName + 'Img');
   const loading = document.getElementById('monitorImgLoading');
 
   if (empty) empty.style.display = 'none';
@@ -2289,7 +2309,8 @@ function onSourceLoaded(source) {
 
 function onSourceError(source) {
   const empty = document.getElementById(source + 'EmptyState');
-  const img = document.getElementById('monitor' + (source === 'zabbix' ? 'Zabbix' : 'Meraki') + 'Img');
+  const imgName = source === 'zabbix' ? 'Zabbix' : (source === 'meraki' ? 'Meraki' : 'Both');
+  const img = document.getElementById('monitor' + imgName + 'Img');
   const loading = document.getElementById('monitorImgLoading');
 
   if (loading) loading.style.display = 'none';

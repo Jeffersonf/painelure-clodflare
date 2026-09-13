@@ -1,33 +1,31 @@
 /**
- * PainelURE Monitor Agent
- * Usa o Google Chrome real instalado no PC para evitar travamentos do Chromium baixado.
+ * PainelURE Monitor Agent - Modo Print de Tela (Desktop Screenshot)
+ * Tira print da tela do Windows (ótimo para deixar aberto numa área de trabalho ou monitor dedicado).
  */
 
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
+const screenshot = require('screenshot-desktop');
+const sharp = require('sharp');
 
 const CONFIG_FILE = path.join(__dirname, 'config.json');
-const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+let config = {};
+
+try {
+  config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
+} catch (e) {
+  console.error('Erro ao ler config.json:', e.message);
+}
+
+const SERVER_URL = (config.serverUrl || 'https://painelure-cloudflare-pages.pages.dev').replace(/\/+$/, '');
+const TOKEN = config.agentSecretToken || 'ure-monitor-secret-2026';
+const JPEG_QUALITY = config.jpegQuality || 70;
 
 let isRealtimeActive = false;
 let lastCaptureTime = 0;
 let isBusy = false;
 
-// Procura o executavel do Google Chrome da maquina
-function getChromePath() {
-  const paths = [
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    process.env.LOCALAPPDATA + '\\Google\\Chrome\\Application\\chrome.exe'
-  ];
-  for (const p of paths) {
-    if (fs.existsSync(p)) return p;
-  }
-  return undefined; // fallback para o puppeteer padrao
-}
-
-async function sendToServer(buffer, sourceName) {
+async function sendToServer(buffer, sourceName = 'desktop') {
   const base64Image = buffer.toString('base64');
   const payload = {
     image: 'data:image/jpeg;base64,' + base64Image,
@@ -35,210 +33,90 @@ async function sendToServer(buffer, sourceName) {
     timestamp: new Date().toISOString()
   };
 
-  const uploadUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/upload';
+  const uploadUrl = `${SERVER_URL}/api/monitor/upload`;
   const res = await fetch(uploadUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Monitor-Token': config.agentSecretToken || ''
+      'X-Monitor-Token': TOKEN
     },
     body: JSON.stringify(payload)
   });
 
   if (res.ok) {
     const sizeKb = (buffer.length / 1024).toFixed(1);
-    const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
-    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
+    const mode = isRealtimeActive ? '⚡ TEMPO REAL (10s)' : 'NORMAL (1h)';
+    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
   } else {
-    console.error('[AGENT] Erro servidor:', res.status, await res.text());
+    console.error('[AGENT] Erro ao enviar para servidor:', res.status, await res.text());
   }
 }
 
-async function captureUrl(browser, url, sourceName) {
-  if (!url) return;
-  console.log(`[AGENT] Acessando ${sourceName}...`);
-  let page = null;
-  try {
-    page = await browser.newPage();
-    await page.setViewport({ width: 1600, height: 900 });
-    await page.setBypassCSP(true);
-    
-    // Tenta carregar com timeout rígido de 20s para nunca travar a execução
-    try {
-      await Promise.race([
-        page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('Tempo limite de 20s atingido')), 20000))
-      ]);
-    } catch (navErr) {
-      console.warn(`[AGENT] Aviso navegação ${sourceName}: ${navErr.message}. Tirando print do estado atual...`);
-    }
-
-    // Aguarda 3 segundos para renderizar a interface
-    await new Promise(r => setTimeout(r, 3000));
-
-    console.log(`[AGENT] Tirando print de ${sourceName}...`);
-    const buffer = await page.screenshot({ type: 'jpeg', quality: config.jpegQuality || 75 });
-    await sendToServer(buffer, sourceName);
-  } catch (err) {
-    console.error(`[AGENT] Falha em ${sourceName}:`, err.message);
-  } finally {
-    if (page) await page.close().catch(() => {});
-  }
-}
-
-let screenshot = null;
-try {
-  screenshot = require('screenshot-desktop');
-} catch (e) {}
-
-let sharp = null;
-try {
-  sharp = require('sharp');
-} catch (e) {}
-
-async function doCaptures() {
+async function captureDesktop() {
   if (isBusy) return;
   isBusy = true;
-  let browser = null;
 
   try {
-    console.log('[AGENT] Abrindo navegador isolado em segundo plano...');
+    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Capturando print da tela...`);
     
-    const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
-    if (!fs.existsSync(dedicatedProfile)) {
-      fs.mkdirSync(dedicatedProfile, { recursive: true });
-    }
+    // Captura o display principal
+    const rawPng = await screenshot({ format: 'png' });
+    
+    // Redimensiona e comprime para JPEG para envio rápido e leve
+    const compressedJpg = await sharp(rawPng)
+      .resize({ width: 1920, height: 1080, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: JPEG_QUALITY, progressive: true })
+      .toBuffer();
 
-    browser = await puppeteer.launch({
-      headless: true,
-      pipe: true,
-      ignoreHTTPSErrors: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--disable-extensions',
-        '--no-first-run',
-        '--no-default-browser-check',
-        `--user-data-dir=${dedicatedProfile}`,
-        '--window-size=1600,900'
-      ]
-    });
-
-    console.log('[AGENT] Navegador conectado com sucesso!');
-
-    // 1. Zabbix
-    if (config.zabbixUrl) {
-      console.log('[AGENT] [1/2] Capturando Zabbix...');
-      await captureUrl(browser, config.zabbixUrl, 'zabbix');
-    }
-
-    // 2. Meraki
-    if (config.merakiUrl) {
-      console.log('[AGENT] [2/2] Capturando Meraki...');
-      await captureUrl(browser, config.merakiUrl, 'meraki');
-    }
-
+    // Envia tanto como 'desktop' / 'latest' e também para preencher Zabbix/Meraki se ambos estiverem lado a lado
+    await sendToServer(compressedJpg, 'both');
+    
     lastCaptureTime = Date.now();
-  } catch (e) {
-    console.error('[AGENT] Erro na captura:', e.message);
+  } catch (err) {
+    console.error('[AGENT] Erro na captura de tela:', err.message);
   } finally {
-    if (browser) {
-      try { await browser.close(); } catch (e) {}
-    }
     isBusy = false;
   }
 }
 
 async function pollServer() {
   try {
-    const res = await fetch(config.serverUrl.replace(/\/+$/, '') + '/api/monitor/status');
+    const res = await fetch(`${SERVER_URL}/api/monitor/status`);
     if (res.ok) {
       const data = await res.json();
       const wasRt = isRealtimeActive;
       isRealtimeActive = Boolean(data.realtime);
       if (!wasRt && isRealtimeActive) {
-        console.log('[AGENT] ⚡ MODO TEMPO REAL ACIONADO! Capturando a cada 10s...');
-        doCaptures();
+        console.log('[AGENT] ⚡ MODO TEMPO REAL ACIONADO PELO SITE! Capturando agora...');
+        captureDesktop();
       }
     }
   } catch (e) {}
 }
 
-async function runLoginSetup() {
-  const dedicatedProfile = path.join(require('os').homedir(), '.painelure-chrome-session');
-  console.log('====================================================');
-  console.log('  PAINELURE - CONEXÃO DE CONTAS (ZABBIX E MERAKI)    ');
-  console.log('====================================================');
-  console.log('Abrindo janela do Chrome para você realizar login...');
-  console.log('Perfil dedicado:', dedicatedProfile);
-
-  const executablePath = getChromePath();
-  const browser = await puppeteer.launch({
-    executablePath,
-    headless: false,
-    defaultViewport: null,
-    ignoreHTTPSErrors: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      `--user-data-dir=${dedicatedProfile}`,
-      '--start-maximized'
-    ]
-  });
-
-  const page1 = (await browser.pages())[0] || (await browser.newPage());
-  if (config.zabbixUrl) {
-    console.log('[1/2] Abrindo tela do Zabbix...');
-    await page1.goto(config.zabbixUrl).catch(() => {});
-  }
-
-  if (config.merakiUrl) {
-    console.log('[2/2] Abrindo tela do Meraki em nova aba...');
-    const page2 = await browser.newPage();
-    await page2.goto(config.merakiUrl).catch(() => {});
-  }
-
-  console.log('\n----------------------------------------------------');
-  console.log('👉 INSTRUÇÃO:');
-  console.log('1. Na janela do Chrome que abriu, faça login no Zabbix e no Meraki.');
-  console.log('2. Marque a opção de lembrar login se houver.');
-  console.log('3. Quando os dois dashboards estiverem abertos e logados:');
-  console.log('   Volte aqui neste terminal e aperte ENTER para salvar e fechar!');
-  console.log('----------------------------------------------------\n');
-
-  await new Promise(resolve => {
-    process.stdin.resume();
-    process.stdin.once('data', () => resolve());
-  });
-
-  console.log('Salvando sessão e fechando navegador...');
-  await browser.close();
-  console.log('✅ Sessão salva com sucesso! Agora o robô pode rodar 100% invisível em background.');
-  process.exit(0);
-}
-
 async function main() {
-  if (process.argv.includes('--login')) {
-    await runLoginSetup();
-    return;
-  }
-
   console.log('==================================================');
-  console.log('   PainelURE Monitor Zabbix & Meraki Ativo        ');
+  console.log('   PainelURE Monitor - Modo Captura de Tela       ');
+  console.log('   (Deixe o Zabbix e Meraki abertos na tela)      ');
   console.log('==================================================');
-  
-  await doCaptures();
+  console.log('Servidor:', SERVER_URL);
+  console.log('Intervalo normal: 1 hora | Tempo real: 10 segundos');
+  console.log('Iniciando primeira captura...\n');
 
+  await captureDesktop();
+
+  // Polling para checar se alguém clicou no botão "Tempo Real" no site
   setInterval(pollServer, config.intervals?.checkRealtimePollMs || 5000);
+
+  // Loop de captura periódica
   setInterval(() => {
     const now = Date.now();
     const interval = isRealtimeActive
       ? (config.intervals?.realtimeCaptureMs || 10000)
       : (config.intervals?.normalCaptureMs || 3600000);
+
     if (now - lastCaptureTime >= interval) {
-      doCaptures();
+      captureDesktop();
     }
   }, 2000);
 }
