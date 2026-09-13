@@ -1,7 +1,6 @@
 /**
- * PainelURE Monitor Agent
- * Robo Headless para capturar telas de dashboards internos (Zabbix / Meraki)
- * e sincronizar com o PainelURE no Cloudflare.
+ * PainelURE Dual Monitor Agent (Meraki + Zabbix)
+ * Captura as telas dos dashboards e envia para o PainelURE.
  */
 
 const fs = require('fs');
@@ -9,30 +8,17 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 
 const CONFIG_FILE = path.join(__dirname, 'config.json');
-
-function loadConfig() {
-  if (!fs.existsSync(CONFIG_FILE)) {
-    console.error('[ERRO] Arquivo config.json nao encontrado. Copie config.example.json para config.json.');
-    process.exit(1);
-  }
-  try {
-    return JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
-  } catch (err) {
-    console.error('[ERRO] Falha ao ler config.json:', err.message);
-    process.exit(1);
-  }
-}
-
-const config = loadConfig();
+const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 
 let browser = null;
-let page = null;
+let pageMeraki = null;
+let pageZabbix = null;
 let isRealtimeActive = false;
 let lastCaptureTime = 0;
 let isCapturing = false;
 
 async function initBrowser() {
-  console.log('[AGENT] Iniciando Chromium Headless com perfil persistido...');
+  console.log('[AGENT] Conectando navegador para Meraki e Zabbix...');
   const userDataDir = path.join(__dirname, '.browser_data');
   browser = await puppeteer.launch({
     headless: 'new',
@@ -42,56 +28,35 @@ async function initBrowser() {
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--disable-gpu',
-      '--window-size=' + (config.viewport?.width || 1600) + ',' + (config.viewport?.height || 900)
+      '--window-size=1600,900'
     ]
   });
 
-  page = await browser.newPage();
-  await page.setViewport({
-    width: config.viewport?.width || 1600,
-    height: config.viewport?.height || 900
-  });
+  pageZabbix = await browser.newPage();
+  await pageZabbix.setViewport({ width: 1600, height: 900 });
 
-  await ensureAuthenticated();
-}
+  pageMeraki = await browser.newPage();
+  await pageMeraki.setViewport({ width: 1600, height: 900 });
 
-async function ensureAuthenticated() {
+  console.log('[AGENT] Abrindo Zabbix...');
   try {
-    console.log('[AGENT] Acessando URL do dashboard:', config.dashboardUrl);
-    await page.goto(config.dashboardUrl, { waitUntil: 'networkidle2', timeout: 45000 });
+    await pageZabbix.goto(config.zabbixUrl, { waitUntil: 'networkidle2', timeout: 45000 });
+  } catch (e) {
+    console.warn('[AGENT] Zabbix timeout/carregando:', e.message);
+  }
 
-    if (config.auth?.enabled && config.loginUrl) {
-      const currentUrl = page.url();
-      const needsLogin = currentUrl.includes('login') || currentUrl.includes('index.php');
-      if (needsLogin && config.auth.username && config.auth.password) {
-        console.log('[AGENT] Tela de login detectada. Efetuando autenticacao...');
-        await page.waitForSelector(config.auth.userInputSelector, { timeout: 10000 });
-        await page.type(config.auth.userInputSelector, config.auth.username);
-        await page.type(config.auth.passwordInputSelector, config.auth.password);
-        await page.click(config.auth.submitButtonSelector);
-        await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
-        console.log('[AGENT] Autenticacao realizada com sucesso.');
-      }
-    }
-  } catch (err) {
-    console.warn('[AGENT] Alerta na navegacao/login:', err.message);
+  console.log('[AGENT] Abrindo Meraki...');
+  try {
+    await pageMeraki.goto(config.merakiUrl, { waitUntil: 'networkidle2', timeout: 45000 });
+  } catch (e) {
+    console.warn('[AGENT] Meraki timeout/carregando:', e.message);
   }
 }
 
-async function captureAndUpload() {
-  if (isCapturing) return;
-  isCapturing = true;
-
+async function captureAndSend(page, sourceName) {
+  if (!page || page.isClosed()) return;
   try {
-    if (!page || page.isClosed()) {
-      await initBrowser();
-    }
-
-    try {
-      await page.reload({ waitUntil: 'networkidle2', timeout: 25000 });
-    } catch (e) {
-      console.warn('[AGENT] Aviso no reload da pagina:', e.message);
-    }
+    try { await page.reload({ waitUntil: 'networkidle2', timeout: 20000 }); } catch (e) {}
 
     const screenshotBuffer = await page.screenshot({
       type: 'jpeg',
@@ -101,14 +66,12 @@ async function captureAndUpload() {
     const base64Image = screenshotBuffer.toString('base64');
     const payload = {
       image: 'data:image/jpeg;base64,' + base64Image,
-      source: 'zabbix-ure-agent',
-      timestamp: new Date().toISOString(),
-      width: config.viewport?.width || 1600,
-      height: config.viewport?.height || 900
+      source: sourceName,
+      timestamp: new Date().toISOString()
     };
 
     const uploadUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/upload';
-    const res = await fetch(uploadUrl, {
+    await fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,73 +80,60 @@ async function captureAndUpload() {
       body: JSON.stringify(payload)
     });
 
-    if (res.ok) {
-      lastCaptureTime = Date.now();
-      const sizeKb = (screenshotBuffer.length / 1024).toFixed(1);
-      const modeStr = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
-      console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print enviado com sucesso (${sizeKb} KB). Modo: ${modeStr}`);
-    } else {
-      console.error('[AGENT] Erro no upload:', res.status, await res.text());
-    }
+    const sizeKb = (screenshotBuffer.length / 1024).toFixed(1);
+    const mode = isRealtimeActive ? 'TEMPO REAL (10s)' : 'NORMAL (1h)';
+    console.log(`[AGENT] ${new Date().toLocaleTimeString()} - Print ${sourceName.toUpperCase()} enviado com sucesso (${sizeKb} KB). Modo: ${mode}`);
   } catch (err) {
-    console.error('[AGENT] Falha na captura/envio:', err.message);
+    console.error(`[AGENT] Erro ao enviar ${sourceName}:`, err.message);
+  }
+}
+
+async function doCaptures() {
+  if (isCapturing) return;
+  isCapturing = true;
+  try {
+    if (!browser) await initBrowser();
+    // Prioriza Zabbix e depois Meraki
+    await captureAndSend(pageZabbix, 'zabbix');
+    await captureAndSend(pageMeraki, 'meraki');
+    lastCaptureTime = Date.now();
   } finally {
     isCapturing = false;
   }
 }
 
-async function pollServerStatus() {
+async function pollServer() {
   try {
-    const statusUrl = config.serverUrl.replace(/\/+$/, '') + '/api/monitor/status';
-    const res = await fetch(statusUrl, {
-      headers: { 'Accept': 'application/json' }
-    });
-
+    const res = await fetch(config.serverUrl.replace(/\/+$/, '') + '/api/monitor/status');
     if (res.ok) {
       const data = await res.json();
-      const wasRealtime = isRealtimeActive;
+      const wasRt = isRealtimeActive;
       isRealtimeActive = Boolean(data.realtime);
-
-      if (!wasRealtime && isRealtimeActive) {
-        console.log('[AGENT] >> MODO TEMPO REAL ATIVADO PELO USUARIO! Capturas a cada 10s...');
-        captureAndUpload();
-      } else if (wasRealtime && !isRealtimeActive) {
-        console.log('[AGENT] Modo Tempo Real expirou (5 min concluidos). Retornando ao ciclo normal de 1h.');
+      if (!wasRt && isRealtimeActive) {
+        console.log('[AGENT] ⚡ MODO TEMPO REAL ACIONADO! Capturando a cada 10s...');
+        doCaptures();
       }
     }
-  } catch (err) {
-    // silencia eventuais falhas de rede transitórias
-  }
+  } catch (e) {}
 }
 
 async function main() {
   console.log('==================================================');
-  console.log('      PainelURE Headless Monitor Agent v1.0       ');
+  console.log('   PainelURE Monitor Zabbix & Meraki Ativo        ');
   console.log('==================================================');
-  console.log('Servidor:', config.serverUrl);
-  console.log('Dashboard Alvo:', config.dashboardUrl);
-  console.log('Ciclo Normal:', (config.intervals?.normalCaptureMs || 3600000) / 60000, 'minutos');
-  console.log('Ciclo Tempo Real:', (config.intervals?.realtimeCaptureMs || 10000) / 1000, 'segundos');
-  console.log('--------------------------------------------------');
-
   await initBrowser();
-  await captureAndUpload();
+  await doCaptures();
 
-  setInterval(pollServerStatus, config.intervals?.checkRealtimePollMs || 5000);
-
+  setInterval(pollServer, config.intervals?.checkRealtimePollMs || 5000);
   setInterval(() => {
     const now = Date.now();
     const interval = isRealtimeActive
       ? (config.intervals?.realtimeCaptureMs || 10000)
       : (config.intervals?.normalCaptureMs || 3600000);
-
     if (now - lastCaptureTime >= interval) {
-      captureAndUpload();
+      doCaptures();
     }
   }, 2000);
 }
 
-main().catch(err => {
-  console.error('[AGENT FATAL]', err);
-  process.exit(1);
-});
+main().catch(console.error);

@@ -1,20 +1,8 @@
 {
   "serverUrl": "https://painelure-cloudflare-pages.pages.dev",
   "agentSecretToken": "ure-monitor-secret-2026",
-  "dashboardUrl": "http://10.x.x.x/zabbix/zabbix.php?action=dashboard.view",
-  "loginUrl": "http://10.x.x.x/zabbix/index.php",
-  "auth": {
-    "enabled": true,
-    "userInputSelector": "input[name='name']",
-    "passwordInputSelector": "input[name='password']",
-    "submitButtonSelector": "button[type='submit']",
-    "username": "Admin",
-    "password": ""
-  },
-  "viewport": {
-    "width": 1600,
-    "height": 900
-  },
+  "merakiUrl": "https://n672.dashboard.meraki.com/o/MDsE9b/manage/organization/overview?_gl=1*7pys92*_ga*MTM4ODYwODIyMy4xNzU0OTM5MzA0*_ga_DG2DVWGCGW*czE3ODkzMTg4ODQkbzQ1JGcxJHQxNzg5MzIwNDI5JGo2MCRsMCRoMA..#t=network",
+  "zabbixUrl": "https://zabbix-escolas.educacao.intragov/zabbix.php?action=problem.view&filter_show=1&filter_groupids%5B0%5D=253&filter_application=&filter_name=&filter_age_state=1&filter_age=14&filter_inventory%5B0%5D%5Bfield%5D=type&filter_inventory%5B0%5D%5Bvalue%5D=&filter_evaltype=0&filter_tags%5B0%5D%5Btag%5D=&filter_tags%5B0%5D%5Boperator%5D=0&filter_tags%5B0%5D%5Bvalue%5D=&filter_show_tags=3&filter_tag_name_format=0&filter_tag_priority=&filter_show_opdata=0&filter_show_suppressed=1&filter_set=1",
   "intervals": {
     "checkRealtimePollMs": 5000,
     "normalCaptureMs": 3600000,
