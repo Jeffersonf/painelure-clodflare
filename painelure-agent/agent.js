@@ -115,25 +115,25 @@ async function main() {
   console.log('   (Deixe o Zabbix e Meraki abertos na tela)      ');
   console.log('==================================================');
   console.log('Servidor:', SERVER_URL);
-  console.log('Intervalo normal: 1 hora | Tempo real: 10 segundos');
+  console.log('Intervalo normal: 1 hora | Tempo real: 5 segundos');
   console.log('Iniciando primeira captura...\n');
 
   await captureDesktop();
 
-  // Polling para checar se alguém clicou no botão "Tempo Real" no site
-  setInterval(pollServer, config.intervals?.checkRealtimePollMs || 5000);
+  // Polling para checar se alguém clicou no botão "Tempo Real" no site (a cada 3s)
+  setInterval(pollServer, config.intervals?.checkRealtimePollMs || 3000);
 
   // Loop de captura periódica
   setInterval(() => {
     const now = Date.now();
     const interval = isRealtimeActive
-      ? (config.intervals?.realtimeCaptureMs || 10000)
+      ? (config.intervals?.realtimeCaptureMs || 5000)
       : (config.intervals?.normalCaptureMs || 3600000);
 
     if (now - lastCaptureTime >= interval) {
       captureDesktop();
     }
-  }, 2000);
+  }, 1000);
 }
 
 main().catch(console.error);

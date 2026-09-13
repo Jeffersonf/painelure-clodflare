@@ -152,7 +152,7 @@ async function apiHandler(request, env, body) {
       await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_realtime', payload, 'client', now]);
       return { ok: true, realtime: false, realtimeUntil: null, remainingMs: 0 };
     }
-    const durationMs = 60 * 1000; // 1 minuto
+    const durationMs = 5 * 60 * 1000; // 5 minutos
     const expiresAt = Date.now() + durationMs;
     const now = new Date().toISOString();
     const payload = JSON.stringify({ realtimeUntil: expiresAt, requestedAt: now });
