@@ -11,18 +11,19 @@ const CONFIG_FILE = path.join(__dirname, 'config.json');
 const config = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf8'));
 
 let browser = null;
-let pageMeraki = null;
 let pageZabbix = null;
+let pageMeraki = null;
 let isRealtimeActive = false;
 let lastCaptureTime = 0;
 let isCapturing = false;
 
 async function initBrowser() {
-  console.log('[AGENT] Conectando navegador para Meraki e Zabbix...');
+  console.log('[AGENT] Conectando Chromium Headless...');
   const userDataDir = path.join(__dirname, '.browser_data');
   browser = await puppeteer.launch({
     headless: 'new',
     userDataDir,
+    ignoreHTTPSErrors: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -32,31 +33,36 @@ async function initBrowser() {
     ]
   });
 
-  pageZabbix = await browser.newPage();
-  await pageZabbix.setViewport({ width: 1600, height: 900 });
+  const zUrl = String(config.zabbixUrl || '').trim();
+  const mUrl = String(config.merakiUrl || '').trim();
 
-  pageMeraki = await browser.newPage();
-  await pageMeraki.setViewport({ width: 1600, height: 900 });
-
-  console.log('[AGENT] Abrindo Zabbix...');
-  try {
-    await pageZabbix.goto(config.zabbixUrl, { waitUntil: 'networkidle2', timeout: 45000 });
-  } catch (e) {
-    console.warn('[AGENT] Zabbix timeout/carregando:', e.message);
+  if (zUrl) {
+    pageZabbix = await browser.newPage();
+    await pageZabbix.setViewport({ width: 1600, height: 900 });
+    console.log('[AGENT] Navegando para Zabbix...');
+    try {
+      await pageZabbix.goto(zUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    } catch (e) {
+      console.warn('[AGENT] Zabbix carregando:', e.message);
+    }
   }
 
-  console.log('[AGENT] Abrindo Meraki...');
-  try {
-    await pageMeraki.goto(config.merakiUrl, { waitUntil: 'networkidle2', timeout: 45000 });
-  } catch (e) {
-    console.warn('[AGENT] Meraki timeout/carregando:', e.message);
+  if (mUrl) {
+    pageMeraki = await browser.newPage();
+    await pageMeraki.setViewport({ width: 1600, height: 900 });
+    console.log('[AGENT] Navegando para Meraki...');
+    try {
+      await pageMeraki.goto(mUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    } catch (e) {
+      console.warn('[AGENT] Meraki carregando:', e.message);
+    }
   }
 }
 
 async function captureAndSend(page, sourceName) {
   if (!page || page.isClosed()) return;
   try {
-    try { await page.reload({ waitUntil: 'networkidle2', timeout: 20000 }); } catch (e) {}
+    try { await page.reload({ waitUntil: 'domcontentloaded', timeout: 20000 }); } catch (e) {}
 
     const screenshotBuffer = await page.screenshot({
       type: 'jpeg',
@@ -93,9 +99,8 @@ async function doCaptures() {
   isCapturing = true;
   try {
     if (!browser) await initBrowser();
-    // Prioriza Zabbix e depois Meraki
-    await captureAndSend(pageZabbix, 'zabbix');
-    await captureAndSend(pageMeraki, 'meraki');
+    if (pageZabbix) await captureAndSend(pageZabbix, 'zabbix');
+    if (pageMeraki) await captureAndSend(pageMeraki, 'meraki');
     lastCaptureTime = Date.now();
   } finally {
     isCapturing = false;
