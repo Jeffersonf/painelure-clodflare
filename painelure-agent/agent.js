@@ -142,8 +142,14 @@ async function scrapeChromeAlerts() {
                 }
 
                 if (hostStr) {
+                  // Acha o nome completo do host (ex FW-043412, 043412_RT)
+                  let fullHost = hostStr;
+                  for (const c of cells) {
+                    if (c.includes(hostStr)) { fullHost = c; break; }
+                  }
                   list.push({
                     cie: hostStr,
+                    host: fullHost,
                     time: timeStr,
                     status: 'Desastre'
                   });
@@ -153,16 +159,16 @@ async function scrapeChromeAlerts() {
             return list;
           });
 
-          rawProblems.forEach(p => {
+          rawProblems.forEach((p, idx) => {
             const schoolName = getSchoolNameByCie(p.cie) || ('Escola CIE ' + p.cie);
-            if (!zabbixMap.has(p.cie)) {
-              zabbixMap.set(p.cie, {
-                cie: p.cie,
-                name: schoolName,
-                time: p.time,
-                status: 'Desastre'
-              });
-            }
+            const key = p.host || (p.cie + '_' + idx);
+            zabbixMap.set(key, {
+              cie: p.cie,
+              host: p.host || p.cie,
+              name: schoolName + (p.host ? ' (' + p.host + ')' : ''),
+              time: p.time,
+              status: 'Desastre'
+            });
           });
         } catch (zErr) {
           console.warn('[AGENT] Erro ao ler aba Zabbix:', zErr.message);

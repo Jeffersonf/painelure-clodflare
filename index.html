@@ -2325,7 +2325,7 @@ function renderLiveAlerts(alerts) {
       if (alerts.zabbix.length === 0) {
         zList.innerHTML = `<div style="padding:10px;text-align:center;color:var(--success);font-weight:700;background:rgba(16,185,129,0.08);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">✅ Nenhuma escola em desastre no Zabbix</div>`;
       } else {
-        zList.innerHTML = alerts.zabbix.slice(0, 6).map(item => `
+        zList.innerHTML = alerts.zabbix.map(item => `
           <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(239,68,68,0.1);border-radius:6px;border:1px solid rgba(239,68,68,0.25);">
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="color:#ef4444;">🔴</span>
@@ -2354,7 +2354,7 @@ function renderLiveAlerts(alerts) {
       if (offlineItems.length === 0) {
         mList.innerHTML = `<div style="padding:10px;text-align:center;color:var(--success);font-weight:700;background:rgba(16,185,129,0.08);border-radius:6px;border:1px solid rgba(16,185,129,0.2);">✅ Todos os APs Meraki operando normalmente</div>`;
       } else {
-        mList.innerHTML = offlineItems.slice(0, 6).map(item => `
+        mList.innerHTML = offlineItems.map(item => `
           <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:${item.offline >= (item.total || 1) ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)'};border-radius:6px;border:1px solid ${item.offline >= (item.total || 1) ? 'rgba(239,68,68,0.2)' : 'rgba(245,158,11,0.2)'};">
             <div style="display:flex;align-items:center;gap:6px;">
               <span style="color:#ef4444;">🔴</span>
