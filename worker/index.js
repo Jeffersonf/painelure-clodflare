@@ -165,22 +165,114 @@ function formatSchool(schoolName, appData) {
   if (profile.email) msg += `✉️ <b>Email:</b> <code>${escapeHtml(profile.email)}</code>\n`;
   if (supervisor) msg += `👨‍🏫 <b>Supervisor(a):</b> ${escapeHtml(supervisor.name)}\n`;
 
-  // Inventário
+  // Inventário Resumido
   msg += `\n💻 <b>Equipamentos / Ativos:</b>\n`;
-  if (Object.keys(inventoryMetrics).length > 0) {
-    const parts = [];
-    if (inventoryMetrics.desktops) parts.push(`${inventoryMetrics.desktops} Desktops`);
-    if (inventoryMetrics.chromebooks) parts.push(`${inventoryMetrics.chromebooks} Chromebooks`);
-    if (inventoryMetrics.notebooks) parts.push(`${inventoryMetrics.notebooks} Notebooks`);
-    if (inventoryMetrics.switches) parts.push(`${inventoryMetrics.switches} Switches`);
-    msg += parts.length ? `• ${parts.join(' | ')}\n` : `• ${inventoryMetrics.total || 'Inventariado'}\n`;
-  } else if (assets.length > 0) {
-    msg += `• ${assets.length} ativos cadastrados no sistema.\n`;
+  const totalItems = inventoryMetrics.total || inventoryMetrics.items || assets.length;
+  if (totalItems > 0) {
+    const func = inventoryMetrics.funcionando !== undefined ? inventoryMetrics.funcionando : assets.filter(a => a.status === 'ok').length;
+    const baixas = inventoryMetrics.baixas !== undefined ? inventoryMetrics.baixas : (inventoryMetrics.alerts || assets.filter(a => a.status === 'baixa').length);
+    const manut = inventoryMetrics.manutencao || assets.filter(a => a.status === 'manutencao').length;
+    const gar = inventoryMetrics.garantia || assets.filter(a => a.status === 'garantia').length;
+
+    msg += `• <b>Total:</b> ${totalItems} equipamentos cadastrados\n`;
+    const statusParts = [`🟢 <b>${func}</b> funcionando`];
+    if (baixas > 0) statusParts.push(`🔴 <b>${baixas}</b> baixa(s)`);
+    if (manut > 0) statusParts.push(`🟡 <b>${manut}</b> manutenção`);
+    if (gar > 0) statusParts.push(`🛡️ <b>${gar}</b> garantia`);
+    msg += `• <b>Situação:</b> ${statusParts.join(' | ')}\n`;
   } else {
-    msg += `• <i>Inventário não consolidado.</i>\n`;
+    msg += `• <i>Inventário em consolidação.</i>\n`;
   }
 
   return msg;
+}
+
+function formatEquipmentDetails(schoolName, appData) {
+  const normTarget = normalize(schoolName);
+  const metrics = (appData.schoolInventoryMetrics || {})[schoolName] || 
+                  Object.entries(appData.schoolInventoryMetrics || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+  const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
+
+  const total = metrics.total || metrics.items || assets.length;
+  const func = metrics.funcionando !== undefined ? metrics.funcionando : assets.filter(a => a.status === 'ok').length;
+  const baixas = metrics.baixas !== undefined ? metrics.baixas : (metrics.alerts || assets.filter(a => a.status === 'baixa').length);
+  const manut = metrics.manutencao || assets.filter(a => a.status === 'manutencao').length;
+  const gar = metrics.garantia || assets.filter(a => a.status === 'garantia').length;
+
+  let msg = `💻 <b>Inventário Detalhado de Equipamentos</b>\n`;
+  msg += `🏫 <b>${escapeHtml(schoolName)}</b>\n\n`;
+
+  msg += `📊 <b>Visão Geral:</b>\n`;
+  msg += `• <b>Total no Inventário:</b> ${total} equipamentos\n`;
+  msg += `• 🟢 <b>Funcionando:</b> ${func}\n`;
+  if (baixas > 0) msg += `• 🔴 <b>Baixas (avarias/sem conserto):</b> ${baixas}\n`;
+  if (manut > 0) msg += `• 🟡 <b>Em Manutenção Técnica:</b> ${manut}\n`;
+  if (gar > 0) msg += `• 🛡️ <b>Acionamento de Garantia:</b> ${gar}\n`;
+
+  if (metrics.types && Object.keys(metrics.types).length > 0) {
+    msg += `\n📦 <b>Equipamentos por Categoria:</b>\n`;
+    for (const [type, data] of Object.entries(metrics.types)) {
+      const parts = [`🟢 ${data.funcionando || 0} OK`];
+      if (data.baixas) parts.push(`🔴 ${data.baixas} baixa(s)`);
+      if (data.manutencao) parts.push(`🟡 ${data.manutencao} manut.`);
+      if (data.garantia) parts.push(`🛡️ ${data.garantia} gar.`);
+      msg += `• <b>${escapeHtml(type)} (${data.total}):</b> ${parts.join(', ')}\n`;
+    }
+  } else if (assets.length > 0) {
+    const groups = {};
+    for (const a of assets) {
+      let t = a.name || 'Outros';
+      if (/tablet/i.test(t)) t = 'Tablets';
+      else if (/chromebook/i.test(t)) t = 'Chromebooks';
+      else if (/desktop/i.test(t)) t = 'Desktops';
+      else if (/notebook|n 1110|n 1210|n6440|n8440/i.test(t)) t = 'Notebooks';
+      else if (/celular/i.test(t)) t = 'Celulares';
+      else t = 'Outros';
+      if (!groups[t]) groups[t] = { total: 0, ok: 0, baixa: 0, manut: 0 };
+      groups[t].total++;
+      if (a.status === 'ok') groups[t].ok++;
+      else if (a.status === 'baixa') groups[t].baixa++;
+      else groups[t].manut++;
+    }
+    msg += `\n📦 <b>Equipamentos por Categoria:</b>\n`;
+    for (const [t, d] of Object.entries(groups)) {
+      const parts = [`🟢 ${d.ok} OK`];
+      if (d.baixa) parts.push(`🔴 ${d.baixa} baixa(s)`);
+      if (d.manut) parts.push(`🟡 ${d.manut} manut.`);
+      msg += `• <b>${escapeHtml(t)} (${d.total}):</b> ${parts.join(', ')}\n`;
+    }
+  }
+
+  const problemItems = assets.filter(a => a.status === 'baixa' || a.status === 'manutencao' || a.status === 'garantia');
+  problemItems.sort((a, b) => (b.observation ? 1 : 0) - (a.observation ? 1 : 0));
+
+  if (problemItems.length > 0) {
+    msg += `\n⚠️ <b>Destaques de Ocorrências / Baixas:</b>\n`;
+    problemItems.slice(0, 8).forEach(item => {
+      const tag = item.status === 'baixa' ? '🔴 Baixa' : item.status === 'garantia' ? '🛡️ Garantia' : '🟡 Manut.';
+      const desc = item.observation || item.originalStatus || 'Avaria registrada no inventário';
+      const cleanDesc = desc.replace(/^Obs:\s*/i, '').slice(0, 55);
+      const sn = item.serial ? `(S/N: <code>${escapeHtml(item.serial)}</code>)` : '';
+      msg += `• [${tag}] <b>${escapeHtml(item.name)}</b> ${sn}: <i>${escapeHtml(cleanDesc)}</i>\n`;
+    });
+    if (problemItems.length > 8) {
+      msg += `<i>... e mais ${problemItems.length - 8} apontamento(s) no sistema.</i>\n`;
+    }
+  }
+
+  msg += `\n💡 <i>Base oficial consolidada da equipe de T.I.</i>`;
+
+  return {
+    text: msg,
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: '🏫 Voltar para Escola', callback_data: `esc:${schoolName.slice(0, 40)}` },
+          { text: '🎫 Texto de Chamado', callback_data: `sed_call:${schoolName.slice(0, 40)}` }
+        ]
+      ]
+    }
+  };
 }
 
 function formatCalls(appData, query) {
@@ -281,6 +373,9 @@ function getSchoolButtons(schoolName, appData) {
         { text: '🚗 Waze', url: `https://waze.com/ul?q=${query}&navigate=yes` }
       ],
       [
+        { text: '💻 Detalhes dos Equipamentos', callback_data: `eq_detail:${schoolName.slice(0, 40)}` }
+      ],
+      [
         { text: '🎫 Texto de Chamado', callback_data: `sed_call:${schoolName.slice(0, 40)}` }
       ]
     ]
@@ -369,6 +464,21 @@ function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, painel
             chat_id: chatId,
             text: template,
             parse_mode: 'HTML'
+          }
+        };
+      }
+
+      if (data.startsWith('eq_detail:')) {
+        const targetSchoolName = data.slice(10);
+        const formatted = formatEquipmentDetails(targetSchoolName, appData);
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: {
+            chat_id: chatId,
+            text: formatted.text,
+            parse_mode: 'HTML',
+            reply_markup: formatted.reply_markup
           }
         };
       }
@@ -604,6 +714,19 @@ function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, painel
     if (matches.length === 1) return { action: 'send_message', reply: { chat_id: chatId, text: formatSchool(matches[0], appData), parse_mode: 'HTML', reply_markup: getSchoolButtons(matches[0], appData) } };
     const buttons = matches.slice(0, 6).map(name => ([{ text: `🏫 ${name}`, callback_data: `esc:${name.slice(0, 50)}` }]));
     return { action: 'send_message', reply: { chat_id: chatId, text: `🔍 Encontrei ${matches.length} escolas para "${escapeHtml(query)}":`, parse_mode: 'HTML', reply_markup: { inline_keyboard: buttons } } };
+  }
+
+  if (rawText.startsWith('/equipamentos') || rawText.startsWith('/inventario')) {
+    const query = rawText.replace(/^\/(equipamentos|inventario)(@\w+)?/i, '').trim();
+    if (!query) return { action: 'send_message', reply: { chat_id: chatId, text: `ℹ️ Digite o nome da escola para ver o inventário detalhado.\nExemplo: <code>/equipamentos venturelli</code>`, parse_mode: 'HTML' } };
+    const matches = findSchools(query, appData);
+    if (!matches.length) return { action: 'send_message', reply: { chat_id: chatId, text: `❌ Nenhuma escola encontrada com <i>"${escapeHtml(query)}"</i>.`, parse_mode: 'HTML' } };
+    if (matches.length === 1) {
+      const formatted = formatEquipmentDetails(matches[0], appData);
+      return { action: 'send_message', reply: { chat_id: chatId, text: formatted.text, parse_mode: 'HTML', reply_markup: formatted.reply_markup } };
+    }
+    const buttons = matches.slice(0, 6).map(name => ([{ text: `💻 ${name}`, callback_data: `eq_detail:${name.slice(0, 50)}` }]));
+    return { action: 'send_message', reply: { chat_id: chatId, text: `🔍 Encontrei ${matches.length} escolas para o inventário de "${escapeHtml(query)}":`, parse_mode: 'HTML', reply_markup: { inline_keyboard: buttons } } };
   }
   if (rawText.startsWith('/chamados')) {
     const formatted = formatCalls(appData, rawText.replace(/^\/chamados(@\w+)?/i, '').trim());

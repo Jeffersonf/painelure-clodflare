@@ -102,16 +102,18 @@ async function runTests() {
   console.log('Inline keyboard buttons:', JSON.stringify(painelRes.reply.reply_markup.inline_keyboard));
   if (!painelRes.reply.reply_markup.inline_keyboard[0][0].web_app) throw new Error('Falha no Mini App web_app');
 
-  // Teste 8: Botões em /escola (GPS e Texto de Chamado SED)
-  console.log('\n--- Teste 8: Botões em /escola (GPS & Texto de Chamado SED) ---');
+  // Teste 8: Botões em /escola (GPS, Equipamentos e Texto de Chamado SED)
+  console.log('\n--- Teste 8: Botões em /escola (GPS, Equipamentos & Texto de Chamado SED) ---');
   const buttons = escolaRes.reply.reply_markup?.inline_keyboard || [];
   console.log('Botões gerados:', JSON.stringify(buttons));
   const hasMaps = buttons.some(row => row.some(b => b.text.includes('Maps')));
   const hasWaze = buttons.some(row => row.some(b => b.text.includes('Waze')));
+  const hasEqDetail = buttons.some(row => row.some(b => b.text.includes('Detalhes dos Equipamentos')));
   const hasSedCall = buttons.some(row => row.some(b => b.text.includes('Texto de Chamado')));
   if (!hasMaps || !hasWaze) throw new Error('Falha nos botões de GPS (Maps/Waze)');
+  if (!hasEqDetail) throw new Error('Falha no botão Detalhes dos Equipamentos');
   if (!hasSedCall) throw new Error('Falha no botão Texto de Chamado');
-  console.log('✅ Botões de navegação e Texto de Chamado validados!');
+  console.log('✅ Botões de navegação, Detalhes de Equipamentos e Texto de Chamado validados!');
 
   // Teste 8b: Callback do botão Texto de Chamado SED
   console.log('\n--- Teste 8b: Callback sed_call (Texto de Chamado SED) ---');
@@ -126,7 +128,6 @@ async function runTests() {
     },
     appData
   });
-  console.log('Resposta Callback SED:\n' + sedCallRes.reply.text);
   if (!sedCallRes.reply.text.includes('Texto Padrão para Chamado SED')) {
     throw new Error('Falha no modelo de chamado SED');
   }
@@ -134,6 +135,46 @@ async function runTests() {
     throw new Error('Falha nos dados da escola no modelo SED');
   }
   console.log('✅ Modelo de chamado SED retornado perfeitamente com dados da unidade!');
+
+  // Teste 8c: Callback do botão Detalhes dos Equipamentos
+  console.log('\n--- Teste 8c: Callback eq_detail (Inventário Detalhado) ---');
+  const eqDetailRes = await botCore.handleTelegramUpdate({
+    update: {
+      callback_query: {
+        id: 'cb_eq_1',
+        from: { username: 'analista_ti' },
+        message: { chat: { id: dummyChatId } },
+        data: 'eq_detail:EE Doutor Raul Venturelli'
+      }
+    },
+    appData
+  });
+  if (!eqDetailRes.reply.text.includes('Inventário Detalhado de Equipamentos')) {
+    throw new Error('Falha nos detalhes de equipamentos via callback');
+  }
+  if (!eqDetailRes.reply.text.includes('Funcionando')) {
+    throw new Error('Falha nas métricas de funcionando no inventário');
+  }
+  console.log('✅ Callback eq_detail retornou o inventário completo com sucesso!');
+
+  // Teste 8d: Comando /equipamentos venturelli
+  console.log('\n--- Teste 8d: Comando /equipamentos venturelli ---');
+  const cmdEqRes = await botCore.handleTelegramUpdate({
+    update: {
+      message: {
+        chat: { id: dummyChatId },
+        text: '/equipamentos venturelli'
+      }
+    },
+    appData
+  });
+  if (!cmdEqRes.reply.text.includes('Inventário Detalhado de Equipamentos')) {
+    throw new Error('Falha no comando /equipamentos');
+  }
+  if (!cmdEqRes.reply.text.includes('Total no Inventário:')) {
+    throw new Error('Falha no total de inventário');
+  }
+  console.log('✅ Comando /equipamentos validado com sucesso!');
 
   // Teste 9: Abertura de chamado /novochamado
   console.log('\n--- Teste 9: Comando /novochamado ---');
