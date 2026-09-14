@@ -749,6 +749,335 @@ function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, painel
   return { action: 'send_message', reply: { chat_id: chatId, text: `Comando não reconhecido. Digite <code>/ajuda</code> para ver as opções.`, parse_mode: 'HTML', reply_markup: getMainKeyboard(painelUrl) } };
 }
 
+function toWhatsApp(html) {
+  if (!html) return '';
+  return String(html)
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<b>(.*?)<\/b>/gi, '*$1*')
+    .replace(/<strong>(.*?)<\/strong>/gi, '*$1*')
+    .replace(/<i>(.*?)<\/i>/gi, '_$1_')
+    .replace(/<em>(.*?)<\/em>/gi, '_$1_')
+    .replace(/<code>(.*?)<\/code>/gi, '$1')
+    .replace(/<pre><code>([\s\S]*?)<\/code><\/pre>/gi, '```\n$1\n```')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/<[^>]+>/g, '')
+    .trim();
+}
+
+function getWhatsAppMenu(painelUrl = 'https://painelure-cloudflare-pages.pages.dev') {
+  return `🤖 *PainelURE - Assistente WhatsApp URE Itapeva*\n\n` +
+    `Olá! Como posso ajudar hoje? Digite o *número* ou a *opção*:\n\n` +
+    `1️⃣ *Escolas* (digite *1* ou o *nome da escola*, ex: _venturelli_)\n` +
+    `2️⃣ *Equipamentos* (digite *2* ou _eq jupira_)\n` +
+    `3️⃣ *Texto Chamado SED* (digite *3* ou _chamado demetrio_)\n` +
+    `4️⃣ *Fila de Chamados T.I.* (digite *4* ou _chamados_)\n` +
+    `5️⃣ *Carros Oficiais* (digite *5* ou _carros_)\n` +
+    `6️⃣ *Supervisores* (digite *6* ou _supervisores_)\n` +
+    `7️⃣ *Monitor de Rede* (digite *7* ou _monitor_)\n\n` +
+    `🌐 *Painel Web:* ${painelUrl}\n\n` +
+    `💡 *Dica:* Você pode digitar direto o nome de qualquer escola a qualquer momento!`;
+}
+
+function formatSchoolWhatsApp(schoolName, appData) {
+  const normTarget = normalize(schoolName);
+  const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+  const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+  const supervisor = (appData.supervisors || []).find(s => (s.assignedSchools || []).some(sch => normalize(sch) === normTarget));
+  
+  let cie = profile.cie || baseSchool.cie || '';
+  if (!cie && profile.email) {
+    const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+    if (cieMatch) cie = cieMatch[1];
+  }
+  if (!cie && appData.networkData) {
+    const net = (appData.networkData || {})[schoolName] || Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+    if (net.ips) {
+      const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
+      if (cieIp) {
+        const m = cieIp.match(/(\d+)/);
+        if (m) cie = m[1];
+      }
+    }
+  }
+
+  const inventoryMetrics = (appData.schoolInventoryMetrics || {})[schoolName] || 
+                          Object.entries(appData.schoolInventoryMetrics || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+  const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
+
+  let msg = `🏫 *${schoolName}*\n`;
+  const muni = profile.municipality || profile.municipio || profile.city;
+  if (muni) msg += `📍 *Município:* ${muni}\n`;
+  if (cie) msg += `🏷️ *CIE:* ${cie}\n`;
+  const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || '';
+  if (director) msg += `👤 *Diretor(a):* ${director}\n`;
+  if (profile.phone) msg += `📞 *Telefone:* ${profile.phone}\n`;
+  if (profile.email) msg += `✉️ *Email:* ${profile.email}\n`;
+  if (supervisor) msg += `👨‍🏫 *Supervisor(a):* ${supervisor.name}\n`;
+
+  // Resumo do Inventário
+  msg += `\n💻 *Equipamentos / Ativos:*\n`;
+  const totalItems = inventoryMetrics.total || inventoryMetrics.items || assets.length;
+  if (totalItems > 0) {
+    const func = inventoryMetrics.funcionando !== undefined ? inventoryMetrics.funcionando : assets.filter(a => a.status === 'ok').length;
+    const baixas = inventoryMetrics.baixas !== undefined ? inventoryMetrics.baixas : (inventoryMetrics.alerts || assets.filter(a => a.status === 'baixa').length);
+    const manut = inventoryMetrics.manutencao || assets.filter(a => a.status === 'manutencao').length;
+    const gar = inventoryMetrics.garantia || assets.filter(a => a.status === 'garantia').length;
+
+    msg += `• *Total:* ${totalItems} equipamentos cadastrados\n`;
+    const statusParts = [`🟢 *${func}* funcionando`];
+    if (baixas > 0) statusParts.push(`🔴 *${baixas}* baixa(s)`);
+    if (manut > 0) statusParts.push(`🟡 *${manut}* manutenção`);
+    if (gar > 0) statusParts.push(`🛡️ *${gar}* garantia`);
+    msg += `• *Situação:* ${statusParts.join(' | ')}\n`;
+  } else {
+    msg += `• _Inventário em consolidação._\n`;
+  }
+
+  // Links GPS
+  const query = encodeURIComponent(`${schoolName} ${muni || 'Itapeva'} SP`);
+  msg += `\n📍 *Rotas / Navegação:*\n`;
+  msg += `• Google Maps: https://www.google.com/maps/search/?api=1&query=${query}\n`;
+  msg += `• Waze: https://waze.com/ul?q=${query}&navigate=yes\n`;
+
+  const shortName = schoolName.replace(/^EE\s+(Profª?\.?|Dona|Padre)?\s*/i, '').trim().split(/\s+/)[0];
+  msg += `\n💡 *Opções rápidas:*\n`;
+  msg += `• Digite *eq ${shortName}* para ver equipamentos detalhados\n`;
+  msg += `• Digite *chamado ${shortName}* para copiar texto do chamado SED\n`;
+
+  return msg;
+}
+
+function formatSedTicketWhatsApp(targetSchoolName, appData) {
+  const normTarget = normalize(targetSchoolName);
+  const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+  const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+  let cie = profile.cie || baseSchool.cie || '';
+  if (!cie && profile.email) {
+    const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+    if (cieMatch) cie = cieMatch[1];
+  }
+  const muni = profile.municipality || profile.municipio || profile.city || 'Itapeva';
+  const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || 'Não informado';
+  const phone = profile.phone || 'Não informado';
+  const email = profile.email || 'Não informado';
+
+  return `📋 *Texto Padrão para Chamado SED*\n` +
+    `_Toque no bloco abaixo para copiar o texto pronto:_\n\n` +
+    '```\n' +
+    `Unidade Escolar: ${targetSchoolName}\n` +
+    `CIE: ${cie || '---'}\n` +
+    `Município: ${muni}\n` +
+    `Diretor(a): ${director}\n` +
+    `Telefone: ${phone}\n` +
+    `E-mail: ${email}\n\n` +
+    `Solicitante: Direção / Secretaria\n` +
+    `Assunto: [Descreva resumidamente o problema]\n` +
+    `Descrição:\n` +
+    `[Descreva aqui o defeito, equipamento afetado, localização na escola e teste realizado]\n` +
+    '```\n\n' +
+    `💡 _Modelo oficial pronto para abertura de ocorrência na SED._`;
+}
+
+function formatEquipmentDetailsWhatsApp(schoolName, appData) {
+  const formatted = formatEquipmentDetails(schoolName, appData);
+  let text = toWhatsApp(formatted.text || formatted);
+  const shortName = schoolName.replace(/^EE\s+(Profª?\.?|Dona|Padre)?\s*/i, '').trim().split(/\s+/)[0];
+  text += `\n\n💡 _Digite *chamado ${shortName}* para gerar chamado SED ou *escola ${shortName}* para voltar._`;
+  return text;
+}
+
+function handleWhatsAppMessage({
+  text = '',
+  from = '',
+  sender = '',
+  appData = {},
+  monitorStatus = {},
+  painelUrl = 'https://painelure-cloudflare-pages.pages.dev'
+}) {
+  const clean = String(text || '').trim();
+  const lower = clean.toLowerCase();
+  const userDisplayName = sender || 'Usuário WhatsApp';
+
+  // 1. Saudação / Menu
+  if (!clean || ['menu', 'oi', 'ola', 'olá', 'ajuda', 'help', '/start', 'iniciar', 'bom dia', 'boa tarde', 'boa noite', 'opa', 'começar'].includes(lower)) {
+    return {
+      replyText: getWhatsAppMenu(painelUrl)
+    };
+  }
+
+  // 2. Opções numeradas do Menu
+  if (lower === '1' || lower === 'escola' || lower === 'escolas') {
+    return {
+      replyText: `🏫 *Consulta de Escolas*\n\nDigite o nome ou CIE da escola que deseja pesquisar.\n\n*Exemplo:* _venturelli_ ou _murtinho_`
+    };
+  }
+
+  if (lower === '2' || lower === 'equipamento' || lower === 'equipamentos' || lower === 'inventario') {
+    return {
+      replyText: `💻 *Inventário de Equipamentos*\n\nDigite *eq <nome da escola>* para ver os equipamentos detalhados.\n\n*Exemplo:* _eq venturelli_ ou _eq jupira_`
+    };
+  }
+
+  if (lower === '3' || lower === 'chamado sed' || lower === 'texto chamado' || lower === 'texto de chamado') {
+    return {
+      replyText: `📋 *Texto Padrão para Chamado SED*\n\nDigite *chamado <nome da escola>* para gerar o texto do chamado pronto para copiar.\n\n*Exemplo:* _chamado venturelli_`
+    };
+  }
+
+  if (lower === '4' || lower === 'chamados' || lower === 'chamados ti') {
+    return {
+      replyText: toWhatsApp(formatCalls(appData))
+    };
+  }
+
+  if (lower === '5' || lower === 'carros' || lower === 'carro' || lower === 'frota') {
+    return {
+      replyText: toWhatsApp(formatCars(appData))
+    };
+  }
+
+  if (lower === '6' || lower === 'supervisores' || lower === 'supervisao' || lower === 'supervisor') {
+    return {
+      replyText: toWhatsApp(formatSupervisors('', appData))
+    };
+  }
+
+  if (lower === '7' || lower === 'monitor' || lower === 'rede' || lower === 'status rede') {
+    return {
+      replyText: toWhatsApp(formatMonitor(monitorStatus))
+    };
+  }
+
+  // 3. Gerar Texto Chamado SED: "chamado <escola>" ou "sed <escola>"
+  if (/^(chamado|sed|texto chamado)\s+/i.test(clean)) {
+    const q = clean.replace(/^(chamado|sed|texto chamado)\s+/i, '').trim();
+    if (!q) {
+      return { replyText: `ℹ️ Digite o nome da escola após a palavra chamado.\nExemplo: *chamado venturelli*` };
+    }
+    const matches = findSchools(q, appData);
+    if (!matches.length) {
+      return { replyText: `❌ Nenhuma escola encontrada para "${q}".\nTente digitar parte do nome (ex: _venturelli_).` };
+    }
+    return { replyText: formatSedTicketWhatsApp(matches[0], appData) };
+  }
+
+  // 4. Detalhes de Equipamentos: "eq <escola>" ou "equipamentos <escola>"
+  if (/^(eq|equipamento|equipamentos|inventario)\s+/i.test(clean)) {
+    const q = clean.replace(/^(eq|equipamento|equipamentos|inventario)\s+/i, '').trim();
+    if (!q) {
+      return { replyText: `ℹ️ Digite o nome da escola após o comando.\nExemplo: *eq venturelli*` };
+    }
+    const matches = findSchools(q, appData);
+    if (!matches.length) {
+      return { replyText: `❌ Nenhuma escola encontrada para "${q}".` };
+    }
+    return { replyText: formatEquipmentDetailsWhatsApp(matches[0], appData) };
+  }
+
+  // 5. Supervisor específico: "supervisor <nome>"
+  if (/^supervisor(es)?\s+/i.test(clean)) {
+    const q = clean.replace(/^supervisor(es)?\s+/i, '').trim();
+    return { replyText: toWhatsApp(formatSupervisors(q, appData)) };
+  }
+
+  // 6. Novo Chamado via WhatsApp: "novo chamado <escola> | <problema>"
+  if (/^(novo chamado|novochamado)\b/i.test(clean)) {
+    const content = clean.replace(/^(novo chamado|novochamado)\s*/i, '').trim();
+    if (!content.includes('|')) {
+      return {
+        replyText: `ℹ️ *Como abrir chamado:*\nEnvie no formato:\n*novo chamado <Escola> | <Problema>*\n\n_Exemplo:_ *novo chamado Venturelli | Impressora não liga*`
+      };
+    }
+    const [rawSchool, ...rest] = content.split('|');
+    const sQuery = rawSchool.trim();
+    const issue = rest.join('|').trim();
+    const matches = findSchools(sQuery, appData);
+    const finalSchool = matches.length > 0 ? matches[0] : sQuery;
+    const newCall = {
+      id: `call-${Date.now()}`,
+      school: finalSchool,
+      title: issue,
+      description: issue,
+      status: 'Aberto',
+      priority: 'Normal',
+      technician: userDisplayName,
+      createdAt: new Date().toISOString(),
+      source: 'WhatsApp'
+    };
+    if (!Array.isArray(appData.calls)) appData.calls = [];
+    appData.calls.unshift(newCall);
+    return {
+      dataMutation: { type: 'add_call', call: newCall },
+      replyText: `✅ *Chamado Aberto com Sucesso!*\n\n🎫 *ID:* ${newCall.id}\n🏫 *Escola:* ${finalSchool}\n📝 *Problema:* ${issue}\n👤 *Solicitante:* ${userDisplayName}\n\n_O chamado já está visível para a equipe de T.I. no PainelURE._`
+    };
+  }
+
+  // 7. Reserva de Carro via WhatsApp: "reservar carro <veiculo> | <data> | <destino>"
+  if (/^(reservar carro|reservarcarro|reserva carro)\b/i.test(clean)) {
+    const content = clean.replace(/^(reservar carro|reservarcarro|reserva carro)\s*/i, '').trim();
+    if (!content.includes('|')) {
+      return {
+        replyText: `🚗 *Como reservar veículo oficial:*\nEnvie no formato:\n*reservar carro <Veículo> | <Data> | <Destino>*\n\n_Exemplo:_ *reservar carro Utilitário | 15/09 08:00 | Visita técnica Ribeirão Branco*`
+      };
+    }
+    const parts = content.split('|').map(s => s.trim());
+    const vehicle = parts[0] || 'Veículo Utilitário';
+    const dateInput = parts[1] || 'Hoje';
+    const destination = parts[2] || 'Regional Itapeva';
+    const newRes = {
+      id: `car-${Date.now()}`,
+      vehicle,
+      date: dateInput,
+      time: '08:00',
+      requester: userDisplayName,
+      destination,
+      place: destination,
+      title: `Visita técnica - ${destination}`,
+      status: 'Aprovado',
+      authorization: 'Aprovado',
+      source: 'WhatsApp',
+      createdAt: new Date().toISOString()
+    };
+    if (!Array.isArray(appData.cars)) appData.cars = [];
+    appData.cars.unshift(newRes);
+    return {
+      dataMutation: { type: 'add_car', car: newRes },
+      replyText: `🚗 *Reserva de Veículo Confirmada!*\n\n🚘 *Veículo:* ${vehicle}\n📅 *Data:* ${dateInput}\n📍 *Destino:* ${destination}\n👤 *Responsável:* ${userDisplayName}\n\n_Reserva registrada na escala oficial do PainelURE._`
+    };
+  }
+
+  // 8. Consulta de Escola (seja "escola <nome>" ou apenas o nome da escola direto)
+  let schoolQuery = clean;
+  if (/^escola\s+/i.test(clean)) {
+    schoolQuery = clean.replace(/^escola\s+/i, '').trim();
+  }
+
+  const matches = findSchools(schoolQuery, appData);
+  if (matches.length === 1) {
+    return {
+      replyText: formatSchoolWhatsApp(matches[0], appData)
+    };
+  }
+
+  if (matches.length > 1) {
+    let msg = `🔍 *Encontrei ${matches.length} escolas para "${schoolQuery}":*\n\n`;
+    matches.slice(0, 6).forEach((sch, i) => {
+      msg += `${i + 1}️⃣ *${sch}*\n`;
+    });
+    msg += `\n_Digite o nome da escola desejada (ex: ${matches[0].split(/\s+/).slice(0, 2).join(' ')})._`;
+    return {
+      replyText: msg
+    };
+  }
+
+  // 9. Se nada bateu
+  return {
+    replyText: `Desculpe, não entendi "${clean}". 🤔\n\nDigite *menu* para ver as opções ou digite o nome de uma escola para pesquisar (ex: _venturelli_).`
+  };
+}
+
 async function apiHandler(request, env, body) {
   if (!env.DB) throw fail(503, 'Binding D1 (DB) não configurado.');
   const url = new URL(request.url); const path = url.pathname.split('/').filter(Boolean); const method = request.method;
@@ -798,7 +1127,27 @@ async function apiHandler(request, env, body) {
       const alertsPayload = JSON.stringify(body.alerts);
       await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_alerts', alertsPayload, 'monitor', now]);
     }
+    if (body.dvrs && typeof body.dvrs === 'object') {
+      const dvrsPayload = JSON.stringify(body.dvrs);
+      await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_dvrs', dvrsPayload, 'monitor', now]);
+    }
     return { ok: true, source: body.source, updatedAt: now, length: image.length };
+  }
+  if (url.pathname === '/api/monitor/dvrs' && method === 'POST') {
+    const token = request.headers.get('X-Monitor-Token') || request.headers.get('Authorization') || '';
+    const adminKey = env.PAINELURE_ADMIN_KEY || 'ure-monitor-secret-2026';
+    if (token !== adminKey && token !== 'ure-monitor-secret-2026' && token !== 'Bearer ' + adminKey) {
+      const auth = await authForRequest(request, env);
+      if (!isAdmin(auth)) throw fail(401, 'Token inválido.');
+    }
+    const dvrsData = body.dvrs || body;
+    const now = new Date().toISOString();
+    await run(env.DB, 'INSERT INTO app_state (id, payload, source, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload=excluded.payload, source=excluded.source, updated_at=excluded.updated_at', ['monitor_dvrs', JSON.stringify(dvrsData), 'monitor', now]);
+    return { ok: true, updatedAt: now };
+  }
+  if (url.pathname === '/api/monitor/dvrs' && method === 'GET') {
+    const row = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_dvrs']);
+    return { ok: true, dvrs: parseJson(row?.payload, null), updatedAt: row?.updated_at || null };
   }
   if (url.pathname === '/api/monitor/request-realtime' && method === 'POST') {
     const action = body.action || (body.cancel ? 'stop' : 'start');
@@ -827,6 +1176,8 @@ async function apiHandler(request, env, body) {
     const imgData = parseJson(rowLatest?.payload, {});
     const rowAlerts = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_alerts']);
     const alertsData = parseJson(rowAlerts?.payload, null);
+    const rowDvrs = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_dvrs']);
+    const dvrsData = parseJson(rowDvrs?.payload, null);
     return {
       ok: true,
       active: Boolean(rowLatest || rowZabbix || rowMeraki),
@@ -840,6 +1191,8 @@ async function apiHandler(request, env, body) {
       lastCaptureAt: rowLatest?.updated_at || null,
       alerts: alertsData,
       alertsUpdatedAt: rowAlerts?.updated_at || null,
+      dvrs: dvrsData,
+      dvrsUpdatedAt: rowDvrs?.updated_at || null,
       width: imgData.width || 1600,
       height: imgData.height || 900
     };
@@ -946,6 +1299,67 @@ async function apiHandler(request, env, body) {
     });
     const tgData = await tgRes.json();
     return { ok: true, webhookUrl, telegram: tgData };
+  }
+  if (url.pathname === '/api/bot/whatsapp') {
+    if (method === 'GET') {
+      return { ok: true, name: 'PainelURE WhatsApp Bot API', status: 'ready', time: new Date().toISOString() };
+    }
+    if (method === 'POST') {
+      let rawText = '';
+      let from = '';
+      let senderName = '';
+
+      if (body.event === 'message' && body.payload) {
+        if (body.payload.fromMe) {
+          return { ok: true, ignored: true, reason: 'fromMe' };
+        }
+        rawText = body.payload.body || '';
+        from = body.payload.from || '';
+        senderName = body.payload._data?.notifyName || body.payload.notifyName || '';
+      } else {
+        rawText = body.text || body.message || body.body || '';
+        from = body.from || body.chatId || '';
+        senderName = body.sender || body.name || body.notifyName || '';
+      }
+
+      if (!rawText && !from) {
+        throw fail(400, 'Mensagem ou remetente não informados.');
+      }
+
+      const store = await readStore(env.DB);
+      const appData = store.appData || {};
+      const rowAlerts = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_alerts']);
+      const rowLatest = await first(env.DB, 'SELECT updated_at FROM app_state WHERE id = ?', ['monitor_latest']);
+      const monitorStatus = {
+        active: Boolean(rowLatest),
+        updatedAt: rowLatest?.updated_at || null,
+        alerts: parseJson(rowAlerts?.payload, null)
+      };
+      const painelUrl = env.PAINELURE_URL || 'https://painelure-cloudflare-pages.pages.dev';
+
+      const result = handleWhatsAppMessage({
+        text: rawText,
+        from,
+        sender: senderName,
+        appData,
+        monitorStatus,
+        painelUrl
+      });
+
+      if (result && result.dataMutation) {
+        try {
+          await saveStore(env.DB, appData, 'whatsapp:' + result.dataMutation.type, { force: true });
+        } catch (saveErr) {
+          console.error('Erro ao salvar mutação do WhatsApp no D1:', saveErr.message);
+        }
+      }
+
+      return {
+        ok: true,
+        chatId: from,
+        reply: result.replyText
+      };
+    }
   }
   throw fail(404, 'Endpoint não encontrado.');
 }

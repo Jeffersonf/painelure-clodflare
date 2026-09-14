@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # WAHA - WhatsApp HTTP API (Gratuito / Conexão via QR Code)
+  waha:
+    image: devlikeapro/waha:latest
+    container_name: painelure-waha
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - WAHA_DASHBOARD_ENABLED=true
+      - WAHA_DASHBOARD_USERNAME=admin
+      - WAHA_DASHBOARD_PASSWORD=ureadmin
+      - WHATSAPP_DEFAULT_ENGINE=WEBJS
+      # Webhook automático para o n8n dentro da rede do docker:
+      - WAHA_WEBHOOK_URL=http://n8n:5678/webhook/waha-mensagem
+      - WAHA_WEBHOOK_EVENTS=message
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./waha-sessions:/app/.sessions
+    networks:
+      - painelure-net
+
+  # N8N - Orquestrador de Automação
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: painelure-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=ureadmin
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - WEBHOOK_URL=http://localhost:5678/
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+    volumes:
+      - ./n8n-data:/home/node/.n8n
+    networks:
+      - painelure-net
+    depends_on:
+      - waha
+
+networks:
+  painelure-net:
+    driver: bridge

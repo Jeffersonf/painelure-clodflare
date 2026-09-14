@@ -10,6 +10,7 @@ const { URL } = require("url");
 
 const ROOT = path.resolve(__dirname, "..");
 const botCore = require("../modules/telegram/bot-core");
+const waBot = require("../modules/whatsapp/bot-core");
 
 function loadEnvFile() {
   const file = path.join(ROOT, ".env");
@@ -1957,6 +1958,66 @@ async function handleApi(req, res, pathname) {
     }
     send(res, 200, { ok: true, handled: Boolean(result) });
     return;
+  }
+
+  if (pathname === "/api/bot/whatsapp") {
+    if (req.method === "GET") {
+      send(res, 200, { ok: true, name: "PainelURE WhatsApp Bot API", status: "ready" });
+      return;
+    }
+    if (req.method === "POST") {
+      const body = JSON.parse(await readBody(req) || "{}");
+      let rawText = "";
+      let from = "";
+      let senderName = "";
+
+      if (body.event === "message" && body.payload) {
+        if (body.payload.fromMe) {
+          send(res, 200, { ok: true, ignored: true, reason: "fromMe" });
+          return;
+        }
+        rawText = body.payload.body || "";
+        from = body.payload.from || "";
+        senderName = body.payload._data?.notifyName || body.payload.notifyName || "";
+      } else {
+        rawText = body.text || body.message || body.body || "";
+        from = body.from || body.chatId || "";
+        senderName = body.sender || body.name || body.notifyName || "";
+      }
+
+      if (!rawText && !from) {
+        send(res, 400, { ok: false, error: "Mensagem ou remetente não informados." });
+        return;
+      }
+
+      const store = await readStore() || { appData: {} };
+      const appData = store.appData || {};
+      const monitorStatus = {
+        active: Boolean(monitorState.latestImage || monitorState.latestAlerts),
+        updatedAt: monitorState.latestImageUpdatedAt || null,
+        alerts: monitorState.latestAlerts || []
+      };
+
+      const result = waBot.handleWhatsAppMessage({
+        text: rawText,
+        from,
+        sender: senderName,
+        appData,
+        monitorStatus,
+        painelUrl
+      });
+
+      if (result && result.dataMutation) {
+        try {
+          await saveStore(appData, "whatsapp:" + result.dataMutation.type, { force: true });
+        } catch (saveErr) {
+          console.error("Erro ao salvar mutação WhatsApp:", saveErr.message);
+        }
+      }
+
+      send(res, 200, { ok: true, chatId: from, reply: result.replyText });
+      return;
+    }
   }
 
   if (req.method === "PUT" && pathname === "/api/internal") {

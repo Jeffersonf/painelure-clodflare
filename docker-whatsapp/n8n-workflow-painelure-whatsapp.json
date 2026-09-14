@@ -1,0 +1,129 @@
+{
+  "name": "PainelURE - WhatsApp Bot Oficial",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "waha-mensagem",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "1",
+      "name": "Webhook WAHA",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        220,
+        300
+      ],
+      "webhookId": "painelure-waha-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.payload.fromMe }}",
+              "value2": false
+            }
+          ],
+          "string": [
+            {
+              "value1": "={{ $json.payload.body }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "2",
+      "name": "Filtrar Mensagem",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://painelure-cloudflare-pages.pages.dev/api/bot/whatsapp",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.payload.body) }},\n  \"from\": {{ JSON.stringify($json.payload.from) }},\n  \"sender\": {{ JSON.stringify($json.payload._data?.notifyName || $json.payload.notifyName || '') }}\n}",
+        "options": {}
+      },
+      "id": "3",
+      "name": "Consultar PainelURE API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        700,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://waha:3000/api/sendText",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"session\": \"default\",\n  \"chatId\": {{ JSON.stringify($('Filtrar Mensagem').item.json.payload.from) }},\n  \"text\": {{ JSON.stringify($json.reply) }}\n}",
+        "options": {}
+      },
+      "id": "4",
+      "name": "Enviar Resposta no WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        940,
+        280
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook WAHA": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Mensagem": {
+      "main": [
+        [
+          {
+            "node": "Consultar PainelURE API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar PainelURE API": {
+      "main": [
+        [
+          {
+            "node": "Enviar Resposta no WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1.0.0",
+  "meta": {
+    "instanceId": "painelure-n8n"
+  },
+  "tags": []
+}
