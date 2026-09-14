@@ -102,7 +102,7 @@ function getSchoolButtons(schoolName, appData) {
         { text: '🚗 Waze', url: `https://waze.com/ul?q=${query}&navigate=yes` }
       ],
       [
-        { text: '🎫 Abrir Chamado TI', callback_data: `newcall:${schoolName.slice(0, 40)}` }
+        { text: '🎫 Texto de Chamado', callback_data: `sed_call:${schoolName.slice(0, 40)}` }
       ]
     ]
   };
@@ -137,9 +137,6 @@ function getCarsButtons() {
 
 function formatSchool(schoolName, appData) {
   const normTarget = normalize(schoolName);
-  const net = (appData.networkData || {})[schoolName] || 
-              Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
-  
   const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
   const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
 
@@ -154,11 +151,15 @@ function formatSchool(schoolName, appData) {
     const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
     if (cieMatch) cie = cieMatch[1];
   }
-  if (!cie && net.ips) {
-    const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
-    if (cieIp) {
-      const m = cieIp.match(/(\d+)/);
-      if (m) cie = m[1];
+  if (!cie && appData.networkData) {
+    const net = (appData.networkData || {})[schoolName] || 
+                Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+    if (net.ips) {
+      const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
+      if (cieIp) {
+        const m = cieIp.match(/(\d+)/);
+        if (m) cie = m[1];
+      }
     }
   }
 
@@ -166,18 +167,16 @@ function formatSchool(schoolName, appData) {
   const inventoryMetrics = (appData.schoolInventoryMetrics || {})[schoolName] || {};
   const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
 
-  // Localizar chamados abertos
-  const openCalls = (appData.calls || []).filter(c => {
-    const sName = normalize(c.school || c.escola || c.unit || '');
-    return sName === normTarget && !['resolvido', 'fechado', 'concluido'].includes(normalize(c.status || ''));
-  });
-
   let msg = `🏫 <b>${escapeHtml(schoolName)}</b>\n`;
   if (profile.municipality || profile.municipio || profile.city) {
     msg += `📍 <b>Município:</b> ${escapeHtml(profile.municipality || profile.municipio || profile.city)}\n`;
   }
   if (cie) {
     msg += `🏷️ <b>CIE:</b> <code>${escapeHtml(cie)}</code>\n`;
+  }
+  const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || '';
+  if (director) {
+    msg += `👤 <b>Diretor(a):</b> ${escapeHtml(director)}\n`;
   }
   if (profile.phone) {
     msg += `📞 <b>Telefone:</b> ${escapeHtml(profile.phone)}\n`;
@@ -187,33 +186,6 @@ function formatSchool(schoolName, appData) {
   }
   if (supervisor) {
     msg += `👨‍🏫 <b>Supervisor(a):</b> ${escapeHtml(supervisor.name)}\n`;
-  }
-
-  // Redes e Câmeras
-  msg += `\n🌐 <b>Rede & Câmeras:</b>\n`;
-  if (net.network && net.network.length) {
-    const admNet = net.network.find(l => /administrativ/i.test(l)) || net.network[0];
-    const pedNet = net.network.find(l => /pedagog/i.test(l));
-    msg += `• <b>Rede ADM:</b> <code>${escapeHtml(admNet)}</code>\n`;
-    if (pedNet) msg += `• <b>Rede PED:</b> <code>${escapeHtml(pedNet)}</code>\n`;
-  }
-
-  if (net.ips && net.ips.length) {
-    const dvrs = net.ips.filter(ip => /dvr/i.test(ip));
-    if (dvrs.length) {
-      msg += `• <b>DVRs:</b>\n`;
-      dvrs.slice(0, 4).forEach(dvr => {
-        msg += `  📹 <code>${escapeHtml(dvr)}</code>\n`;
-      });
-    }
-    const gateway = net.ips.find(ip => /gateway/i.test(ip));
-    if (gateway) msg += `• <b>Gateway:</b> <code>${escapeHtml(gateway)}</code>\n`;
-  } else {
-    msg += `• <i>Dados de rede em consolidação.</i>\n`;
-  }
-
-  if (net.cameras && net.cameras.length) {
-    msg += `• <b>Câmeras:</b> ${escapeHtml(net.cameras.join(' | '))}\n`;
   }
 
   // Inventário
@@ -229,19 +201,6 @@ function formatSchool(schoolName, appData) {
     msg += `• ${assets.length} ativos cadastrados no sistema.\n`;
   } else {
     msg += `• <i>Inventário não consolidado.</i>\n`;
-  }
-
-  // Chamados
-  msg += `\n🎫 <b>Chamados de TI:</b> `;
-  if (openCalls.length === 0) {
-    msg += `✅ <i>Nenhum chamado aberto no momento.</i>\n`;
-  } else {
-    msg += `⚠️ <b>${openCalls.length} chamado(s) aberto(s):</b>\n`;
-    openCalls.slice(0, 3).forEach(c => {
-      const title = c.title || c.descricao || c.description || c.issue || 'Suporte';
-      const status = c.status || 'Pendente';
-      msg += `  • [${escapeHtml(status)}] ${escapeHtml(title)}\n`;
-    });
   }
 
   return msg;
@@ -454,17 +413,44 @@ async function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, 
         };
       }
 
-      // Prompt para abrir chamado em escola específica
-      if (data.startsWith('newcall:')) {
-        const schoolName = data.slice(8);
+      // Texto de chamado padrão para abertura na SED
+      if (data.startsWith('sed_call:') || data.startsWith('newcall:')) {
+        const targetSchoolName = data.startsWith('sed_call:') ? data.slice(9) : data.slice(8);
+        const normTarget = normalize(targetSchoolName);
+        const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+        const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+        let cie = profile.cie || baseSchool.cie || '';
+        if (!cie && profile.email) {
+          const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+          if (cieMatch) cie = cieMatch[1];
+        }
+        const muni = profile.municipality || profile.municipio || profile.city || 'Itapeva';
+        const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || 'Não informado';
+        const phone = profile.phone || 'Não informado';
+        const email = profile.email || 'Não informado';
+
+        const template = `📋 <b>Texto Padrão para Chamado SED</b>\n` +
+          `<i>Toque no bloco abaixo para copiar o texto pronto:</i>\n\n` +
+          `<code>` +
+          `Unidade Escolar: ${escapeHtml(targetSchoolName)}\n` +
+          `CIE: ${escapeHtml(cie || '---')}\n` +
+          `Município: ${escapeHtml(muni)}\n` +
+          `Diretor(a): ${escapeHtml(director)}\n` +
+          `Telefone: ${escapeHtml(phone)}\n` +
+          `E-mail: ${escapeHtml(email)}\n\n` +
+          `Solicitante: Direção / Secretaria\n` +
+          `Assunto: [Descreva resumidamente o problema]\n` +
+          `Descrição:\n` +
+          `[Descreva aqui o defeito, equipamento afetado, localização na escola e teste realizado]\n` +
+          `</code>\n\n` +
+          `💡 <i>Modelo pronto para abertura de ocorrência na SED.</i>`;
+
         return {
           action: 'answer_callback',
           callback_query_id: cb.id,
           reply: {
             chat_id: chatId,
-            text: `🎫 <b>Abrir Chamado para ${escapeHtml(schoolName)}:</b>\n\n` +
-              `Copie, cole e complete a mensagem abaixo com o problema:\n\n` +
-              `<code>/novochamado ${schoolName} | Descreva o defeito aqui</code>`,
+            text: template,
             parse_mode: 'HTML'
           }
         };

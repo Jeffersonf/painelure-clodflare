@@ -50,6 +50,10 @@ async function runTests() {
   });
   console.log('Resultado:\n' + escolaRes.reply.text);
   if (!escolaRes.reply.text.includes('Venturelli')) throw new Error('Falha na busca de escola');
+  if (!escolaRes.reply.text.includes('Diretor(a):')) throw new Error('Falha: Diretor(a) não encontrado no card da escola');
+  if (escolaRes.reply.text.includes('Rede & Câmeras:')) throw new Error('Falha: Faixas de IP e câmeras ainda estão no card da escola');
+  if (escolaRes.reply.text.includes('Chamados de TI:')) throw new Error('Falha: Chamados abertos ainda estão no card da escola');
+  console.log('✅ Card da escola limpo: Diretor(a) incluído(a), IPs/Câmeras e Chamados removidos!');
 
   // Teste 3: /chamados
   console.log('\n--- Teste 3: Comando /chamados ---');
@@ -98,14 +102,38 @@ async function runTests() {
   console.log('Inline keyboard buttons:', JSON.stringify(painelRes.reply.reply_markup.inline_keyboard));
   if (!painelRes.reply.reply_markup.inline_keyboard[0][0].web_app) throw new Error('Falha no Mini App web_app');
 
-  // Teste 8: GPS Buttons em /escola
-  console.log('\n--- Teste 8: Botões de GPS (Maps & Waze) em /escola ---');
+  // Teste 8: Botões em /escola (GPS e Texto de Chamado SED)
+  console.log('\n--- Teste 8: Botões em /escola (GPS & Texto de Chamado SED) ---');
   const buttons = escolaRes.reply.reply_markup?.inline_keyboard || [];
   console.log('Botões gerados:', JSON.stringify(buttons));
   const hasMaps = buttons.some(row => row.some(b => b.text.includes('Maps')));
   const hasWaze = buttons.some(row => row.some(b => b.text.includes('Waze')));
+  const hasSedCall = buttons.some(row => row.some(b => b.text.includes('Texto de Chamado')));
   if (!hasMaps || !hasWaze) throw new Error('Falha nos botões de GPS (Maps/Waze)');
-  console.log('✅ Botões de navegação Google Maps e Waze validados!');
+  if (!hasSedCall) throw new Error('Falha no botão Texto de Chamado');
+  console.log('✅ Botões de navegação e Texto de Chamado validados!');
+
+  // Teste 8b: Callback do botão Texto de Chamado SED
+  console.log('\n--- Teste 8b: Callback sed_call (Texto de Chamado SED) ---');
+  const sedCallRes = await botCore.handleTelegramUpdate({
+    update: {
+      callback_query: {
+        id: 'cb_sed_1',
+        from: { username: 'analista_ti' },
+        message: { chat: { id: dummyChatId } },
+        data: 'sed_call:EE Doutor Raul Venturelli'
+      }
+    },
+    appData
+  });
+  console.log('Resposta Callback SED:\n' + sedCallRes.reply.text);
+  if (!sedCallRes.reply.text.includes('Texto Padrão para Chamado SED')) {
+    throw new Error('Falha no modelo de chamado SED');
+  }
+  if (!sedCallRes.reply.text.includes('Unidade Escolar: EE Doutor Raul Venturelli')) {
+    throw new Error('Falha nos dados da escola no modelo SED');
+  }
+  console.log('✅ Modelo de chamado SED retornado perfeitamente com dados da unidade!');
 
   // Teste 9: Abertura de chamado /novochamado
   console.log('\n--- Teste 9: Comando /novochamado ---');

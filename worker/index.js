@@ -135,7 +135,6 @@ function findSchools(query, appData) {
 
 function formatSchool(schoolName, appData) {
   const normTarget = normalize(schoolName);
-  const net = (appData.networkData || {})[schoolName] || Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
   const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
   const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
   const supervisor = (appData.supervisors || []).find(s => (s.assignedSchools || []).some(sch => normalize(sch) === normTarget));
@@ -144,45 +143,29 @@ function formatSchool(schoolName, appData) {
     const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
     if (cieMatch) cie = cieMatch[1];
   }
-  if (!cie && net.ips) {
-    const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
-    if (cieIp) {
-      const m = cieIp.match(/(\d+)/);
-      if (m) cie = m[1];
+  if (!cie && appData.networkData) {
+    const net = (appData.networkData || {})[schoolName] || Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+    if (net.ips) {
+      const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
+      if (cieIp) {
+        const m = cieIp.match(/(\d+)/);
+        if (m) cie = m[1];
+      }
     }
   }
   const inventoryMetrics = (appData.schoolInventoryMetrics || {})[schoolName] || {};
   const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
-  const openCalls = (appData.calls || []).filter(c => {
-    const sName = normalize(c.school || c.escola || c.unit || '');
-    return sName === normTarget && !['resolvido', 'fechado', 'concluido'].includes(normalize(c.status || ''));
-  });
 
   let msg = `🏫 <b>${escapeHtml(schoolName)}</b>\n`;
   if (profile.municipality || profile.municipio || profile.city) msg += `📍 <b>Município:</b> ${escapeHtml(profile.municipality || profile.municipio || profile.city)}\n`;
   if (cie) msg += `🏷️ <b>CIE:</b> <code>${escapeHtml(cie)}</code>\n`;
+  const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || '';
+  if (director) msg += `👤 <b>Diretor(a):</b> ${escapeHtml(director)}\n`;
   if (profile.phone) msg += `📞 <b>Telefone:</b> ${escapeHtml(profile.phone)}\n`;
   if (profile.email) msg += `✉️ <b>Email:</b> <code>${escapeHtml(profile.email)}</code>\n`;
   if (supervisor) msg += `👨‍🏫 <b>Supervisor(a):</b> ${escapeHtml(supervisor.name)}\n`;
 
-  msg += `\n🌐 <b>Rede & Câmeras:</b>\n`;
-  if (net.network && net.network.length) {
-    const admNet = net.network.find(l => /administrativ/i.test(l)) || net.network[0];
-    const pedNet = net.network.find(l => /pedagog/i.test(l));
-    msg += `• <b>Rede ADM:</b> <code>${escapeHtml(admNet)}</code>\n`;
-    if (pedNet) msg += `• <b>Rede PED:</b> <code>${escapeHtml(pedNet)}</code>\n`;
-  }
-  if (net.ips && net.ips.length) {
-    const dvrs = net.ips.filter(ip => /dvr/i.test(ip));
-    if (dvrs.length) {
-      msg += `• <b>DVRs:</b>\n`;
-      dvrs.slice(0, 4).forEach(dvr => { msg += `  📹 <code>${escapeHtml(dvr)}</code>\n`; });
-    }
-    const gateway = net.ips.find(ip => /gateway/i.test(ip));
-    if (gateway) msg += `• <b>Gateway:</b> <code>${escapeHtml(gateway)}</code>\n`;
-  }
-  if (net.cameras && net.cameras.length) msg += `• <b>Câmeras:</b> ${escapeHtml(net.cameras.join(' | '))}\n`;
-
+  // Inventário
   msg += `\n💻 <b>Equipamentos / Ativos:</b>\n`;
   if (Object.keys(inventoryMetrics).length > 0) {
     const parts = [];
@@ -193,19 +176,10 @@ function formatSchool(schoolName, appData) {
     msg += parts.length ? `• ${parts.join(' | ')}\n` : `• ${inventoryMetrics.total || 'Inventariado'}\n`;
   } else if (assets.length > 0) {
     msg += `• ${assets.length} ativos cadastrados no sistema.\n`;
+  } else {
+    msg += `• <i>Inventário não consolidado.</i>\n`;
   }
 
-  msg += `\n🎫 <b>Chamados de TI:</b> `;
-  if (openCalls.length === 0) {
-    msg += `✅ <i>Nenhum chamado aberto no momento.</i>\n`;
-  } else {
-    msg += `⚠️ <b>${openCalls.length} chamado(s) aberto(s):</b>\n`;
-    openCalls.slice(0, 3).forEach(c => {
-      const title = c.title || c.descricao || c.description || c.issue || 'Suporte';
-      const status = c.status || 'Pendente';
-      msg += `  • [${escapeHtml(status)}] ${escapeHtml(title)}\n`;
-    });
-  }
   return msg;
 }
 
@@ -307,7 +281,7 @@ function getSchoolButtons(schoolName, appData) {
         { text: '🚗 Waze', url: `https://waze.com/ul?q=${query}&navigate=yes` }
       ],
       [
-        { text: '🎫 Abrir Chamado TI', callback_data: `newcall:${schoolName.slice(0, 40)}` }
+        { text: '🎫 Texto de Chamado', callback_data: `sed_call:${schoolName.slice(0, 40)}` }
       ]
     ]
   };
@@ -357,14 +331,43 @@ function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, painel
         };
       }
 
-      if (data.startsWith('newcall:')) {
-        const sName = data.slice(8);
+      if (data.startsWith('sed_call:') || data.startsWith('newcall:')) {
+        const targetSchoolName = data.startsWith('sed_call:') ? data.slice(9) : data.slice(8);
+        const normTarget = normalize(targetSchoolName);
+        const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+        const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+        let cie = profile.cie || baseSchool.cie || '';
+        if (!cie && profile.email) {
+          const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+          if (cieMatch) cie = cieMatch[1];
+        }
+        const muni = profile.municipality || profile.municipio || profile.city || 'Itapeva';
+        const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || 'Não informado';
+        const phone = profile.phone || 'Não informado';
+        const email = profile.email || 'Não informado';
+
+        const template = `📋 <b>Texto Padrão para Chamado SED</b>\n` +
+          `<i>Toque no bloco abaixo para copiar o texto pronto:</i>\n\n` +
+          `<code>` +
+          `Unidade Escolar: ${escapeHtml(targetSchoolName)}\n` +
+          `CIE: ${escapeHtml(cie || '---')}\n` +
+          `Município: ${escapeHtml(muni)}\n` +
+          `Diretor(a): ${escapeHtml(director)}\n` +
+          `Telefone: ${escapeHtml(phone)}\n` +
+          `E-mail: ${escapeHtml(email)}\n\n` +
+          `Solicitante: Direção / Secretaria\n` +
+          `Assunto: [Descreva resumidamente o problema]\n` +
+          `Descrição:\n` +
+          `[Descreva aqui o defeito, equipamento afetado, localização na escola e teste realizado]\n` +
+          `</code>\n\n` +
+          `💡 <i>Modelo pronto para abertura de ocorrência na SED.</i>`;
+
         return {
           action: 'answer_callback',
           callback_query_id: cb.id,
           reply: {
             chat_id: chatId,
-            text: `🎫 <b>Abrir Chamado para ${escapeHtml(sName)}:</b>\n\nEnvie:\n<code>/novochamado ${sName} | Descreva o problema aqui</code>`,
+            text: template,
             parse_mode: 'HTML'
           }
         };
@@ -630,7 +633,7 @@ async function apiHandler(request, env, body) {
   if (url.pathname === '/api/auth/login' && method === 'POST') { const username = String(body.username || '').trim(); const password = String(body.password || ''); if (username) { const user = await findUserByUsername(env.DB, username); const valid = user && (normalize(user.role).includes('supervis') || (user.preferences?.pin ? password === String(user.preferences.pin) : await verifyPassword(password, user.password_hash))); if (!valid) throw fail(401, 'Usuário ou senha inválidos.'); const token = await createSession(env.DB, user); await run(env.DB, 'UPDATE users SET preferences = ?, updated_at = ? WHERE id = ?', [JSON.stringify({ ...(user.preferences || {}), lastLoginAt: new Date().toISOString() }), new Date().toISOString(), user.id]); return { ok: true, token, user: publicUser(user) }; } if (!env.PAINELURE_ADMIN_KEY || body.key !== env.PAINELURE_ADMIN_KEY) throw fail(401, 'Chave inválida.'); return { ok: true, token: await createSession(env.DB), user: null }; }
   if (url.pathname === '/api/auth/me' && method === 'GET') { const auth = await requireAuth(request, env); return { ok: true, user: publicUser(auth.user), session: auth.session }; }
   if (url.pathname === '/api/auth/logout' && method === 'POST') { const token = bearerToken(request); if (token) await run(env.DB, 'DELETE FROM sessions WHERE token = ?', [token]); return { ok: true }; }
-  if (url.pathname === '/api/users' && method === 'GET') { await requireAdmin(request, env, 'Apenas administrador pode listar usuários.'); return { ok: true, users: (await all(env.DB, 'SELECT id, username, name, role, contact_id, avatar, preferences FROM users ORDER BY name')).map(rowUser).map(publicUser) }; }
+  if (url.pathname === '/api/users' && method === 'GET') { const auth = await authForRequest(request, env); const rows = (await all(env.DB, 'SELECT id, username, name, role, contact_id, avatar, preferences FROM users ORDER BY name')).map(rowUser); if (isAdmin(auth)) return { ok: true, users: rows.map(publicUser) }; return { ok: true, users: rows.map(u => ({ username: u.username, name: u.name, role: u.role, avatar: u.avatar || '', forcePinChange: u.preferences?.forcePinChange === true })) }; }
   if (url.pathname === '/api/users' && method === 'POST') { await requireAdmin(request, env, 'Apenas administrador pode criar usuários.'); const password = String(body.password || randomHex(12)); const user = { id: crypto.randomUUID(), username: String(body.username || '').trim().toLowerCase(), name: String(body.name || body.username || 'Usuário').trim(), role: String(body.role || 'Consulta').trim(), contactId: String(body.contactId || body.contact_id || '').trim(), passwordHash: await hashPassword(password), avatar: String(body.avatar || ''), preferences: { ...(body.preferences || {}), pin: body.pin || password } }; if (!user.username) throw fail(400, 'Usuário obrigatório.'); try { await run(env.DB, 'INSERT INTO users (id, username, name, role, contact_id, password_hash, avatar, preferences, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [user.id, user.username, user.name, user.role, user.contactId, user.passwordHash, user.avatar, JSON.stringify(user.preferences), new Date().toISOString(), new Date().toISOString()]); } catch { throw fail(409, 'Usuário já existe.'); } return { ok: true, user: publicUser({ ...user, contact_id: user.contactId, password_hash: user.passwordHash }) }; }
   if (url.pathname === '/api/users/me' && method === 'PUT') { const auth = await requireAuth(request, env); if (!auth.user) throw fail(400, 'Sessão sem usuário vinculado.'); return { ok: true, user: publicUser(await updateUser(env.DB, auth.user, body)) }; }
   if (path[0] === 'api' && path[1] === 'users' && path.length === 3 && ['PUT', 'DELETE'].includes(method)) { await requireAdmin(request, env, 'Apenas administrador pode alterar usuários.'); const user = rowUser(await first(env.DB, 'SELECT * FROM users WHERE id = ?', [decodeURIComponent(path[2])])); if (!user) throw fail(404, 'Usuário não encontrado.'); if (method === 'DELETE') { await run(env.DB, 'DELETE FROM sessions WHERE user_id = ?', [user.id]); await run(env.DB, 'DELETE FROM users WHERE id = ?', [user.id]); return { ok: true, user: publicUser(user) }; } return { ok: true, user: publicUser(await updateUser(env.DB, user, body)) }; }
@@ -638,7 +641,7 @@ async function apiHandler(request, env, body) {
   if (url.pathname === '/api/sources' && method === 'PUT') { const auth = await requireAdmin(request, env); const sources = await saveSources(env.DB, body.sources || body); await audit(env.DB, auth, 'update', 'sources', 'official', 'Fontes oficiais atualizadas.', { count: sources.length }); return { ok: true, sources }; }
   if (url.pathname === '/api/sources/refresh' && method === 'POST') { const auth = await requireAdmin(request, env); const result = await refreshSources(env.DB, body.keys || []); await audit(env.DB, auth, 'refresh', 'official_sources', 'all', 'Fontes oficiais atualizadas.', { results: result.results }); return { ok: true, ...result, storage: { mode: 'cloudflare-d1', ready: true } }; }
   if (url.pathname === '/api/sharepoint-list' && method === 'GET') { const rows = await fetchSharePointRows(url.searchParams.get('url') || ''); return { ok: true, rows, rowsCount: rows.length }; }
-  if (url.pathname === '/api/data' && method === 'GET') { const auth = await requireAuth(request, env); const store = await readStore(env.DB); return { ok: true, data: { ...store, appData: scopedStore(store, effectiveUser(auth)) }, storage: { mode: 'cloudflare-d1', ready: true, updatedAt: store.updatedAt, source: store.source, error: null } }; }
+  if (url.pathname === '/api/data' && method === 'GET') { const auth = await authForRequest(request, env); const store = await readStore(env.DB); const user = auth.user ? effectiveUser(auth) : { role: 'Consulta', name: 'Visitante' }; return { ok: true, data: { ...store, appData: scopedStore(store, user) }, storage: { mode: 'cloudflare-d1', ready: true, updatedAt: store.updatedAt, source: store.source, error: null } }; }
   if (url.pathname === '/api/data' && method === 'PUT') { const auth = await requireAdmin(request, env); const data = await saveStore(env.DB, body.appData || body, 'api', { baseUpdatedAt: body.baseUpdatedAt || '', force: body.force === true }); await audit(env.DB, auth, 'update', 'app_state', 'main', 'Estado do app atualizado.'); return { ok: true, data, storage: { mode: 'cloudflare-d1', ready: true, updatedAt: data.updatedAt, source: data.source, error: null } }; }
   if (url.pathname === '/api/internal' && method === 'PUT') { const auth = await requireInternalWriter(request, env); const store = await readStore(env.DB); const data = await saveStore(env.DB, { ...(store.appData || {}), internal: body.internal && typeof body.internal === 'object' ? body.internal : {} }, 'internal', { force: true }); await audit(env.DB, auth, 'update', 'internal', 'cafe', 'Dados internos do café atualizados.'); return { ok: true, data, storage: { mode: 'cloudflare-d1', ready: true } }; }
   if (url.pathname === '/api/supervision/justification' && method === 'PUT') { const auth = await requireAuth(request, env); const name = String(body.supervisorName || '').trim(); const month = String(body.monthKey || '').trim(); if (!name || !/^\d{4}-\d{2}$/.test(month)) throw fail(400, 'Supervisor e mês são obrigatórios.'); const store = await readStore(env.DB); const supervisors = [...(store.appData?.supervisors || [])]; const index = supervisors.findIndex(item => normalize(item.name) === normalize(name) || (body.supervisorEmail && normalize(item.email) === normalize(body.supervisorEmail))); if (index < 0) throw fail(404, 'Supervisor não encontrado.'); if (!isAdmin(auth) && normalize(supervisorForUser(store.appData, auth.user)?.name) !== normalize(supervisors[index].name)) throw fail(403, 'Você só pode editar a própria justificativa.'); const justifications = { ...(supervisors[index].justifications || {}) }; if (String(body.justification || '').trim()) justifications[month] = String(body.justification).trim().slice(0, 2000); else delete justifications[month]; supervisors[index] = { ...supervisors[index], justifications }; const data = await saveStore(env.DB, { ...store.appData, supervisors }, 'supervision:justification', { force: true }); await audit(env.DB, auth, 'update', 'supervision_justification', name, `Justificativa de ${month} atualizada.`); return { ok: true, supervisor: supervisors[index], data: { updatedAt: data.updatedAt } }; }
