@@ -97,6 +97,532 @@ async function refreshSources(db, keys) { const selected = new Set(Array.isArray
 
 async function updateUser(db, current, patch) { const next = { ...current, name: patch.name !== undefined ? String(patch.name).trim() : current.name, role: patch.role !== undefined ? String(patch.role).trim() : current.role, contact_id: patch.contactId !== undefined ? String(patch.contactId || '').trim() : current.contact_id || '', avatar: patch.avatar !== undefined ? String(patch.avatar || '') : current.avatar || '', preferences: patch.preferences !== undefined ? patch.preferences || {} : current.preferences || {} }; if (patch.password) { next.password_hash = await hashPassword(patch.password); next.preferences = { ...next.preferences, pin: String(patch.password) }; } await run(db, 'UPDATE users SET name=?, role=?, contact_id=?, password_hash=?, avatar=?, preferences=?, updated_at=? WHERE id=?', [next.name, next.role, next.contact_id, next.password_hash || current.password_hash, next.avatar, JSON.stringify(next.preferences), new Date().toISOString(), current.id]); return next; }
 
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function getMainKeyboard(painelUrl = 'https://painelure-cloudflare-pages.pages.dev') {
+  const keyboard = [
+    [{ text: '🏫 Escolas' }, { text: '🎫 Chamados TI' }],
+    [{ text: '🚗 Carros' }, { text: '📊 Monitor Rede' }],
+    [{ text: '👨‍🏫 Supervisores' }, { text: '❓ Ajuda' }]
+  ];
+  if (painelUrl) keyboard.push([{ text: '🚀 Abrir PainelURE', web_app: { url: painelUrl } }]);
+  return { keyboard, resize_keyboard: true, is_persistent: true };
+}
+
+function findSchools(query, appData) {
+  const q = normalize(query);
+  if (!q) return [];
+  const networkData = appData.networkData || {};
+  const schoolProfiles = appData.schoolProfiles || [];
+  const baseSchools = Array.isArray(appData.schools) ? appData.schools.map(s => s.name || s) : [];
+  const allNames = Array.from(new Set([...baseSchools, ...Object.keys(networkData), ...schoolProfiles.map(p => p.school || p.name || p.escola || '')])).filter(name => name && name !== 'DIRETORIA');
+  return allNames.filter(name => {
+    const normName = normalize(name);
+    if (normName.includes(q)) return true;
+    const net = networkData[name];
+    if (net && net.ips && net.ips.some(ip => normalize(ip).includes(q))) return true;
+    const prof = schoolProfiles.find(p => normalize(p.school || p.name || p.escola) === normName);
+    if (prof) {
+      if (normalize(prof.cie || '').includes(q)) return true;
+      if (normalize(prof.municipality || prof.municipio || prof.city || '').includes(q)) return true;
+      if (normalize(prof.email || '').includes(q)) return true;
+    }
+    return false;
+  });
+}
+
+function formatSchool(schoolName, appData) {
+  const normTarget = normalize(schoolName);
+  const net = (appData.networkData || {})[schoolName] || Object.entries(appData.networkData || {}).find(([k]) => normalize(k) === normTarget)?.[1] || {};
+  const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+  const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+  const supervisor = (appData.supervisors || []).find(s => (s.assignedSchools || []).some(sch => normalize(sch) === normTarget));
+  let cie = profile.cie || baseSchool.cie || '';
+  if (!cie && profile.email) {
+    const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+    if (cieMatch) cie = cieMatch[1];
+  }
+  if (!cie && net.ips) {
+    const cieIp = net.ips.find(i => /cie[:\s]*(\d+)/i.test(i));
+    if (cieIp) {
+      const m = cieIp.match(/(\d+)/);
+      if (m) cie = m[1];
+    }
+  }
+  const inventoryMetrics = (appData.schoolInventoryMetrics || {})[schoolName] || {};
+  const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
+  const openCalls = (appData.calls || []).filter(c => {
+    const sName = normalize(c.school || c.escola || c.unit || '');
+    return sName === normTarget && !['resolvido', 'fechado', 'concluido'].includes(normalize(c.status || ''));
+  });
+
+  let msg = `🏫 <b>${escapeHtml(schoolName)}</b>\n`;
+  if (profile.municipality || profile.municipio || profile.city) msg += `📍 <b>Município:</b> ${escapeHtml(profile.municipality || profile.municipio || profile.city)}\n`;
+  if (cie) msg += `🏷️ <b>CIE:</b> <code>${escapeHtml(cie)}</code>\n`;
+  if (profile.phone) msg += `📞 <b>Telefone:</b> ${escapeHtml(profile.phone)}\n`;
+  if (profile.email) msg += `✉️ <b>Email:</b> <code>${escapeHtml(profile.email)}</code>\n`;
+  if (supervisor) msg += `👨‍🏫 <b>Supervisor(a):</b> ${escapeHtml(supervisor.name)}\n`;
+
+  msg += `\n🌐 <b>Rede & Câmeras:</b>\n`;
+  if (net.network && net.network.length) {
+    const admNet = net.network.find(l => /administrativ/i.test(l)) || net.network[0];
+    const pedNet = net.network.find(l => /pedagog/i.test(l));
+    msg += `• <b>Rede ADM:</b> <code>${escapeHtml(admNet)}</code>\n`;
+    if (pedNet) msg += `• <b>Rede PED:</b> <code>${escapeHtml(pedNet)}</code>\n`;
+  }
+  if (net.ips && net.ips.length) {
+    const dvrs = net.ips.filter(ip => /dvr/i.test(ip));
+    if (dvrs.length) {
+      msg += `• <b>DVRs:</b>\n`;
+      dvrs.slice(0, 4).forEach(dvr => { msg += `  📹 <code>${escapeHtml(dvr)}</code>\n`; });
+    }
+    const gateway = net.ips.find(ip => /gateway/i.test(ip));
+    if (gateway) msg += `• <b>Gateway:</b> <code>${escapeHtml(gateway)}</code>\n`;
+  }
+  if (net.cameras && net.cameras.length) msg += `• <b>Câmeras:</b> ${escapeHtml(net.cameras.join(' | '))}\n`;
+
+  msg += `\n💻 <b>Equipamentos / Ativos:</b>\n`;
+  if (Object.keys(inventoryMetrics).length > 0) {
+    const parts = [];
+    if (inventoryMetrics.desktops) parts.push(`${inventoryMetrics.desktops} Desktops`);
+    if (inventoryMetrics.chromebooks) parts.push(`${inventoryMetrics.chromebooks} Chromebooks`);
+    if (inventoryMetrics.notebooks) parts.push(`${inventoryMetrics.notebooks} Notebooks`);
+    if (inventoryMetrics.switches) parts.push(`${inventoryMetrics.switches} Switches`);
+    msg += parts.length ? `• ${parts.join(' | ')}\n` : `• ${inventoryMetrics.total || 'Inventariado'}\n`;
+  } else if (assets.length > 0) {
+    msg += `• ${assets.length} ativos cadastrados no sistema.\n`;
+  }
+
+  msg += `\n🎫 <b>Chamados de TI:</b> `;
+  if (openCalls.length === 0) {
+    msg += `✅ <i>Nenhum chamado aberto no momento.</i>\n`;
+  } else {
+    msg += `⚠️ <b>${openCalls.length} chamado(s) aberto(s):</b>\n`;
+    openCalls.slice(0, 3).forEach(c => {
+      const title = c.title || c.descricao || c.description || c.issue || 'Suporte';
+      const status = c.status || 'Pendente';
+      msg += `  • [${escapeHtml(status)}] ${escapeHtml(title)}\n`;
+    });
+  }
+  return msg;
+}
+
+function formatCalls(appData, query) {
+  const allCalls = appData.calls || [];
+  const q = normalize(query);
+  let calls = allCalls.filter(c => !['resolvido', 'fechado', 'concluido'].includes(normalize(c.status || '')));
+  if (q && q !== 'todos') {
+    calls = calls.filter(c => normalize(c.school || c.escola || '').includes(q) || normalize(c.title || c.descricao || '').includes(q));
+  }
+  let msg = `🎫 <b>Fila de Chamados de T.I. - URE Itapeva</b>\n\n`;
+  if (calls.length === 0) {
+    return msg + `✅ <b>Nenhum chamado pendente</b>!\nTudo em ordem com as escolas monitoradas.`;
+  }
+  msg += `📊 <b>Total em aberto:</b> ${calls.length} chamado(s)\n\n`;
+  calls.slice(0, 6).forEach((c, idx) => {
+    const school = c.school || c.escola || 'Escola não informada';
+    const title = c.title || c.description || c.descricao || c.issue || 'Suporte técnico';
+    const status = c.status || 'Pendente';
+    const priority = c.priority || c.prioridade || 'Normal';
+    const icon = /alta|urgente|critica/i.test(priority) ? '🚨' : '🔹';
+    msg += `${icon} <b>#${idx + 1} - ${escapeHtml(school)}</b>\n   📝 ${escapeHtml(title)}\n   ⚙️ Status: ${escapeHtml(status)} | Prioridade: ${escapeHtml(priority)}\n\n`;
+  });
+  if (calls.length > 6) msg += `<i>... e mais ${calls.length - 6} chamados na fila.</i>\n`;
+  msg += `💡 <i>Use <code>/escola &lt;nome&gt;</code> para detalhes.</i>`;
+  return msg;
+}
+
+function formatCars(appData) {
+  const cars = appData.cars || [];
+  let msg = `🚗 <b>Frota de Carros Oficiais - URE Itapeva</b>\n\n`;
+  if (!cars.length) return msg + `ℹ️ <i>Nenhuma reserva de veículo registrada no sistema.</i>\n`;
+  const nowBr = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+  msg += `📅 <b>Data de Hoje:</b> ${nowBr}\n\n`;
+  cars.slice(0, 6).forEach(c => {
+    const vehicle = c.vehicle || c.car || c.recurso || 'Carro oficial';
+    const date = c.date || c.quando || 'Hoje';
+    const time = c.time || c.hora || '--:--';
+    const retTime = c.returnTime || c.devolucao || '';
+    const requester = c.requester || c.solicitante || c.sector || c.owner || 'Regional';
+    const destination = c.destination || c.destino || c.local || c.place || 'Itinerário oficial';
+    const status = c.status || c.authorization || 'Reservado';
+    msg += `🚘 <b>${escapeHtml(vehicle)}</b>\n   🗓️ ${escapeHtml(date)} (${escapeHtml(time)}${retTime ? ` às ${escapeHtml(retTime)}` : ''})\n   📍 Destino: ${escapeHtml(destination)}\n   👤 Solicitante: ${escapeHtml(requester)} [${escapeHtml(status)}]\n\n`;
+  });
+  msg += `<i>Total de ${cars.length} registro(s) no sistema.</i>`;
+  return msg;
+}
+
+function formatSupervisors(query, appData) {
+  const supervisors = appData.supervisors || [];
+  const q = normalize(query);
+  if (!supervisors.length) return `👨‍🏫 <b>Supervisão de Ensino</b>\n\n<i>Nenhum supervisor cadastrado.</i>`;
+  if (q) {
+    const match = supervisors.find(s => normalize(s.name).includes(q));
+    if (match) {
+      let msg = `👨‍🏫 <b>Supervisor(a): ${escapeHtml(match.name)}</b>\n`;
+      if (match.email) msg += `📧 Email: ${escapeHtml(match.email)}\n`;
+      if (match.phone) msg += `📱 Telefone: ${escapeHtml(match.phone)}\n`;
+      const schools = match.assignedSchools || [];
+      msg += `\n🏫 <b>Escolas Atribuídas (${schools.length}):</b>\n`;
+      schools.forEach(sch => { msg += `• <code>${escapeHtml(sch)}</code>\n`; });
+      return msg;
+    }
+  }
+  let msg = `👨‍🏫 <b>Supervisores de Ensino - URE Itapeva</b>\n\n`;
+  supervisors.slice(0, 10).forEach(s => {
+    const count = (s.assignedSchools || []).length;
+    msg += `• <b>${escapeHtml(s.name)}</b> (${count} escolas)\n`;
+  });
+  if (supervisors.length > 10) msg += `\n<i>... e mais ${supervisors.length - 10} supervisores.</i>\n`;
+  msg += `\n💡 <i>Para detalhes: <code>/supervisores &lt;nome&gt;</code></i>`;
+  return msg;
+}
+
+function formatMonitor(monitorStatus = {}) {
+  let msg = `📊 <b>Status do Monitor de Rede (Zabbix / Meraki)</b>\n\n`;
+  const isOnline = monitorStatus.active !== false;
+  const lastUpdate = monitorStatus.updatedAt ? new Date(monitorStatus.updatedAt).toLocaleString('pt-BR') : 'N/D';
+  msg += `📶 <b>Agente URE:</b> ${isOnline ? '🟢 Ativo' : '🔴 Inativo'}\n`;
+  msg += `⏱️ <b>Última captura:</b> ${escapeHtml(lastUpdate)}\n`;
+  if (monitorStatus.alerts && Array.isArray(monitorStatus.alerts) && monitorStatus.alerts.length > 0) {
+    msg += `\n🚨 <b>Alertas de Queda / Incidentes:</b>\n`;
+    monitorStatus.alerts.slice(0, 5).forEach(alert => { msg += `• ⚠️ ${escapeHtml(alert.message || alert.name || alert)}\n`; });
+  } else {
+    msg += `\n✅ <b>Nenhum alarme de queda de link no momento.</b>\n`;
+  }
+  return msg;
+}
+
+function getSchoolButtons(schoolName, appData) {
+  const normTarget = normalize(schoolName);
+  const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
+  const muni = profile.municipality || profile.municipio || profile.city || 'Itapeva';
+  const query = encodeURIComponent(`${schoolName} ${muni} SP`);
+  return {
+    inline_keyboard: [
+      [
+        { text: '📍 Google Maps', url: `https://www.google.com/maps/search/?api=1&query=${query}` },
+        { text: '🚗 Waze', url: `https://waze.com/ul?q=${query}&navigate=yes` }
+      ],
+      [
+        { text: '🎫 Abrir Chamado TI', callback_data: `newcall:${schoolName.slice(0, 40)}` }
+      ]
+    ]
+  };
+}
+
+function getCallsButtons(calls = []) {
+  const rows = [];
+  calls.slice(0, 3).forEach((c, idx) => {
+    const id = c.id || String(idx);
+    const shortTitle = (c.school || c.title || `Chamado #${idx + 1}`).slice(0, 18);
+    rows.push([
+      { text: `✅ Concluir: ${shortTitle}`, callback_data: `call_done:${id}` },
+      { text: `⏳ Andamento`, callback_data: `call_prog:${id}` }
+    ]);
+  });
+  rows.push([{ text: '➕ Abrir Novo Chamado', callback_data: 'call_prompt' }]);
+  return { inline_keyboard: rows };
+}
+
+function getCarsButtons() {
+  return {
+    inline_keyboard: [
+      [
+        { text: '🚘 Reservar Utilitário', callback_data: 'car_pick:Veículo Utilitário' },
+        { text: '🛻 Reservar Pick-up', callback_data: 'car_pick:Veículo Pick-up' }
+      ]
+    ]
+  };
+}
+
+function handleTelegramUpdate({ update, appData = {}, monitorStatus = {}, painelUrl = 'https://painelure-cloudflare-pages.pages.dev' }) {
+  const message = update.message || update.edited_message;
+
+  if (!message) {
+    if (update.callback_query) {
+      const cb = update.callback_query;
+      const data = cb.data || '';
+      const chatId = cb.message?.chat?.id;
+      const userDisplayName = cb.from?.username ? `@${cb.from.username}` : (cb.from?.first_name || 'Técnico URE');
+
+      if (data.startsWith('esc:')) {
+        const sName = data.slice(4);
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: { chat_id: chatId, text: formatSchool(sName, appData), parse_mode: 'HTML', reply_markup: getSchoolButtons(sName, appData) }
+        };
+      }
+
+      if (data.startsWith('newcall:')) {
+        const sName = data.slice(8);
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: {
+            chat_id: chatId,
+            text: `🎫 <b>Abrir Chamado para ${escapeHtml(sName)}:</b>\n\nEnvie:\n<code>/novochamado ${sName} | Descreva o problema aqui</code>`,
+            parse_mode: 'HTML'
+          }
+        };
+      }
+
+      if (data === 'call_prompt') {
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: {
+            chat_id: chatId,
+            text: `🎫 <b>Como abrir um novo chamado:</b>\n\nEnvie no formato:\n<code>/novochamado &lt;Escola&gt; | &lt;Problema&gt;</code>`,
+            parse_mode: 'HTML'
+          }
+        };
+      }
+
+      if (data.startsWith('call_done:')) {
+        const callId = data.slice(10);
+        const calls = appData.calls || [];
+        const target = calls.find(c => String(c.id) === callId);
+        if (target) {
+          target.status = 'Concluído';
+          target.closedAt = new Date().toISOString();
+          target.closedBy = userDisplayName;
+          return {
+            action: 'answer_callback',
+            callback_query_id: cb.id,
+            dataMutation: { type: 'update_call', call: target },
+            reply: { chat_id: chatId, text: `✅ <b>Chamado Concluído!</b>\n\n🎫 <b>Escola:</b> ${escapeHtml(target.school || 'Unidade')}\n📝 <b>Assunto:</b> ${escapeHtml(target.title || 'Suporte')}\n👤 <b>Por:</b> ${escapeHtml(userDisplayName)}`, parse_mode: 'HTML' }
+          };
+        }
+      }
+
+      if (data.startsWith('call_prog:')) {
+        const callId = data.slice(10);
+        const calls = appData.calls || [];
+        const target = calls.find(c => String(c.id) === callId);
+        if (target) {
+          target.status = 'Em Andamento';
+          target.technician = userDisplayName;
+          return {
+            action: 'answer_callback',
+            callback_query_id: cb.id,
+            dataMutation: { type: 'update_call', call: target },
+            reply: { chat_id: chatId, text: `⏳ <b>Chamado em Andamento!</b>\n\n🎫 <b>Escola:</b> ${escapeHtml(target.school || 'Unidade')}\n👤 <b>Assumido por:</b> ${escapeHtml(userDisplayName)}`, parse_mode: 'HTML' }
+          };
+        }
+      }
+
+      if (data.startsWith('car_pick:')) {
+        const vehicle = data.slice(9);
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: {
+            chat_id: chatId,
+            text: `🚘 <b>Reserva: ${escapeHtml(vehicle)}</b>\n\nPara qual data você precisa do veículo?`,
+            parse_mode: 'HTML',
+            reply_markup: {
+              inline_keyboard: [[{ text: '📅 Hoje', callback_data: `car_date:${vehicle}:Hoje` }, { text: '📅 Amanhã', callback_data: `car_date:${vehicle}:Amanhã` }]]
+            }
+          }
+        };
+      }
+
+      if (data.startsWith('car_date:')) {
+        const [, vehicle, dateChoice] = data.split(':');
+        return {
+          action: 'answer_callback',
+          callback_query_id: cb.id,
+          reply: {
+            chat_id: chatId,
+            text: `🚗 <b>Finalizar Reserva:</b>\n\nVeículo: <b>${escapeHtml(vehicle)}</b>\nData: <b>${escapeHtml(dateChoice)}</b>\n\nEnvie:\n<code>/reservarcarro ${vehicle} | ${dateChoice} | Destino | ${escapeHtml(userDisplayName)}</code>`,
+            parse_mode: 'HTML'
+          }
+        };
+      }
+
+      return { action: 'answer_callback', callback_query_id: cb.id };
+    }
+    return null;
+  }
+
+  const chatId = message.chat.id;
+  const rawText = String(message.text || '').trim();
+  const lowerText = rawText.toLowerCase();
+  const userDisplayName = message.from?.username ? `@${message.from.username}` : (message.from?.first_name || 'Técnico URE');
+
+  if (lowerText === '🏫 escolas' || lowerText === 'escolas') {
+    return { action: 'send_message', reply: { chat_id: chatId, text: `🏫 <b>Consulta de Escolas</b>\n\nDigite o nome ou CIE da escola.\nExemplo: <code>/escola venturelli</code>`, parse_mode: 'HTML' } };
+  }
+  if (lowerText === '🎫 chamados ti' || lowerText === 'chamados') {
+    const formatted = formatCalls(appData);
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatted.text || formatted, parse_mode: 'HTML', reply_markup: formatted.reply_markup || getCallsButtons(appData.calls || []) } };
+  }
+  if (lowerText === '🚗 carros' || lowerText === 'carros') {
+    const formatted = formatCars(appData);
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatted.text || formatted, parse_mode: 'HTML', reply_markup: formatted.reply_markup || getCarsButtons() } };
+  }
+  if (lowerText === '📊 monitor rede' || lowerText === 'monitor') {
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatMonitor(monitorStatus), parse_mode: 'HTML' } };
+  }
+  if (lowerText === '👨‍🏫 supervisores' || lowerText === 'supervisores') {
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatSupervisors('', appData), parse_mode: 'HTML' } };
+  }
+  if (lowerText === '❓ ajuda' || lowerText === 'ajuda' || rawText.startsWith('/help') || rawText.startsWith('/ajuda')) {
+    return {
+      action: 'send_message',
+      reply: {
+        chat_id: chatId,
+        text: `❓ <b>Comandos do Bot PainelURE</b>\n\n• <code>/escola &lt;nome&gt;</code> - Dados, rede, DVRs e GPS\n• <code>/chamados</code> - Fila de chamados de TI\n• <code>/novochamado &lt;escola&gt; | &lt;problema&gt;</code> - Abrir chamado\n• <code>/carros</code> - Agenda de veículos oficiais\n• <code>/reservarcarro</code> - Reservar veículo oficial\n• <code>/supervisores</code> - Lista de supervisores\n• <code>/monitor</code> - Monitor de links Zabbix/Meraki\n• <code>/painel</code> - Abrir o PainelURE no celular`,
+        parse_mode: 'HTML'
+      }
+    };
+  }
+  if (rawText.startsWith('/start')) {
+    return {
+      action: 'send_message',
+      reply: {
+        chat_id: chatId,
+        text: `🏛️ <b>PainelURE - Assistente Oficial Telegram</b>\n\nAssistente operacional da URE Itapeva.\nUse o teclado abaixo para navegar rapidamente:`,
+        parse_mode: 'HTML',
+        reply_markup: getMainKeyboard(painelUrl)
+      }
+    };
+  }
+  if (rawText.startsWith('/painel')) {
+    return {
+      action: 'send_message',
+      reply: {
+        chat_id: chatId,
+        text: `🚀 <b>Acesse o PainelURE direto pelo Telegram:</b>`,
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: [[{ text: '📱 Abrir PainelURE no App', web_app: { url: painelUrl } }]] }
+      }
+    };
+  }
+
+  // /novochamado
+  if (rawText.startsWith('/novochamado') || rawText.startsWith('/chamadonovo')) {
+    const content = rawText.replace(/^\/(novochamado|chamadonovo)(@\w+)?/i, '').trim();
+    if (!content || !content.includes('|')) {
+      return {
+        action: 'send_message',
+        reply: {
+          chat_id: chatId,
+          text: `ℹ️ <b>Como abrir chamado:</b>\n<code>/novochamado &lt;Escola&gt; | &lt;Problema&gt;</code>\n\nEx: <code>/novochamado Venturelli | Impressora travada</code>`,
+          parse_mode: 'HTML'
+        }
+      };
+    }
+    const [rawSchool, ...rest] = content.split('|');
+    const sQuery = rawSchool.trim();
+    const issue = rest.join('|').trim();
+    const matches = findSchools(sQuery, appData);
+    const finalSchool = matches.length > 0 ? matches[0] : sQuery;
+    const newCall = {
+      id: `call-${Date.now()}`,
+      school: finalSchool,
+      title: issue,
+      description: issue,
+      status: 'Aberto',
+      priority: 'Normal',
+      technician: userDisplayName,
+      createdAt: new Date().toISOString(),
+      source: 'Telegram'
+    };
+    if (!Array.isArray(appData.calls)) appData.calls = [];
+    appData.calls.unshift(newCall);
+    return {
+      action: 'send_message',
+      dataMutation: { type: 'add_call', call: newCall },
+      reply: {
+        chat_id: chatId,
+        text: `✅ <b>Chamado Aberto com Sucesso!</b>\n\n🎫 <b>ID:</b> <code>${newCall.id}</code>\n🏫 <b>Escola:</b> <b>${escapeHtml(finalSchool)}</b>\n📝 <b>Problema:</b> ${escapeHtml(issue)}\n👤 <b>Por:</b> ${escapeHtml(userDisplayName)}`,
+        parse_mode: 'HTML',
+        reply_markup: { inline_keyboard: [[{ text: '✅ Concluir Chamado', callback_data: `call_done:${newCall.id}` }]] }
+      }
+    };
+  }
+
+  // /reservarcarro
+  if (rawText.startsWith('/reservarcarro') || rawText.startsWith('/reservar')) {
+    const content = rawText.replace(/^\/(reservarcarro|reservar)(@\w+)?/i, '').trim();
+    if (!content || !content.includes('|')) {
+      return {
+        action: 'send_message',
+        reply: {
+          chat_id: chatId,
+          text: `🚗 <b>Reserva de Veículo Oficial</b>\n\nSelecione o veículo abaixo:`,
+          parse_mode: 'HTML',
+          reply_markup: getCarsButtons()
+        }
+      };
+    }
+    const parts = content.split('|').map(s => s.trim());
+    const vehicle = parts[0] || 'Veículo Utilitário';
+    const dateInput = parts[1] || 'Hoje';
+    const destination = parts[2] || 'Regional Itapeva';
+    const requester = parts[3] || userDisplayName;
+    const newRes = {
+      id: `car-${Date.now()}`,
+      vehicle,
+      date: dateInput,
+      time: '08:00',
+      requester,
+      destination,
+      place: destination,
+      title: `Visita técnica - ${destination}`,
+      status: 'Aprovado',
+      authorization: 'Aprovado',
+      source: 'Telegram',
+      createdAt: new Date().toISOString()
+    };
+    if (!Array.isArray(appData.cars)) appData.cars = [];
+    appData.cars.unshift(newRes);
+    return {
+      action: 'send_message',
+      dataMutation: { type: 'add_car', car: newRes },
+      reply: {
+        chat_id: chatId,
+        text: `🚗 <b>Reserva Confirmada!</b>\n\n🚘 <b>Veículo:</b> ${escapeHtml(vehicle)}\n📅 <b>Data:</b> ${escapeHtml(dateInput)}\n📍 <b>Destino:</b> ${escapeHtml(destination)}\n👤 <b>Solicitante:</b> ${escapeHtml(requester)}`,
+        parse_mode: 'HTML'
+      }
+    };
+  }
+
+  if (rawText.startsWith('/escola')) {
+    const query = rawText.replace(/^\/escola(@\w+)?/i, '').trim();
+    if (!query) return { action: 'send_message', reply: { chat_id: chatId, text: `ℹ️ Digite o nome ou CIE da escola.\nExemplo: <code>/escola venturelli</code>`, parse_mode: 'HTML' } };
+    const matches = findSchools(query, appData);
+    if (!matches.length) return { action: 'send_message', reply: { chat_id: chatId, text: `❌ Nenhuma escola encontrada com <i>"${escapeHtml(query)}"</i>.`, parse_mode: 'HTML' } };
+    if (matches.length === 1) return { action: 'send_message', reply: { chat_id: chatId, text: formatSchool(matches[0], appData), parse_mode: 'HTML', reply_markup: getSchoolButtons(matches[0], appData) } };
+    const buttons = matches.slice(0, 6).map(name => ([{ text: `🏫 ${name}`, callback_data: `esc:${name.slice(0, 50)}` }]));
+    return { action: 'send_message', reply: { chat_id: chatId, text: `🔍 Encontrei ${matches.length} escolas para "${escapeHtml(query)}":`, parse_mode: 'HTML', reply_markup: { inline_keyboard: buttons } } };
+  }
+  if (rawText.startsWith('/chamados')) {
+    const formatted = formatCalls(appData, rawText.replace(/^\/chamados(@\w+)?/i, '').trim());
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatted.text || formatted, parse_mode: 'HTML', reply_markup: formatted.reply_markup || getCallsButtons(appData.calls || []) } };
+  }
+  if (rawText.startsWith('/carros')) {
+    const formatted = formatCars(appData);
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatted.text || formatted, parse_mode: 'HTML', reply_markup: formatted.reply_markup || getCarsButtons() } };
+  }
+  if (rawText.startsWith('/supervisores')) {
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatSupervisors(rawText.replace(/^\/supervisores(@\w+)?/i, '').trim(), appData), parse_mode: 'HTML' } };
+  }
+  if (rawText.startsWith('/monitor')) {
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatMonitor(monitorStatus), parse_mode: 'HTML' } };
+  }
+  const potentialSchools = findSchools(rawText, appData);
+  if (potentialSchools.length === 1 && rawText.length >= 3) {
+    return { action: 'send_message', reply: { chat_id: chatId, text: formatSchool(potentialSchools[0], appData), parse_mode: 'HTML', reply_markup: getSchoolButtons(potentialSchools[0], appData) } };
+  }
+  return { action: 'send_message', reply: { chat_id: chatId, text: `Comando não reconhecido. Digite <code>/ajuda</code> para ver as opções.`, parse_mode: 'HTML', reply_markup: getMainKeyboard(painelUrl) } };
+}
+
 async function apiHandler(request, env, body) {
   if (!env.DB) throw fail(503, 'Binding D1 (DB) não configurado.');
   const url = new URL(request.url); const path = url.pathname.split('/').filter(Boolean); const method = request.method;
@@ -216,6 +742,84 @@ async function apiHandler(request, env, body) {
       });
     }
     return { ok: true, ...data };
+  }
+  if (url.pathname === '/api/telegram/webhook' && method === 'POST') {
+    const webhookSecret = env.TELEGRAM_WEBHOOK_SECRET || 'ure-telegram-secret-2026';
+    const secret = request.headers.get('X-Telegram-Bot-Api-Secret-Token') || url.searchParams.get('secret') || '';
+    if (webhookSecret && secret && secret !== webhookSecret) {
+      throw fail(401, 'Secret token inválido.');
+    }
+    const store = await readStore(env.DB);
+    const appData = store.appData || {};
+    const rowAlerts = await first(env.DB, 'SELECT payload, updated_at FROM app_state WHERE id = ?', ['monitor_alerts']);
+    const rowLatest = await first(env.DB, 'SELECT updated_at FROM app_state WHERE id = ?', ['monitor_latest']);
+    const monitorStatus = {
+      active: Boolean(rowLatest),
+      updatedAt: rowLatest?.updated_at || null,
+      alerts: parseJson(rowAlerts?.payload, null)
+    };
+    const painelUrl = env.PAINELURE_URL || 'https://painelure-cloudflare-pages.pages.dev';
+    const result = handleTelegramUpdate({
+      update: body,
+      appData,
+      monitorStatus,
+      painelUrl
+    });
+
+    if (result && result.dataMutation) {
+      try {
+        await saveStore(env.DB, appData, 'telegram:' + result.dataMutation.type, { force: true });
+      } catch (saveErr) {
+        console.error('Erro ao salvar mutação do Telegram no D1:', saveErr.message);
+      }
+    }
+
+    const botToken = env.TELEGRAM_BOT_TOKEN || '8862428300:AAEvNdGotykQok9VYuLioShTPv1_DFauAvI';
+    if (result && botToken && result.action === 'send_message' && result.reply) {
+      try {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(result.reply)
+        });
+      } catch (err) {
+        console.error('Erro ao enviar mensagem Telegram:', err.message);
+      }
+    } else if (result && botToken && result.action === 'answer_callback') {
+      try {
+        await fetch(`https://api.telegram.org/bot${botToken}/answerCallbackQuery`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ callback_query_id: result.callback_query_id })
+        });
+        if (result.reply) {
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(result.reply)
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao responder callback Telegram:', err.message);
+      }
+    }
+    return { ok: true, handled: Boolean(result) };
+  }
+  if (url.pathname === '/api/telegram/setup' && (method === 'GET' || method === 'POST')) {
+    const botToken = env.TELEGRAM_BOT_TOKEN || '8862428300:AAEvNdGotykQok9VYuLioShTPv1_DFauAvI';
+    const secret = env.TELEGRAM_WEBHOOK_SECRET || 'ure-telegram-secret-2026';
+    const webhookUrl = `${url.origin}/api/telegram/webhook`;
+    const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        url: webhookUrl,
+        secret_token: secret,
+        allowed_updates: ['message', 'callback_query']
+      })
+    });
+    const tgData = await tgRes.json();
+    return { ok: true, webhookUrl, telegram: tgData };
   }
   throw fail(404, 'Endpoint não encontrado.');
 }

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Supervisores — PainelURE</title>
+  <link rel="stylesheet" href="supervision-original.css">
+  <style>
+    html, body { min-height: 0; height: auto; overflow: visible; }
+    body { padding: 16px; }
+    .supervision-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:16px; }
+    #supervisionStatus { flex-basis:100%; margin:0; }
+    [hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="supervision-toolbar">
+    <button class="btn btn-g btn-sm" data-month-prev type="button" aria-label="Mês anterior">‹</button>
+    <button class="btn btn-g btn-sm" data-month-current type="button"></button>
+    <button class="btn btn-g btn-sm" data-month-next type="button" aria-label="Próximo mês">›</button>
+    <label>Mês <input id="supervisionMonth" type="month"></label>
+    <button class="btn btn-p btn-sm" id="retrySupervision" type="button">Atualizar dados</button>
+    <p id="supervisionStatus" role="status" aria-live="polite">Carregando a planilha oficial…</p>
+  </div>
+  <section class="page active supervision-original-page" id="page-supervision">
+    <header class="page-header compact supervision-original-head">
+      <div><h1>Supervisores</h1><p>Cards de resumo por supervisor. Clique em um supervisor para abrir os dados completos.</p></div>
+    </header>
+    <div id="supervisorRows"></div>
+  </section>
+  <section class="page" id="page-supervisor-detail">
+    <header class="page-header compact detail-page-header">
+      <button class="back-btn" type="button" id="supervisionBack" aria-label="Voltar">‹</button>
+      <div><h1 id="supervisorDetailTitle">Supervisor</h1><p>Metas, vínculos e acompanhamento.</p></div>
+    </header>
+    <div class="supervisor-detail" id="supervisorDetailPageBody"></div>
+  </section>
+  <script src="../data/schools.js"></script>
+  <script src="../data/supervision.js"></script>
+  <script src="../data/sources.js"></script>
+  <script src="../modules/dom.js"></script>
+  <script src="../modules/identity.js"></script>
+  <script src="../modules/month-state.js"></script>
+  <script src="../modules/search.js"></script>
+  <script src="../modules/csv.js"></script>
+  <script src="../modules/normalizers.js"></script>
+  <script src="../modules/source-loader.js"></script>
+  <script src="../modules/supervision-render.js"></script>
+  <script src="../modules/supervision-page.js?v=20260914-2"></script>
+</body>
+</html>

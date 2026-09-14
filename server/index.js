@@ -9,6 +9,7 @@ const { Pool } = require("pg");
 const { URL } = require("url");
 
 const ROOT = path.resolve(__dirname, "..");
+const botCore = require("../modules/telegram/bot-core");
 
 function loadEnvFile() {
   const file = path.join(ROOT, ".env");
@@ -1903,6 +1904,58 @@ async function handleApi(req, res, pathname) {
       return;
     }
     send(res, 200, { ok: true, ...monitorState.latestImage });
+    return;
+  }
+
+  if (req.method === "POST" && pathname === "/api/telegram/webhook") {
+    let body = {};
+    try {
+      body = JSON.parse(await readBody(req) || "{}");
+    } catch (e) {
+      body = {};
+    }
+    const store = await readStore() || { appData: {} };
+    const appData = store.appData || {};
+    const painelUrl = process.env.PAINELURE_URL || "https://painelure-cloudflare-pages.pages.dev";
+    const result = await botCore.handleTelegramUpdate({
+      update: body,
+      appData,
+      painelUrl,
+      monitorStatus: {
+        active: Boolean(monitorState.latestImage || monitorState.latestAlerts),
+        updatedAt: monitorState.latestImageUpdatedAt || null,
+        alerts: monitorState.latestAlerts || []
+      }
+    });
+    if (result && process.env.TELEGRAM_BOT_TOKEN && result.action === "send_message" && result.reply) {
+      try {
+        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(result.reply)
+        });
+      } catch (err) {
+        console.error("Erro ao enviar mensagem Telegram:", err.message);
+      }
+    } else if (result && process.env.TELEGRAM_BOT_TOKEN && result.action === "answer_callback") {
+      try {
+        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/answerCallbackQuery`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ callback_query_id: result.callback_query_id })
+        });
+        if (result.reply) {
+          await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(result.reply)
+          });
+        }
+      } catch (err) {
+        console.error("Erro ao responder callback Telegram:", err.message);
+      }
+    }
+    send(res, 200, { ok: true, handled: Boolean(result) });
     return;
   }
 
