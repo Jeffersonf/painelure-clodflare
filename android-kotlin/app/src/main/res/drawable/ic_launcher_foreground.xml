@@ -3,33 +3,27 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Círculo de Brilho Sutil -->
     <path
-        android:fillColor="#54FFFFFF"
-        android:pathData="M22,12h64a18,18 0,0 1,18 18v48a18,18 0,0 1,-18 18h-64a18,18 0,0 1,-18 -18v-48a18,18 0,0 1,18 -18z" />
+        android:fillColor="#15FFFFFF"
+        android:pathData="M54,16 A38,38 0 1,1 53.99,16 Z" />
+    <!-- Escudo / Brasão URE -->
     <path
-        android:fillColor="#F8FBFF"
-        android:pathData="M18,16h72a16,16 0,0 1,16 16v44a16,16 0,0 1,-16 16h-72a16,16 0,0 1,-16 -16v-44a16,16 0,0 1,16 -16z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillAlpha="0.76"
-        android:pathData="M18,16h72a16,16 0,0 1,16 16v12h-104v-12a16,16 0,0 1,16 -16z" />
-    <path
-        android:fillColor="#2C3448"
-        android:pathData="M26,34h31a5,5 0,0 1,0 10h-31a5,5 0,0 1,0 -10z" />
-    <path
-        android:fillColor="#73819B"
-        android:pathData="M26,51h24a5,5 0,0 1,0 10h-24a5,5 0,0 1,0 -10z" />
-    <path
-        android:fillColor="#D6F36F"
-        android:pathData="M26,68h20a5,5 0,0 1,0 10h-20a5,5 0,0 1,0 -10z" />
-    <path
-        android:fillColor="#F4D861"
-        android:pathData="M74,62m-18,0a18,18 0,1 1,36 0a18,18 0,1 1,-36 0" />
+        android:fillColor="#256366F1"
+        android:strokeColor="#818CF8"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:pathData="M34,36 L54,24 L74,36 L74,62 C74,76 54,88 54,88 C54,88 34,76 34,62 Z" />
+    <!-- Letra U -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.22"
-        android:pathData="M74,46m-18,0a18,18 0,1 1,36 0a18,18 0,1 1,-36 0" />
+        android:pathData="M41,45 h4 v11 c0,3 2,5 5,5 c3,0 5,-2 5,-5 v-11 h4 v11 c0,6 -4,9 -9,9 c-5,0 -9,-3 -9,-9 Z" />
+    <!-- Letra R -->
     <path
-        android:fillColor="#182133"
-        android:pathData="M68,52h10a5,5 0,0 1,0 10h-9a3,3 0,0 0,0 6h11v4h-5v4h-4v-4h-5v-4h4a3,3 0,0 0,0 -6h-2a5,5 0,0 1,0 -10z" />
+        android:fillColor="#38BDF8"
+        android:pathData="M59,45 h7 c4,0 6,2 6,5 c0,2 -1,4 -3,4 l4,8 h-4.5 l-3.5,-7 h-2 v7 h-4 Z M63,48 v3.5 h3 c1.5,0 2.5,-0.5 2.5,-1.8 c0,-1.2 -1,-1.7 -2.5,-1.7 Z" />
+    <!-- Ponto Verde Status Online -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M78,28 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
 </vector>

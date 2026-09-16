@@ -37,12 +37,13 @@
       const saved = localStorage.getItem(MONTH_KEY);
       if (parseMonthKey(saved)) return saved;
     } catch (error) {}
-    const officialMonth = supervisionMonthKey();
-    return parseMonthKey(officialMonth) ? officialMonth : "2026-05";
+    const now = new Date();
+    return monthKey(now);
   }
 
   function selectedMonth() {
-    return parseMonthKey(selectedMonthKey()) || { year: 2026, month: 5 };
+    const now = new Date();
+    return parseMonthKey(selectedMonthKey()) || { year: now.getFullYear(), month: now.getMonth() + 1 };
   }
 
   function monthLabel(key = selectedMonthKey()) {

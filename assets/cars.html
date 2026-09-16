@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Supervisores — PainelURE</title>
+  <title>Carros Oficiais — PainelURE</title>
   <link rel="stylesheet" href="supervision-original.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -48,7 +48,7 @@
     }
     html, body { min-height: 0; height: auto; overflow: visible; font-family: var(--font-ui); background: transparent; }
     body { padding: 18px 24px 36px; }
-    .supervision-toolbar {
+    .car-toolbar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
@@ -63,13 +63,13 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
-    .supervision-toolbar-left {
+    .car-toolbar-left {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }
-    .supervision-toolbar-right {
+    .car-toolbar-right {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -82,141 +82,118 @@
       border: 1px solid var(--bd);
       border-radius: 999px;
       padding: 3px;
-      gap: 2px;
+      gap: 4px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
     }
     .month-step {
-      width: 32px;
-      height: 32px;
-      display: grid;
-      place-items: center;
       background: transparent;
-      border: 0;
-      color: var(--tx);
+      border: none;
+      color: var(--tx2);
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 16px;
-      line-height: 1;
+      font-weight: 700;
       transition: all 0.15s ease;
     }
     .month-step:hover {
-      background: rgba(99, 102, 241, 0.15);
-      color: var(--ac);
+      background: rgba(255,255,255,0.1);
+      color: var(--tx);
     }
     .month-pill {
-      background: transparent;
-      border: 0;
-      color: var(--tx);
-      font-family: var(--font-ui);
+      background: var(--ac);
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
       font-weight: 700;
-      font-size: 13px;
-      padding: 6px 14px;
+      padding: 5px 14px;
+      border-radius: 999px;
       cursor: pointer;
-      letter-spacing: -0.2px;
+      letter-spacing: 0.02em;
+      text-transform: capitalize;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
     }
-    .btn-p {
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-      color: #fff !important;
-      border: 1px solid rgba(99, 102, 241, 0.4) !important;
+    .sharepoint-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--bd);
       border-radius: 10px;
+      background: var(--sf2);
+      color: var(--tx);
+      font-size: 12px;
       font-weight: 700;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-      transition: all 0.18s ease;
+      text-decoration: none;
+      transition: all .16s ease;
     }
-    .btn-p:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
+    .sharepoint-link-btn:hover {
+      border-color: var(--ac);
+      color: var(--ac);
+      background: rgba(99, 102, 241, 0.1);
     }
-    .supervision-progress-track {
-      flex-basis: 100%;
-      height: 4px;
-      background: var(--bd2);
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 8px 0 4px;
-      display: none;
-    }
-    .supervision-progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #6366f1, #06b6d4);
-      border-radius: 999px;
-      transition: width 0.25s ease;
-    }
-    #supervisionStatus {
+    #carSourceStatus {
       flex-basis: 100%;
       margin: 4px 0 0;
       font-size: 12px;
       color: var(--mt);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .detail-page-header {
-      display: flex !important;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    .detail-page-header > div:first-child {
-      display: block !important;
-    }
-    .back-btn {
-      width: 40px;
-      height: 40px;
-      display: inline-grid;
-      place-items: center;
-      border: 1px solid var(--bd);
-      border-radius: 12px;
-      background: var(--sf);
-      color: var(--tx);
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      transition: all .16s ease;
-      flex-shrink: 0;
-    }
-    .back-btn:hover {
-      background: var(--sf2);
-      border-color: var(--ac);
-      color: var(--ac);
-      transform: translateX(-2px);
+      font-weight: 700;
     }
     [hidden] { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="supervision-toolbar">
-    <div class="supervision-toolbar-left">
+  <div class="car-toolbar">
+    <div class="car-toolbar-left">
       <div class="month-switcher" aria-label="Selecionar mês">
         <button class="month-step" data-month-prev type="button" aria-label="Mês anterior">‹</button>
-        <button class="month-pill" data-month-current type="button">Carregando...</button>
+        <button class="month-pill" data-month-current type="button">Maio 2026</button>
         <button class="month-step" data-month-next type="button" aria-label="Próximo mês">›</button>
       </div>
     </div>
-    <div class="supervision-toolbar-right">
-      <button class="btn btn-p btn-sm" id="retrySupervision" type="button">🔄 Atualizar dados</button>
+    <div class="car-toolbar-right">
+      <a class="sharepoint-link-btn" href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer">
+        🗓️ Abrir no SharePoint ↗
+      </a>
     </div>
-    <div class="supervision-progress-track" id="supervisionProgressBar">
-      <div class="supervision-progress-fill" id="supervisionProgressFill"></div>
-    </div>
-    <p id="supervisionStatus" role="status" aria-live="polite">Carregando a planilha oficial…</p>
   </div>
-  <section class="page active supervision-original-page" id="page-supervision">
-    <header class="page-header compact supervision-original-head">
-      <div><h1>Supervisores</h1><p>Cards de resumo por supervisor. Clique em um supervisor para abrir os dados completos.</p></div>
+
+  <section class="page active" id="page-cars">
+    <header class="page-header compact">
+      <div><h1>Carros</h1><p>Agendamento de carros oficiais, destinos e motoristas.</p></div>
     </header>
-    <div id="supervisorRows"></div>
+    <div class="selector-panel operation-filters">
+      <label>
+        <span>Carro</span>
+        <select id="carVehicleFilter"></select>
+      </label>
+      <label>
+        <span>Status</span>
+        <select id="carStatusFilter"></select>
+      </label>
+      <button class="ghost-btn filter-reset" type="button" id="carFilterReset">Limpar</button>
+      <button class="ghost-btn" type="button" id="carRefreshBtn">Atualizar</button>
+      <div style="width:100%;height:4px;background:var(--bd2);border-radius:999px;overflow:hidden;margin:4px 0;display:none;" id="carProgressBar">
+        <div style="height:100%;width:0%;background:linear-gradient(90deg, #6366f1, #06b6d4);border-radius:999px;transition:width 0.25s ease;" id="carProgressFill"></div>
+      </div>
+      <p id="carFilterSummary">Agendamentos de carros carregados.</p>
+      <p id="carSourceStatus"></p>
+    </div>
+    <article class="box summary-box" style="display:none;">
+      <div class="box-head"><div><strong>Resumo dos carros</strong><small>Agenda puxada da base de carros e do calendário</small></div></div>
+      <div class="row-list compact" id="carSummaryRows"></div>
+    </article>
+    <div class="calendar-grid car-grid" id="carGrid"></div>
   </section>
-  <section class="page" id="page-supervisor-detail">
-    <header class="page-header compact detail-page-header">
-      <button class="back-btn" type="button" id="supervisionBack" aria-label="Voltar">‹</button>
-      <div><h1 id="supervisorDetailTitle">Supervisor</h1><p>Metas, vínculos e acompanhamento.</p></div>
-    </header>
-    <div class="supervisor-detail" id="supervisorDetailPageBody"></div>
-  </section>
+
   <script src="../data/schools.js"></script>
-  <script src="../data/supervision.js"></script>
+  <script src="../data/operations.js"></script>
+  <script src="../data/governance.js"></script>
   <script src="../data/sources.js"></script>
   <script src="../modules/dom.js"></script>
   <script src="../modules/identity.js"></script>
@@ -225,7 +202,7 @@
   <script src="../modules/csv.js"></script>
   <script src="../modules/normalizers.js"></script>
   <script src="../modules/source-loader.js"></script>
-  <script src="../modules/supervision-render.js"></script>
-  <script src="../modules/supervision-page.js?v=20260914-2"></script>
+  <script src="../modules/render.js"></script>
+  <script src="../modules/cars-page.js?v=20260914-1"></script>
 </body>
 </html>

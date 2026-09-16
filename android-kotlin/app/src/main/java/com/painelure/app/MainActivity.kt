@@ -82,7 +82,7 @@ fun PainelUREApp(
     var isLoading by remember { mutableStateOf(true) }
     var loadProgress by remember { mutableFloatStateOf(0f) }
 
-    val liveUrl = "https://painelure-cloudflare-pages.pages.dev"
+    val liveUrl = "https://painelure.pages.dev"
     val localFallbackUrl = "file:///android_asset/web/index.html"
 
     val darkBackground = Color(0xFF090C15)

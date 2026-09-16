@@ -4,6 +4,6 @@
   "tagName": "v11.10.0",
   "title": "PainelURE v11.10.0",
   "notes": "Atualização com monitoramento dinâmico Zabbix e Meraki, detecção automática de incidentes por CIE e melhorias visuais.",
-  "apkUrl": "https://painelure-cloudflare-pages.pages.dev/painelure.apk",
+  "apkUrl": "https://painelure.pages.dev/apk",
   "publishedAt": "2026-09-12T20:46:31.227Z"
 }

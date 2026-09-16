@@ -1,19 +1,21 @@
 @echo off
-title Abrir Chrome para Monitoramento PainelURE
+title Abrir Chrome Monitoramento PainelURE
 echo ====================================================
-echo   Abrindo Chrome com Porta de Depuracao (9222)
+echo   Abrindo Chrome na Porta de Depuracao (9222)
 echo ====================================================
 echo.
-echo Este script abre o Chrome permitindo que o PainelURE leia
-echo os incidentes do Zabbix e Meraki em tempo real.
-echo.
+echo FECHANDO processos zumbis do Chrome para liberar a porta 9222...
+taskkill /F /IM chrome.exe >nul 2>&1
+timeout /t 2 >nul
 
 set CHROME_PATH="C:\Program Files\Google\Chrome\Application\chrome.exe"
 if not exist %CHROME_PATH% set CHROME_PATH="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 if not exist %CHROME_PATH% set CHROME_PATH="%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
 
-start "" %CHROME_PATH% --remote-debugging-port=9222 --user-data-dir="%LOCALAPPDATA%\Google\Chrome\MonitorProfile" "https://n672.dashboard.meraki.com" "https://zabbix-escolas.educacao.intragov"
+echo Iniciando o Chrome com porta 9222 habilitada...
+start "" %CHROME_PATH% --remote-debugging-port=9222 "https://n672.dashboard.meraki.com" "https://zabbix-escolas.educacao.intragov"
 
-echo Chrome aberto com sucesso na porta 9222!
-echo Agora voce pode dar dois cliques em "iniciar-monitor.bat".
-timeout /t 5
+echo.
+echo [OK] Chrome iniciado! Faça login nas duas abas (Meraki e Zabbix).
+echo Depois inicie o agente com "iniciar-monitor.bat".
+timeout /t 6

@@ -20,25 +20,17 @@
     },
     {
       "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $json.payload.fromMe }}",
-              "value2": false
-            }
-          ],
-          "string": [
-            {
-              "value1": "={{ $json.payload.body }}",
-              "operation": "isNotEmpty"
-            }
-          ]
-        }
+        "method": "POST",
+        "url": "https://painelure-cloudflare-pages.pages.dev/api/bot/whatsapp",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body || $json) }}",
+        "options": {}
       },
       "id": "2",
-      "name": "Filtrar Mensagem",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
+      "name": "Consultar PainelURE API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [
         460,
         300
@@ -46,29 +38,55 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://painelure-cloudflare-pages.pages.dev/api/bot/whatsapp",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"text\": {{ JSON.stringify($json.payload.body) }},\n  \"from\": {{ JSON.stringify($json.payload.from) }},\n  \"sender\": {{ JSON.stringify($json.payload._data?.notifyName || $json.payload.notifyName || '') }}\n}",
-        "options": {}
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.reply }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
       },
       "id": "3",
-      "name": "Consultar PainelURE API",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "name": "Tem Resposta?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
       "position": [
         700,
-        280
+        300
       ]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "http://waha:3000/api/sendText",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "PainelURE2026@"
+            }
+          ]
+        },
         "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"session\": \"default\",\n  \"chatId\": {{ JSON.stringify($('Filtrar Mensagem').item.json.payload.from) }},\n  \"text\": {{ JSON.stringify($json.reply) }}\n}",
+        "specifyBody": "fields",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "session",
+              "value": "default"
+            },
+            {
+              "name": "chatId",
+              "value": "={{ $json.chatId }}"
+            },
+            {
+              "name": "text",
+              "value": "={{ $json.reply }}"
+            }
+          ]
+        },
         "options": {}
       },
       "id": "4",
@@ -87,17 +105,6 @@
       "main": [
         [
           {
-            "node": "Filtrar Mensagem",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Filtrar Mensagem": {
-      "main": [
-        [
-          {
             "node": "Consultar PainelURE API",
             "type": "main",
             "index": 0
@@ -106,6 +113,17 @@
       ]
     },
     "Consultar PainelURE API": {
+      "main": [
+        [
+          {
+            "node": "Tem Resposta?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tem Resposta?": {
       "main": [
         [
           {

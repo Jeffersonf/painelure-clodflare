@@ -23,7 +23,7 @@ data class AppReleaseInfo(
 )
 
 object AppUpdateManager {
-    private const val CLOUDFLARE_VERSION_URL = "https://painelure-cloudflare-pages.pages.dev/version.json"
+    private const val CLOUDFLARE_VERSION_URL = "https://painelure.pages.dev/version.json"
     private const val GITHUB_REPO = "Jeffersonf/painelure-clodflare"
     private const val GITHUB_API = "https://api.github.com/repos/$GITHUB_REPO/releases/latest"
 
@@ -41,9 +41,9 @@ object AppUpdateManager {
                 if (conn.responseCode == 200) {
                     val body = conn.inputStream.bufferedReader().use { it.readText() }
                     val json = JSONObject(body)
-                    val tagName = json.optString("tagName", json.optString("versionName", "11.9.0")).removePrefix("v").trim()
+                    val tagName = json.optString("tagName", json.optString("versionName", "11.10.0")).removePrefix("v").trim()
                     val notes = json.optString("notes", "Nova versão disponível.").trim()
-                    val apkUrl = json.optString("apkUrl", "https://painelure-cloudflare-pages.pages.dev/painelure.apk")
+                    val apkUrl = json.optString("apkUrl", "https://painelure.pages.dev/apk")
                     val isNewer = compareVersions(tagName, currentVersionName) > 0
                     AppReleaseInfo(
                         tagName = tagName,
@@ -94,7 +94,7 @@ object AppUpdateManager {
             }
 
             if (downloadUrl.isBlank()) {
-                downloadUrl = "https://painelure-cloudflare-pages.pages.dev/painelure.apk"
+                downloadUrl = "https://painelure.pages.dev/apk"
             }
 
             val isNewer = compareVersions(tagName, currentVersionName) > 0
