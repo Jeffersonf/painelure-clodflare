@@ -1,3 +1,27 @@
+const STATIC_SCHOOL_DATA = {
+  "PEI EE Idalicio Mendes Lima": { cie: "905227", city: "Itapeva", phone: "(15) 3624-7326", email: "e905227a@educacao.sp.gov.br" },
+  "EE Doutor Antonio Deffune": { cie: "049323", city: "Itapeva", phone: "(15) 3526-7271", email: "e049323a@educacao.sp.gov.br" },
+  "PEI EE Professora Celia Vasques Ferrari Duch": { cie: "039731", city: "Taquarivai", phone: "(15) 3534-1192", email: "e039731a@educacao.sp.gov.br" },
+  "PEI EE Professora Cinira Daniel da Silva": { cie: "035348", city: "Itapeva", phone: "(15) 3523-1137", email: "e035348a@educacao.sp.gov.br" },
+  "EE Bairro Ferreira dos Matos": { cie: "915087", city: "Ribeirão Grande", phone: "(15) 3544-6226", email: "e915087a@educacao.sp.gov.br" },
+  "PEI EE Professora Francelina Franco": { cie: "015568", city: "Buri", phone: "(15) 3546-1242", email: "e015568a@educacao.sp.gov.br" },
+  "EE Professor Gerson de Barros Margarido": { cie: "043412", city: "Itapeva", phone: "(15) 3624-7011", email: "e043412a@educacao.sp.gov.br" },
+  "EE Bairro Boa Vista Intervales": { cie: "915075", city: "Ribeirão Grande", phone: "(15) 3444-6100", email: "e915075a@educacao.sp.gov.br" },
+  "PEI EE Jeminiano David Muzel": { cie: "015477", city: "Itapeva", phone: "(15) 3522-0941", email: "e015477a@educacao.sp.gov.br" },
+  "PEI EE Professor Joao Baptista do Amaral Vasconcellos": { cie: "910077", city: "Capão Bonito", phone: "(15) 3542-1244", email: "e910077a@educacao.sp.gov.br" },
+  "PEI EE Professor Jose Vasques Ferrari": { cie: "015519", city: "Itapeva", phone: "(15) 3522-1922", email: "e015519a@educacao.sp.gov.br" },
+  "PEI EE Professora Nicota Soares": { cie: "015489", city: "Itapeva", phone: "(15) 3522-0211", email: "e015489a@educacao.sp.gov.br" },
+  "PEI EE Oscar Kurtz Camargo": { cie: "015076", city: "Ribeirão Grande", phone: "(15) 3544-1188", email: "e015076a@educacao.sp.gov.br" },
+  "PEI EE Otavio Ferrari": { cie: "015404", city: "Itapeva", phone: "(15) 3522-1322", email: "e015404a@educacao.sp.gov.br" },
+  "PEI EE Padre Arlindo Vieira": { cie: "015118", city: "Capão Bonito", phone: "(15) 3542-1900", email: "e015118a@educacao.sp.gov.br" },
+  "EE Doutor Raul Venturelli": { cie: "015222", city: "Capão Bonito", phone: "(15) 3542-1131", email: "e015222a@educacao.sp.gov.br" },
+  "PEI EE Ricardo Campolim de Almeida Neto": { cie: "915117", city: "Nova Campina", phone: "(15) 3535-6122", email: "e915117a@educacao.sp.gov.br" },
+  "EE Professor Silverio Monteiro": { cie: "035336", city: "Itapeva", phone: "(15) 3522-0311", email: "e035336a@educacao.sp.gov.br" },
+  "PEI EE Simpliciano Campolim de Almeida": { cie: "015428", city: "Nova Campina", phone: "(15) 3535-1155", email: "e015428a@educacao.sp.gov.br" },
+  "EE Bairro Turvo dos Almeidas": { cie: "926036", city: "Capão Bonito", phone: "(15) 3542-5011", email: "e926036a@educacao.sp.gov.br" },
+  "PEI EE Professora Zulmira de Oliveira": { cie: "015544", city: "Itapeva", phone: "(15) 3522-2933", email: "e015544a@educacao.sp.gov.br" }
+};
+
 const DVR_STATIC_DATA = {
   "updatedAt": "2026-09-14T22:15:28.995Z",
   "summary": { "total": 33, "online": 28, "offline": 5 },
@@ -844,14 +868,18 @@ function getWhatsAppMenu(painelUrl = 'https://painelure.pages.dev', isTech = fal
 function findSchools(query, appData) {
   const q = normalize(query);
   if (!q) return [];
-  const networkData = appData.networkData || {};
-  const schoolProfiles = appData.schoolProfiles || [];
-  const baseSchools = Array.isArray(appData.schools) ? appData.schools.map(s => s.name || s) : [];
-  
+  const networkData = appData?.networkData || {};
+  const schoolProfiles = appData?.schoolProfiles || [];
+  const baseSchools = Array.isArray(appData?.schools) ? appData.schools.map(s => s.name || s) : [];
+  const staticDvrSchools = typeof DVR_STATIC_DATA !== 'undefined' ? Object.keys(DVR_STATIC_DATA?.schools || {}) : [];
+  const staticSchools = typeof STATIC_SCHOOL_DATA !== 'undefined' ? Object.keys(STATIC_SCHOOL_DATA) : [];
+
   const allNames = Array.from(new Set([
     ...baseSchools,
     ...Object.keys(networkData),
-    ...schoolProfiles.map(p => p.school || p.name || p.escola || '')
+    ...schoolProfiles.map(p => p.school || p.name || p.escola || ''),
+    ...staticDvrSchools,
+    ...staticSchools
   ])).filter(name => name && name !== 'DIRETORIA');
 
   return allNames.filter(name => {
@@ -865,19 +893,46 @@ function findSchools(query, appData) {
       if (normalize(prof.municipality || prof.municipio || prof.city || '').includes(q)) return true;
       if (normalize(prof.email || '').includes(q)) return true;
     }
+    const stat = typeof STATIC_SCHOOL_DATA !== 'undefined' ? STATIC_SCHOOL_DATA[name] : null;
+    if (stat) {
+      if (normalize(stat.cie || '').includes(q)) return true;
+      if (normalize(stat.city || '').includes(q)) return true;
+      if (normalize(stat.email || '').includes(q)) return true;
+    }
     return false;
   });
 }
 
-function formatSchoolWhatsApp(schoolName, appData) {
+function formatSchoolWhatsApp(schoolName, appData, isTech = false) {
   const normTarget = normalize(schoolName);
   const profile = (appData.schoolProfiles || []).find(p => normalize(p.school || p.name || p.escola) === normTarget) || {};
   const baseSchool = Array.isArray(appData.schools) ? (appData.schools.find(s => normalize(s.name || s) === normTarget) || {}) : {};
+  const staticData = (typeof STATIC_SCHOOL_DATA !== 'undefined' && (STATIC_SCHOOL_DATA[schoolName] || Object.entries(STATIC_SCHOOL_DATA).find(([k]) => normalize(k) === normTarget)?.[1])) || {};
+  const muni = profile.municipality || profile.municipio || profile.city || staticData.city || '';
+  const phone = profile.phone || staticData.phone || '';
+  const email = profile.email || staticData.email || '';
+
+  // Modo Usuário Comum: Apenas identificação pública da escola e link oficial para chamado
+  if (!isTech) {
+    let msg = `🏫 *${schoolName}*\n`;
+    if (muni) msg += `📍 *Município:* ${muni}\n`;
+    if (phone) msg += `📞 *Telefone:* ${phone}\n`;
+    if (email) msg += `✉️ *Email:* ${email}\n`;
+
+    msg += `\n📌 *Abertura de Chamado T.I. & Suporte:*\n` +
+      `Para relatar problemas com computadores, impressoras, internet ou equipamentos desta escola:\n` +
+      `🔗 ${POWERAPPS_CHAMADO_SHORT_URL}\n\n` +
+      `🔒 _Informações detalhadas de inventário, rede e equipamentos são exclusivas para a equipe técnica._`;
+
+    return msg;
+  }
+
+  // Modo Técnico: Exibe todos os dados avançados (CIE, Diretor, Supervisor, Inventário, GPS e atalhos)
   const supervisor = (appData.supervisors || []).find(s => (s.assignedSchools || []).some(sch => normalize(sch) === normTarget));
   
-  let cie = profile.cie || baseSchool.cie || '';
-  if (!cie && profile.email) {
-    const cieMatch = profile.email.match(/^e(\d{5,7})[a-z]?@/i);
+  let cie = profile.cie || baseSchool.cie || staticData.cie || '';
+  if (!cie && email) {
+    const cieMatch = email.match(/^e(\d{5,7})[a-z]?@/i);
     if (cieMatch) cie = cieMatch[1];
   }
   if (!cie && appData.networkData) {
@@ -896,13 +951,12 @@ function formatSchoolWhatsApp(schoolName, appData) {
   const assets = (appData.schoolAssets || []).filter(a => normalize(a.school || a.escola || '') === normTarget);
 
   let msg = `🏫 *${schoolName}*\n`;
-  const muni = profile.municipality || profile.municipio || profile.city;
   if (muni) msg += `📍 *Município:* ${muni}\n`;
   if (cie) msg += `🏷️ *CIE:* ${cie}\n`;
   const director = profile.director || profile.diretor || baseSchool.director || baseSchool.diretor || '';
   if (director) msg += `👤 *Diretor(a):* ${director}\n`;
-  if (profile.phone) msg += `📞 *Telefone:* ${profile.phone}\n`;
-  if (profile.email) msg += `✉️ *Email:* ${profile.email}\n`;
+  if (phone) msg += `📞 *Telefone:* ${phone}\n`;
+  if (email) msg += `✉️ *Email:* ${email}\n`;
   if (supervisor) msg += `👨‍🏫 *Supervisor(a):* ${supervisor.name}\n`;
 
   // Resumo do Inventário
@@ -930,7 +984,13 @@ function formatSchoolWhatsApp(schoolName, appData) {
   msg += `• Google Maps: https://www.google.com/maps/search/?api=1&query=${query}\n`;
   msg += `• Waze: https://waze.com/ul?q=${query}&navigate=yes\n`;
 
-  const shortName = schoolName.replace(/^EE\s+(Profª?\.?|Dona|Padre)?\s*/i, '').trim().split(/\s+/)[0];
+  const cleanTokens = schoolName
+    .replace(/\b(PEI|EE|Professora|Professor|Profª?\.?|Doutor|Dr\.?|Padre|Dona|Bairro)\b/gi, '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  const shortName = (cleanTokens[cleanTokens.length - 1] || cleanTokens[0] || 'escola').toLowerCase();
+
   msg += `\n💡 *Opções rápidas:*\n`;
   msg += `• Digite *eq ${shortName}* para ver equipamentos detalhados\n`;
   msg += `• Digite *chamado ${shortName}* para copiar texto do chamado SED\n`;
@@ -1440,7 +1500,7 @@ function handleWhatsAppMessage({
   if (lower === 'tecnico' || lower === 'modo tecnico' || lower === 'senha' || lower === 'senha tecnico') {
     if (isTech) {
       return {
-        replyText: `🔓 *Você já está no Modo Técnico!*\n\nDigite *menu* para ver os comandos ou digite *#sair* para desconectar.`,
+        replyText: `🔓 *Você já está no Modo Técnico!*\n\nTenho as informações do Padlet e recursos de rede disponíveis.\nDigite *menu* para ver os comandos ou digite *#sair* para desconectar.`,
         isTech: true
       };
     }
@@ -1450,132 +1510,71 @@ function handleWhatsAppMessage({
     };
   }
 
-  // Comandos de Monitoramento Técnico (Zabbix, Meraki, Rede, DVR)
-  if (lower === 'zab' || /^zab\s+/i.test(clean)) {
-    const q = clean.replace(/^zab\s*/i, '').trim();
-    return {
-      replyText: formatZabbixWhatsApp(q, monitorStatus, appData, painelUrl),
-      isTech
-    };
-  }
+  // 1. Saudação / Menu (reconhece saudações comuns)
+  const isGreeting = !clean ||
+    /^(oi|ola|ol[aá]|bom dia|boa tarde|boa noite|opa|e a[ií]|hey|hello|iniciar|start|menu|ajuda|help)\b/i.test(clean) ||
+    ['oi', 'ola', 'olá', 'bom dia', 'boa tarde', 'boa noite', 'opa', 'menu', 'ajuda', 'help', 'inicio', 'comecar'].includes(lower);
 
-  if (lower === 'aps' || /^aps\s+/i.test(clean)) {
-    const q = clean.replace(/^aps\s*/i, '').trim();
-    return {
-      replyText: formatMerakiWhatsApp(q, monitorStatus, appData, painelUrl),
-      isTech
-    };
-  }
-
-  if (lower === 'rede' || /^rede\s+/i.test(clean)) {
-    const q = clean.replace(/^rede\s*/i, '').trim();
-    return {
-      replyText: formatRedeWhatsApp(q, monitorStatus, appData, painelUrl),
-      isTech
-    };
-  }
-
-  if (lower === 'dvr' || /^dvr\s+/i.test(clean)) {
-    const q = clean.replace(/^dvr\s*/i, '').trim();
-    return {
-      replyText: formatDvrWhatsApp(q, appData, isTech),
-      isTech
-    };
-  }
-
-  // Comando MATERIAL DE APOIO:
-  const isApoioCommand = /^(apoio|material|padlet|manuais|guias|procedimentos?)\b/i.test(clean);
-  const isNaturalApoioQuery = /(quiosque|sair do quiosque|sair quiosque|hard reset tablet|reset tablet|formatar tablet|ssd positivo|upgrade ssd|bios positivo|desabilitar emmc|emmc na bios|wifi tablets|tablets-escolas|garantia lenovo|chamado lenovo|garantia multilaser|chamado multilaser|bloquear jogos|arquivo hosts|tv lg|airplay tv|bluemonitor|visita nit|formulario nit|bons usos|cuidados)/i.test(clean);
-
-  if (isApoioCommand || isNaturalApoioQuery) {
-    const qTerm = isApoioCommand ? clean.replace(/^(apoio|material|padlet|manuais|guias|procedimentos?)\s*/i, '').trim() : clean;
-    return {
-      replyText: formatMaterialApoioWhatsApp(qTerm, painelUrl, isTech),
-      isTech
-    };
-  }
-
-  // 1. Saudação / Menu
-  if (!clean || ['menu', 'oi', 'ola', 'olá', 'ajuda', 'help', '/start', 'iniciar', 'bom dia', 'boa tarde', 'boa noite', 'opa', 'começar'].includes(lower)) {
+  if (isGreeting) {
     return {
       replyText: getWhatsAppMenu(painelUrl, isTech),
       isTech
     };
   }
 
-  // 2. Opções numeradas do Menu
-  if (lower === '1' || lower === 'escola' || lower === 'escolas') {
-    return {
-      replyText: `🏫 *Consulta de Escolas*\n\nDigite o nome ou CIE da escola que deseja pesquisar.\n\n*Exemplo:* _venturelli_ ou _murtinho_`,
-      isTech
-    };
-  }
-
-  if (lower === '2' || lower === 'equipamento' || lower === 'equipamentos' || lower === 'inventario') {
-    return {
-      replyText: `💻 *Inventário de Equipamentos*\n\nDigite *eq <nome da escola>* para ver os equipamentos detalhados.\n\n*Exemplo:* _eq venturelli_ ou _eq jupira_`,
-      isTech
-    };
-  }
-
-  if (lower === '3' || lower === 'chamado sed' || lower === 'texto chamado' || lower === 'texto de chamado') {
-    return {
-      replyText: `📋 *Texto Padrão para Chamado SED*\n\nDigite *chamado <nome da escola>* para gerar o texto do chamado pronto para copiar.\n\n*Exemplo:* _chamado venturelli_`,
-      isTech
-    };
-  }
-
-  if (lower === '4' || lower === 'chamados' || lower === 'chamados ti') {
-    return {
-      replyText: typeof formatCallsWhatsApp === 'function' ? formatCallsWhatsApp(appData) : toWhatsApp(formatCalls(appData)),
-      isTech
-    };
-  }
-
-  if (lower === '5' || lower === 'carros' || lower === 'carro' || lower === 'frota') {
-    return {
-      replyText: typeof formatCarsWhatsApp === 'function' ? formatCarsWhatsApp(appData) : toWhatsApp(formatCars(appData)),
-      isTech
-    };
-  }
-
-  if (lower === '6' || lower === 'supervisores' || lower === 'supervisao' || lower === 'supervisor') {
-    return {
-      replyText: typeof formatSupervisorsWhatsApp === 'function' ? formatSupervisorsWhatsApp('', appData) : toWhatsApp(formatSupervisors('', appData)),
-      isTech
-    };
-  }
-
-  if (lower === '7' || lower === 'monitor' || lower === 'status rede') {
-    return {
-      replyText: typeof formatMonitorWhatsApp === 'function' ? formatMonitorWhatsApp(monitorStatus) : toWhatsApp(formatMonitor(monitorStatus)),
-      isTech
-    };
-  }
-
-  if (lower === 'painel' || lower === 'site' || lower === 'link') {
-    return {
-      replyText: `🌐 *Painel Geral URE Itapeva:*\n${painelUrl}`,
-      isTech
-    };
-  }
-
-  // 3. Gerar Texto Chamado SED: "chamado <escola>" ou "sed <escola>"
-  if (/^(chamado|sed|texto chamado)\s+/i.test(clean)) {
-    const q = clean.replace(/^(chamado|sed|texto chamado)\s+/i, '').trim();
-    if (!q) {
-      return { replyText: `ℹ️ Digite o nome da escola após a palavra chamado.\nExemplo: *chamado venturelli*`, isTech };
+  // 2. Comandos de Monitoramento Técnico (Zabbix, Meraki, Rede, DVR)
+  if (lower === 'zab' || /^zab\s+/i.test(clean) || lower === 'aps' || /^aps\s+/i.test(clean) || lower === 'rede' || /^rede\s+/i.test(clean) || lower === 'dvr' || /^dvr\s+/i.test(clean)) {
+    if (!isTech) {
+      return {
+        replyText: `🔒 *Acesso Técnico Restrito aos Servidores do NIT*\n\nO monitoramento de infraestrutura de rede, APs e DVRs é restrito à equipe técnica da Diretoria de Ensino.\n\nPara suporte ou relatar problemas em sua escola, abra um chamado:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}\n\n_Se você é técnico, envie a senha técnica (*ney10*) para desbloquear._`,
+        isTech
+      };
     }
-    const matches = findSchools(q, appData);
-    if (!matches.length) {
-      return { replyText: `❌ Nenhuma escola encontrada para "${q}".\nTente digitar parte do nome (ex: _venturelli_).`, isTech };
+    if (lower === 'zab' || /^zab\s+/i.test(clean)) {
+      const q = clean.replace(/^zab\s*/i, '').trim();
+      return { replyText: formatZabbixWhatsApp(q, monitorStatus, appData, painelUrl), isTech };
     }
-    return { replyText: formatSedTicketWhatsApp(matches[0], appData), isTech };
+    if (lower === 'aps' || /^aps\s+/i.test(clean)) {
+      const q = clean.replace(/^aps\s*/i, '').trim();
+      return { replyText: formatMerakiWhatsApp(q, monitorStatus, appData, painelUrl), isTech };
+    }
+    if (lower === 'rede' || /^rede\s+/i.test(clean)) {
+      const q = clean.replace(/^rede\s*/i, '').trim();
+      return { replyText: formatRedeWhatsApp(q, monitorStatus, appData, painelUrl), isTech };
+    }
+    if (lower === 'dvr' || /^dvr\s+/i.test(clean)) {
+      const q = clean.replace(/^dvr\s*/i, '').trim();
+      return { replyText: formatDvrWhatsApp(q, appData, isTech), isTech };
+    }
+  }
+
+  // 3. Solicitações gerais de suporte / chamado / manutenção / problemas
+  const isChamadoGeneral = /(como\s+(fa[cç]o\s+)?(pra\s+|para\s+)?abrir\s+(um\s+)?chamado|abrir\s+(um\s+)?chamado|abertura\s+de\s+chamado|preciso\s+de\s+(um\s+)?chamado|quero\s+abrir\s+(um\s+)?chamado|link\s+do\s+chamado|formulario\s+de\s+chamado|preciso\s+de\s+suporte|preciso\s+de\s+ajuda|suporte\s+t\.?i\.?|suporte\s+tecnico|atendimento|manuten[cç][aã]o|conserto|computador\s+(n[aã]o\s+liga|estrag|quebr|parou|trav|lento)|notebook\s+(n[aã]o\s+liga|estrag|quebr|parou|trav|lento)|impressora\s+(n[aã]o\s+funciona|n[aã]o\s+imprime|estrag|quebr|parou|trav)|(computador|notebook|pc|impressora|monitor|mouse|teclado)\s+(com\s+defeito|quebrado|com\s+problema)|(estou\s+com\s+problema|estamos\s+com\s+problema|problema\s+no|problema\s+na|defeito\s+no|defeito\s+na|quebrou\s+o|quebrou\s+a|quebrou|estragou\s+o|estragou\s+a|estragou)|(internet\s+caiu|caiu\s+a\s+internet|sem\s+internet|link\s+caiu|sem\s+conexao|conexao\s+caiu))/i.test(clean) ||
+    /^(chamado|chamados|suporte|atendimento|problema|defeito|conserto|manuten[cç][aã]o)\b/i.test(clean);
+  if (isChamadoGeneral && !/^(chamado|sed)\s+[a-z0-9]/i.test(clean)) {
+    return {
+      replyText: `📌 *Abertura de Chamados & Suporte T.I. - URE Itapeva*\n\n` +
+        `Para registrar solicitações de suporte, manutenção ou problemas em computadores, notebooks, tablets e impressoras das escolas:\n\n` +
+        `🔗 *Link do Formulário Oficial (PowerApps):*\n` +
+        `${POWERAPPS_CHAMADO_SHORT_URL}\n\n` +
+        `📝 *Como proceder:*\n` +
+        `1. Acesse o link acima com sua conta institucional.\n` +
+        `2. Selecione sua escola e descreva o equipamento e o problema.\n` +
+        `3. O chamado entrará diretamente na fila de atendimento dos técnicos do NIT.\n\n` +
+        `💡 _Para tutoriais de uso, digite palavras-chave (ex: *wifi*, *quiosque*, *tv lg*, *senha sed*, *cuidados*)._`,
+      isTech
+    };
   }
 
   // 4. Detalhes de Equipamentos: "eq <escola>" ou "equipamentos <escola>"
-  if (/^(eq|equipamento|equipamentos|inventario)\s+/i.test(clean)) {
-    const q = clean.replace(/^(eq|equipamento|equipamentos|inventario)\s+/i, '').trim();
+  if (/^(eq|equipamento|equipamentos|inventario)\b/i.test(clean)) {
+    if (!isTech) {
+      return {
+        replyText: `🔒 *Consulta de Inventário Restrita aos Técnicos*\n\nO detalhamento de patrimônio, modelos e quantidade de equipamentos é exclusivo para a equipe técnica do NIT.\n\nPara solicitar reparo ou manutenção, abra um chamado oficial:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}\n\n_Se você é técnico, envie *ney10* para desbloquear._`,
+        isTech
+      };
+    }
+    const q = clean.replace(/^(eq|equipamento|equipamentos|inventario)\s*/i, '').trim();
     if (!q) {
       return { replyText: `ℹ️ Digite o nome da escola após o comando.\nExemplo: *eq venturelli*`, isTech };
     }
@@ -1586,51 +1585,39 @@ function handleWhatsAppMessage({
     return { replyText: formatEquipmentDetailsWhatsApp(matches[0], appData), isTech };
   }
 
-  // 5. Supervisor específico: "supervisor <nome>"
-  if (/^supervisor(es)?\s+/i.test(clean)) {
-    const q = clean.replace(/^supervisor(es)?\s+/i, '').trim();
-    return {
-      replyText: typeof formatSupervisorsWhatsApp === 'function' ? formatSupervisorsWhatsApp(q, appData) : toWhatsApp(formatSupervisors(q, appData)),
-      isTech
-    };
-  }
-
-  // 6. Novo Chamado via WhatsApp: "novo chamado <escola> | <problema>"
-  if (/^(novo chamado|novochamado)\b/i.test(clean)) {
-    const content = clean.replace(/^(novo chamado|novochamado)\s*/i, '').trim();
-    if (!content.includes('|')) {
+  // 5. Modelo de Chamado SED: "chamado <escola>" ou "sed <escola>"
+  if (/^(sed|texto chamado|modelo chamado)\b/i.test(clean) || (isTech && /^chamado\s+/i.test(clean))) {
+    if (!isTech) {
       return {
-        replyText: `ℹ️ *Como abrir chamado:*\nEnvie no formato:\n*novo chamado <Escola> | <Problema>*\n\n_Exemplo:_ *novo chamado Venturelli | Impressora não liga*`,
+        replyText: `📌 *Abertura de Chamados T.I. - URE Itapeva*\n\nPara registrar chamados técnicos de computadores ou internet:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}\n\n_O gerador de modelos de texto SED é exclusivo para técnicos._`,
         isTech
       };
     }
-    const [rawSchool, ...rest] = content.split('|');
-    const sQuery = rawSchool.trim();
-    const issue = rest.join('|').trim();
-    const matches = findSchools(sQuery, appData);
-    const finalSchool = matches.length > 0 ? matches[0] : sQuery;
-    const newCall = {
-      id: `call-${Date.now()}`,
-      school: finalSchool,
-      title: issue,
-      description: issue,
-      status: 'Aberto',
-      priority: 'Normal',
-      technician: userDisplayName,
-      createdAt: new Date().toISOString(),
-      source: 'WhatsApp'
-    };
-    if (!Array.isArray(appData.calls)) appData.calls = [];
-    appData.calls.unshift(newCall);
-    return {
-      dataMutation: { type: 'add_call', call: newCall },
-      replyText: `✅ *Chamado Aberto com Sucesso!*\n\n🎫 *ID:* ${newCall.id}\n🏫 *Escola:* ${finalSchool}\n📝 *Problema:* ${issue}\n👤 *Solicitante:* ${userDisplayName}\n\n_O chamado já está visível para a equipe de T.I. no PainelURE._`,
-      isTech
-    };
+    const q = clean.replace(/^(chamado|sed|texto chamado|modelo chamado)\s*/i, '').trim();
+    if (!q) {
+      return { replyText: `ℹ️ Digite o nome da escola após o comando.\nExemplo: *chamado venturelli*`, isTech };
+    }
+    const matches = findSchools(q, appData);
+    if (!matches.length) {
+      return { replyText: `❌ Nenhuma escola encontrada para "${q}".\nTente digitar parte do nome (ex: _venturelli_).`, isTech };
+    }
+    return { replyText: formatSedTicketWhatsApp(matches[0], appData), isTech };
   }
 
-  // 7. Reserva de Carro via WhatsApp: "reservar carro <veiculo> | <data> | <destino>"
-  if (/^(reservar carro|reservarcarro|reserva carro)\b/i.test(clean)) {
+  // 6. Carros e Frota
+  if (lower === '5' || lower === 'carros' || lower === 'carro' || lower === 'frota' || /^(reservar carro|reservarcarro|reserva carro)\b/i.test(clean)) {
+    if (!isTech) {
+      return {
+        replyText: `🔒 *Reserva de Veículos Oficiais*\n\nA escala e reserva de veículos oficiais é restrita aos servidores e técnicos da Diretoria de Ensino.`,
+        isTech
+      };
+    }
+    if (lower === '5' || lower === 'carros' || lower === 'carro' || lower === 'frota') {
+      return {
+        replyText: typeof formatCarsWhatsApp === 'function' ? formatCarsWhatsApp(appData) : toWhatsApp(formatCars(appData)),
+        isTech
+      };
+    }
     const content = clean.replace(/^(reservar carro|reservarcarro|reserva carro)\s*/i, '').trim();
     if (!content.includes('|')) {
       return {
@@ -1665,7 +1652,81 @@ function handleWhatsAppMessage({
     };
   }
 
-  // 8. Consulta de Escola (seja "escola <nome>" ou apenas o nome da escola direto)
+  // 7. Supervisores
+  if (lower === '6' || lower === 'supervisores' || lower === 'supervisao' || lower === 'supervisor' || /^supervisor(es)?\s+/i.test(clean)) {
+    if (!isTech) {
+      return {
+        replyText: `🔒 *Supervisão Escolar*\n\nA relação interna de supervisores e escolas atribuídas é restrita aos servidores da Diretoria de Ensino.`,
+        isTech
+      };
+    }
+    const q = clean.replace(/^supervisor(es)?\s*/i, '').trim();
+    return {
+      replyText: typeof formatSupervisorsWhatsApp === 'function' ? formatSupervisorsWhatsApp(q, appData) : toWhatsApp(formatSupervisors(q, appData)),
+      isTech
+    };
+  }
+
+  // 8. Opções rápidas do menu (números)
+  if (lower === '1' || lower === 'escola' || lower === 'escolas') {
+    return {
+      replyText: isTech
+        ? `🏫 *Consulta de Escolas (Modo Técnico)*\n\nDigite o nome da escola para ver dados cadastrais, CIE, diretores, supervisores e inventário.\n\n*Exemplo:* _venturelli_ ou _murtinho_`
+        : `🏫 *Consulta de Escolas*\n\nDigite o nome da escola para consultar telefone, e-mail e canal de suporte.\n\n*Exemplo:* _venturelli_ ou _murtinho_`,
+      isTech
+    };
+  }
+
+  if (lower === '2') {
+    return {
+      replyText: isTech
+        ? `💻 *Inventário de Equipamentos*\n\nDigite *eq <nome da escola>* para ver os equipamentos detalhados.\n\n*Exemplo:* _eq venturelli_`
+        : `🔒 *Inventário Restrito*\n\nO detalhamento de equipamentos é restrito aos técnicos. Para solicitar manutenção, abra um chamado:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}`,
+      isTech
+    };
+  }
+
+  if (lower === '3') {
+    return {
+      replyText: `📌 *Abertura de Chamados T.I.:*\nPara registrar chamados técnicos ou relatar problemas com equipamentos:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}`,
+      isTech
+    };
+  }
+
+  if (lower === '4') {
+    if (!isTech) {
+      return {
+        replyText: `📌 *Fila de Chamados T.I.*\nPara registrar um chamado técnico:\n🔗 ${POWERAPPS_CHAMADO_SHORT_URL}`,
+        isTech
+      };
+    }
+    return {
+      replyText: typeof formatCallsWhatsApp === 'function' ? formatCallsWhatsApp(appData) : toWhatsApp(formatCalls(appData)),
+      isTech
+    };
+  }
+
+  if (lower === '7') {
+    if (!isTech) {
+      return {
+        replyText: `🔒 *Monitor de Rede Restrito*\nO monitor de rede é restrito aos técnicos da URE.`,
+        isTech
+      };
+    }
+    return {
+      replyText: typeof formatMonitorWhatsApp === 'function' ? formatMonitorWhatsApp(monitorStatus) : toWhatsApp(formatMonitor(monitorStatus)),
+      isTech
+    };
+  }
+
+  if (lower === 'painel' || lower === 'site' || lower === 'link') {
+    return {
+      replyText: `🌐 *Painel Geral URE Itapeva:*\n${painelUrl}`,
+      isTech
+    };
+  }
+
+  // 9. Consulta de Escola (seja "escola <nome>" ou apenas o nome da escola direto)
   let schoolQuery = clean;
   if (/^escola\s+/i.test(clean)) {
     schoolQuery = clean.replace(/^escola\s+/i, '').trim();
@@ -1674,7 +1735,7 @@ function handleWhatsAppMessage({
   const matches = findSchools(schoolQuery, appData);
   if (matches.length === 1) {
     return {
-      replyText: formatSchoolWhatsApp(matches[0], appData),
+      replyText: formatSchoolWhatsApp(matches[0], appData, isTech),
       isTech
     };
   }
@@ -1691,9 +1752,62 @@ function handleWhatsAppMessage({
     };
   }
 
-  // 9. Se nada bateu
+  // 10. Material de Apoio / Base de Conhecimento Padlet
+  const isApoioCommand = /^(apoio|material|padlet|manuais|guias|procedimentos?)\b/i.test(clean);
+  const isNaturalApoio = /(quiosque|reset tablet|formatar tablet|ssd|bios|emmc|wifi|tablets|garantia|multilaser|lenovo|tv lg|airplay|visita nit|bons usos|cuidados|senha sed|email institucional|carteirinha|assinatura digital)/i.test(clean);
+
+  if (isApoioCommand || isNaturalApoio) {
+    const qTerm = isApoioCommand ? clean.replace(/^(apoio|material|padlet|manuais|guias|procedimentos?)\s*/i, '').trim() : clean;
+    return {
+      replyText: formatMaterialApoioWhatsApp(qTerm, painelUrl, isTech),
+      isTech
+    };
+  }
+
+  // 11. Novo Chamado via WhatsApp por técnico
+  if (/^(novo chamado|novochamado)\b/i.test(clean) && isTech) {
+    const content = clean.replace(/^(novo chamado|novochamado)\s*/i, '').trim();
+    if (!content.includes('|')) {
+      return {
+        replyText: `ℹ️ *Como abrir chamado:*\nEnvie no formato:\n*novo chamado <Escola> | <Problema>*\n\n_Exemplo:_ *novo chamado Venturelli | Impressora não liga*`,
+        isTech
+      };
+    }
+    const [rawSchool, ...rest] = content.split('|');
+    const sQuery = rawSchool.trim();
+    const issue = rest.join('|').trim();
+    const schMatches = findSchools(sQuery, appData);
+    const finalSchool = schMatches.length > 0 ? schMatches[0] : sQuery;
+    const newCall = {
+      id: `call-${Date.now()}`,
+      school: finalSchool,
+      title: issue,
+      description: issue,
+      status: 'Aberto',
+      priority: 'Normal',
+      technician: userDisplayName,
+      createdAt: new Date().toISOString(),
+      source: 'WhatsApp'
+    };
+    if (!Array.isArray(appData.calls)) appData.calls = [];
+    appData.calls.unshift(newCall);
+    return {
+      dataMutation: { type: 'add_call', call: newCall },
+      replyText: `✅ *Chamado Aberto com Sucesso!*\n\n🎫 *ID:* ${newCall.id}\n🏫 *Escola:* ${finalSchool}\n📝 *Problema:* ${issue}\n👤 *Solicitante:* ${userDisplayName}\n\n_O chamado já está visível para a equipe de T.I. no PainelURE._`,
+      isTech
+    };
+  }
+
+  // 12. Fallback Inteligente e Prestativo
   return {
-    replyText: `Desculpe, não compreendi "${clean}". 🤔\n\nDigite *menu* para ver as opções ou digite o nome de uma escola para pesquisar (ex: _venturelli_).`,
+    replyText: `Não localizei uma resposta para "${clean}". 🤔\n\n` +
+      `📌 *Precisa de suporte ou manutenção em equipamentos?*\n` +
+      `Abra um chamado oficial no canal do NIT:\n` +
+      `🔗 ${POWERAPPS_CHAMADO_SHORT_URL}\n\n` +
+      `💡 *Dicas do que você pode fazer:*\n` +
+      `• Digite *menu* para ver o início\n` +
+      `• Digite o nome de uma escola (ex: _venturelli_)\n` +
+      `• Digite sua dúvida sobre sistemas (ex: *wifi*, *quiosque*, *tv lg*, *senha sed*, *garantia*)`,
     isTech
   };
 }
