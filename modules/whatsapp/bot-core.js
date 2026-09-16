@@ -1410,21 +1410,8 @@ function handleWhatsAppMessage({
   const lower = clean.toLowerCase();
   const userDisplayName = sender || 'Usuário WhatsApp';
 
-  // 0. Autenticação Técnico (reconhecimento de senha)
-  const stripped = lower.replace(/[*_~`#!\/:,\.-]/g, '').trim();
-  const isTechLogin = (
-    stripped === 'ney10' ||
-    stripped === 'ney 10' ||
-    stripped === 'tecnico ney10' ||
-    stripped === 'senha ney10' ||
-    stripped === 'login ney10' ||
-    stripped === 'admin ney10' ||
-    stripped === 'modo tecnico ney10' ||
-    /(?:^|\s)(?:tecnico|senha|login|pin|admin)?[\s:]*ney\s*10(?:\s|$)/i.test(clean) ||
-    lower.includes('ney10') ||
-    lower.includes('ney 10') ||
-    (techPin && (stripped === String(techPin).toLowerCase() || lower.includes(String(techPin).toLowerCase())))
-  );
+  // 0. Autenticação Técnico (a senha é apenas "ney10", sem outras variações)
+  const isTechLogin = clean.toLowerCase().replace(/[*_~]/g, '').trim() === String(techPin || 'ney10').toLowerCase();
 
   if (isTechLogin) {
     return {
