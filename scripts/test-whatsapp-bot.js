@@ -98,7 +98,7 @@ assert(redePadre.replyText.includes('1 de 9 AP(s) offline'), 'rede padre informa
 const redeSilverio = waBot.handleWhatsAppMessage({ text: 'rede silverio', isTech: true, monitorStatus: mockMonitorStatus, appData });
 assert(redeSilverio.replyText.includes('OFFLINE'), 'rede silverio informa Zabbix offline');
 assert(redeSilverio.replyText.includes('100% ONLINE'), 'rede silverio informa Meraki online');
-// 10. Comando "dvr" geral (status dos 33 DVRs da planilha Viviane)
+// 10. Comando "dvr" geral (status dos 33 DVRs da planilha CONVIVA)
 const dvrGeral = waBot.handleWhatsAppMessage({ text: 'dvr', isTech: true, monitorStatus: mockMonitorStatus, appData });
 assert(dvrGeral.replyText.includes('33 DVRs'), 'dvr geral exibe total de 33 DVRs');
 assert(dvrGeral.replyText.includes('28 Online'), 'dvr geral informa 28 online');
