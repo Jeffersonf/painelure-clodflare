@@ -2223,37 +2223,6 @@ body {
         </div>
       </div>
 
-      <!-- Bento Cards de Resumo e Alerta de Divergências -->
-      <div class="bento-grid" style="margin-bottom:18px;">
-        <!-- Card 1: Total de Equipamentos -->
-        <div class="bento-card bento-col-3 stat-card">
-          <span class="stat-tag">Total de DVRs (20 Escolas)</span>
-          <span class="stat-number" id="dvrStatTotal" style="color:var(--text-main);">33</span>
-          <span style="font-size:11.5px;color:var(--text-muted);">Gravadores cadastrados na região</span>
-        </div>
-
-        <!-- Card 2: Planilha CONVIVA (SP) -->
-        <div class="bento-card bento-col-3 stat-card">
-          <span class="stat-tag">Planilha CONVIVA (SP)</span>
-          <span class="stat-number" id="dvrStatSp" style="color:#38bdf8;">28 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">on</span> / 5 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">off</span></span>
-          <span style="font-size:11.5px;color:var(--text-muted);">85% reportados online em SP</span>
-        </div>
-
-        <!-- Card 3: Ping Real URE -->
-        <div class="bento-card bento-col-3 stat-card">
-          <span class="stat-tag">Ping Real (URE)</span>
-          <span class="stat-number" id="dvrStatPing" style="color:var(--success);">25 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">on</span> / 8 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">off</span></span>
-          <span id="dvrStatPingTime" style="font-size:11.5px;color:var(--text-muted);">ICMP Intragov verificado</span>
-        </div>
-
-        <!-- Card 4: Destaque de Divergências -->
-        <div class="bento-card bento-col-3 stat-card" style="border-color:rgba(245,158,11,0.45);background:rgba(245,158,11,0.06);">
-          <span class="stat-tag" style="color:#f59e0b;">⚠️ Divergências Detectadas</span>
-          <span class="stat-number" id="dvrStatDivergent" style="color:#f59e0b;">5</span>
-          <span style="font-size:11.5px;color:#fcd34d;font-weight:600;">Planilha SP ≠ Ping Real</span>
-        </div>
-      </div>
-
       <!-- Barra de Busca e Filtros -->
       <div class="directory-toolbar">
         <div class="dir-search-box">
@@ -2263,9 +2232,7 @@ body {
         <div class="sector-chips" id="dvrFilterChips">
           <button class="chip active" data-dvrfilter="all" onclick="setDvrFilter(this)">Todos (33)</button>
           <button class="chip" data-dvrfilter="divergent" onclick="setDvrFilter(this)" style="border-color:rgba(245,158,11,0.5);color:#fbbf24;font-weight:700;">⚠️ Divergências (5)</button>
-          <button class="chip" data-dvrfilter="ping-online" onclick="setDvrFilter(this)">🟢 Ping Online</button>
           <button class="chip" data-dvrfilter="ping-offline" onclick="setDvrFilter(this)">🔴 Ping Offline</button>
-          <button class="chip" data-dvrfilter="sp-online" onclick="setDvrFilter(this)">📋 Planilha SP Online</button>
           <button class="chip" data-dvrfilter="sp-offline" onclick="setDvrFilter(this)">📋 Planilha SP Offline</button>
         </div>
       </div>
@@ -4114,10 +4081,10 @@ function renderDvrComparisonTable(list) {
           ⚠️ DIVERGÊNCIA: Na Planilha SP está OFFLINE, mas no Ping deu ONLINE!
         </span>`;
       }
+    } else if (d.planilhaStatus === 'offline' && d.pingStatus === 'offline') {
+      compBadge = `<span style="display:inline-flex;align-items:center;justify-content:center;padding:4px 12px;border-radius:6px;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.35);font-size:13px;" title="Ambos Offline">❌</span>`;
     } else {
-      compBadge = `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);color:var(--success);font-size:11.5px;font-weight:600;">
-        ✅ Concorda (${d.planilhaStatus === 'online' ? 'Online' : 'Offline'})
-      </span>`;
+      compBadge = `<span style="display:inline-flex;align-items:center;justify-content:center;padding:4px 12px;border-radius:6px;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);font-size:13px;" title="Ambos Online">✅</span>`;
     }
 
     return `<tr style="${rowBg}">
@@ -4140,32 +4107,20 @@ function renderDvrComparisonTable(list) {
 }
 
 function updateDvrStatsCards(allList) {
-  const totalEl = document.getElementById('dvrStatTotal');
-  const spEl = document.getElementById('dvrStatSp');
-  const pingEl = document.getElementById('dvrStatPing');
-  const pingTimeEl = document.getElementById('dvrStatPingTime');
-  const divEl = document.getElementById('dvrStatDivergent');
-
   const total = allList.length;
-  const spOnline = allList.filter(d => d.planilhaStatus === 'online').length;
-  const spOffline = total - spOnline;
-  const pingOnline = allList.filter(d => d.pingStatus === 'online').length;
-  const pingOffline = total - pingOnline;
+  const spOffline = allList.filter(d => d.planilhaStatus === 'offline').length;
+  const pingOffline = allList.filter(d => d.pingStatus === 'offline').length;
   const divergent = allList.filter(d => d.isDivergent).length;
 
-  if (totalEl) totalEl.textContent = total;
-  if (spEl) spEl.innerHTML = `${spOnline} <span style="font-size:13px;font-weight:600;color:var(--text-muted);">on</span> / ${spOffline} <span style="font-size:13px;font-weight:600;color:var(--text-muted);">off</span>`;
-  if (pingEl) pingEl.innerHTML = `${pingOnline} <span style="font-size:13px;font-weight:600;color:var(--text-muted);">on</span> / ${pingOffline} <span style="font-size:13px;font-weight:600;color:var(--text-muted);">off</span>`;
-  if (divEl) divEl.textContent = divergent;
+  const btnAll = document.querySelector('#dvrFilterChips [data-dvrfilter="all"]');
+  const btnDiv = document.querySelector('#dvrFilterChips [data-dvrfilter="divergent"]');
+  const btnPingOff = document.querySelector('#dvrFilterChips [data-dvrfilter="ping-offline"]');
+  const btnSpOff = document.querySelector('#dvrFilterChips [data-dvrfilter="sp-offline"]');
 
-  if (pingTimeEl) {
-    if (window.liveDvrPingData && window.liveDvrPingData.updatedAt) {
-      const dt = new Date(window.liveDvrPingData.updatedAt);
-      pingTimeEl.textContent = 'Verificado: ' + dt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    } else {
-      pingTimeEl.textContent = 'ICMP Intragov verificado';
-    }
-  }
+  if (btnAll) btnAll.textContent = `Todos (${total})`;
+  if (btnDiv) btnDiv.innerHTML = `⚠️ Divergências (${divergent})`;
+  if (btnPingOff) btnPingOff.textContent = `🔴 Ping Offline (${pingOffline})`;
+  if (btnSpOff) btnSpOff.textContent = `📋 Planilha SP Offline (${spOffline})`;
 }
 
 function filterDvrComparison() {
