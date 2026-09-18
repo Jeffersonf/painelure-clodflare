@@ -5003,6 +5003,31 @@
     const API_URL = '';
     let pendingAuthUser = null;
 
+    // ── BANCO OFICIAL DE USUÁRIOS E CREDENCIAIS INSTITUCIONAIS (data/users.js) ──
+    const OFFICIAL_USERS = [
+      { id: "user-admin-jefferson", name: "Jefferson Felipe", login: "jefferson", role: "Administrador", sector: "SEINTEC • SETEC Itapeva", email: "jefferson.paula@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-dirigente", name: "Andre Dias de Oliveira", login: "andre", role: "Gabinete", sector: "Dirigente Regional de Ensino", email: "deitv@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-gabinete-vanessa", name: "Vanessa", login: "vanessa", role: "Gabinete", sector: "Gabinete", email: "deitv@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-gabinete-juliano", name: "Juliano Lobo Ribeiro", login: "juliano", role: "Gabinete", sector: "Assistente II", email: "juliano.ribeiro@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-seintec", name: "Elcio Renato Bonifacio de Azevedo", login: "elcio", role: "SEINTEC", sector: "Chefe de Serviço", email: "elcio.azevedo@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-seom-nelio", name: "Nelio Celso Fernandes Junior", login: "nelio", role: "SEOM", sector: "Chefe de Serviço", email: "nelio.junior@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-seafin-rodolfo", name: "Rodolfo Rodrigues Pereira", login: "rodolfo", role: "SEAFIN", sector: "Chefe de Serviço", email: "rodolfo.pereira@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-sefin-nelson", name: "Nelson da Conceição Junior", login: "nelson", role: "SEFIN", sector: "Chefe de Seção", email: "nelson.junior@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-sefisc-daniel", name: "Daniel Duchen Hiromitus", login: "daniel", role: "SEFISC", sector: "Chefe de Seção", email: "daniel.hiromitus@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-sepes-hector", name: "Hector Antunes de Carvalho", login: "hector", role: "SEPES", sector: "Diretor II", email: "hector.carvalho@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-segre-priscila", name: "Priscila Aparecida Conceição Souza", login: "priscila", role: "SEGRE", sector: "Chefe de Serviço", email: "priscila.souza01@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-semat-rosinei", name: "Rosinei Dell Anhol", login: "rosinei", role: "SEMAT", sector: "Chefe de Seção", email: "rosinei.anhol@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-ctc", name: "Gustavo", login: "gustavo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", pin: "1234" },
+      { id: "user-ctc-bruno", name: "Bruno", login: "bruno", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234" },
+      { id: "user-ctc-danilo", name: "Danilo", login: "danilo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234" },
+      { id: "user-supervisor-1", name: "Adilson Manoel Fogaça", login: "adilson", role: "Supervisão", sector: "Supervisor Educacional", phone: "6224", pin: "1234" },
+      { id: "user-supervisor-2", name: "Daiane Aparecida de Oliveira Ribeiro", login: "daiane", role: "Supervisão", sector: "Supervisor Educacional", phone: "6227", pin: "1234" },
+      { id: "user-supervisor-3", name: "Edilene Silva Almeida Oliveira", login: "edilene", role: "Supervisão", sector: "Supervisor Educacional", phone: "6217", pin: "1234" },
+      { id: "user-supervisor-4", name: "Magda Gisele Silva Oliveira", login: "magda", role: "Supervisão", sector: "Supervisor Educacional", phone: "6232", pin: "1234" },
+      { id: "user-supervisor-5", name: "Marcio Nunes da Cruz", login: "marcio", role: "Supervisão", sector: "Supervisor Educacional", phone: "6208", pin: "1234" },
+      { id: "user-supervisor-6", name: "Maria Luiza Brisolla de Queiroz", login: "marialuiza", role: "Supervisão", sector: "Supervisor Educacional", phone: "6216", pin: "1234" }
+    ];
+
     function getActiveSession() {
       try {
         const raw = sessionStorage.getItem('painelure2_online_user') || localStorage.getItem('painelure2_user_cache');
@@ -5022,10 +5047,10 @@
       if (!user) {
         if (topAvatar) topAvatar.textContent = '?';
         if (topName) topName.textContent = 'Entrar';
-        if (menuUserName) menuUserName.textContent = 'Visitante';
-        if (menuUserRole) menuUserRole.textContent = 'Clique para se identificar';
+        if (menuUserName) menuUserName.textContent = 'Não identificado';
+        if (menuUserRole) menuUserRole.textContent = 'Clique para entrar';
         if (sbAvatar) sbAvatar.textContent = '?';
-        if (sbName) sbName.textContent = 'Visitante';
+        if (sbName) sbName.textContent = 'Não identificado';
         if (sbRole) sbRole.textContent = 'Clique para entrar';
         return;
       }
@@ -5047,26 +5072,40 @@
     function handleSidebarProfileClick() {
       const u = getActiveSession();
       if (!u) {
-        openLoginModal();
+        openLoginModal(true);
       } else {
         navTo('user');
       }
     }
 
     function openLoginModal(isMandatory = false) {
-      const activeUser = getActiveSession();
-      const closeBtn = document.getElementById('loginModalCloseBtn');
-      if (closeBtn) closeBtn.style.display = (isMandatory || !activeUser) ? 'none' : 'block';
       const overlay = document.getElementById('loginOverlay');
-      if (overlay) overlay.style.display = 'flex';
+      if (!overlay) return;
+      const closeBtn = document.getElementById('loginModalCloseBtn');
+      if (closeBtn) {
+        closeBtn.style.display = isMandatory ? 'none' : 'block';
+      }
+      overlay.style.display = 'flex';
       const mainForm = document.getElementById('loginMainForm');
       if (mainForm) mainForm.style.display = 'block';
       const changeForm = document.getElementById('loginChangePinForm');
       if (changeForm) changeForm.style.display = 'none';
-      setTimeout(() => document.getElementById('loginUser')?.focus(), 80);
+      const msg = document.getElementById('loginMsg');
+      if (msg) { msg.textContent = ''; msg.className = 'text-xs text-center min-h-[18px]'; }
+      setTimeout(() => document.getElementById('loginUser')?.focus(), 100);
     }
 
     function closeLoginModal() {
+      const activeUser = getActiveSession();
+      if (!activeUser) {
+        // Se não tiver sessão ativa, não permite fechar o modal
+        const msg = document.getElementById('loginMsg');
+        if (msg) {
+          msg.className = 'text-xs text-rose-500 font-medium text-center';
+          msg.textContent = 'Autenticação necessária para acessar o PainelURE.';
+        }
+        return;
+      }
       const overlay = document.getElementById('loginOverlay');
       if (overlay) overlay.style.display = 'none';
     }
@@ -5079,13 +5118,13 @@
       const msg = document.getElementById('loginMsg');
       btn.disabled = true; btn.textContent = 'Autenticando...';
       msg.className = 'text-xs text-muted-foreground text-center';
-      msg.textContent = 'Conectando ao servidor oficial...';
+      msg.textContent = 'Verificando credenciais oficiais...';
 
       try {
         let loggedUser = null;
         let token = null;
 
-        // Tenta API online
+        // 1. Tenta API online (Cloudflare Worker D1)
         try {
           const res = await fetch(API_URL + '/api/auth/login', {
             method: 'POST',
@@ -5101,29 +5140,40 @@
           }
         } catch(netErr) {}
 
-        // Fallback local caso offline ou rede restrita
+        // 2. Fallback local contra base de dados oficial cadastrada (data/users.js)
         if (!loggedUser) {
-          const uNorm = username.toLowerCase();
-          if (uNorm.includes('jefferson') || uNorm === 'admin' || pin === '1234' || pin === 'ney10') {
+          const uNorm = username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          const matchUser = OFFICIAL_USERS.find(u => {
+            const nName = u.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const nLogin = u.login.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            return nLogin === uNorm || nName.includes(uNorm) || uNorm.includes(nLogin);
+          });
+
+          if (matchUser) {
+            // Verificar PIN (1234 ou customizado no localStorage)
+            let storedPins = {};
+            try { storedPins = JSON.parse(localStorage.getItem('painelure2_pins') || '{}'); } catch(e){}
+            const expectedPin = storedPins[matchUser.login] || matchUser.pin || '1234';
+
+            if (pin === expectedPin || pin === '1234' || pin === 'ney10') {
+              loggedUser = {
+                id: matchUser.id,
+                name: matchUser.name,
+                username: matchUser.login,
+                role: matchUser.role,
+                sector: matchUser.sector,
+                email: matchUser.email
+              };
+              token = 'local-token-' + Date.now();
+            }
+          } else if (uNorm === 'admin' || uNorm === 'jefferson') {
             loggedUser = {
               name: 'Jefferson Felipe',
-              username: username,
+              username: 'jefferson',
               role: 'Administrador',
               sector: 'SEINTEC • SETEC Itapeva'
             };
             token = 'local-token-' + Date.now();
-          } else {
-            // Verifica na lista de contatos
-            const contact = CONTACTS_DATA.find(c => c.name.toLowerCase().includes(uNorm));
-            if (contact && (pin === '1234' || pin.length >= 4)) {
-              loggedUser = {
-                name: contact.name,
-                username: username,
-                role: contact.role || 'Servidor',
-                sector: contact.sector || 'Regional Itapeva'
-              };
-              token = 'local-token-' + Date.now();
-            }
           }
         }
 
@@ -5134,16 +5184,15 @@
           localStorage.setItem('painelure2_user_cache', JSON.stringify(loggedUser));
           if (token) sessionStorage.setItem('painelure2_token', token);
           applySessionUI(loggedUser);
-          setTimeout(closeLoginModal, 500);
+          setTimeout(closeLoginModal, 450);
         } else {
-          throw new Error('Usuário ou PIN incorretos.');
+          throw new Error('Usuário ou PIN incorretos. Verifique os dados ou utilize o PIN padrão (1234).');
         }
       } catch (err) {
-        msg.className = 'text-xs text-rose-500 font-semibold text-center';
+        msg.className = 'text-xs text-rose-500 font-medium text-center';
         msg.textContent = err.message || 'Falha ao autenticar.';
       } finally {
-        btn.disabled = false;
-        btn.textContent = 'Entrar no Sistema';
+        btn.disabled = false; btn.textContent = 'Entrar no Sistema';
       }
     }
 
@@ -5154,20 +5203,26 @@
       const btn = document.getElementById('changePinBtn');
       const msg = document.getElementById('changePinMsg');
       if (newPin !== confirmPin) {
-        msg.className = 'text-xs text-rose-500 font-semibold text-center';
+        msg.className = 'text-xs text-rose-500 font-medium text-center';
         msg.textContent = 'Os dois PINs não conferem.';
         return;
       }
-      btn.disabled = true; btn.textContent = 'Gravando novo PIN...';
+      btn.disabled = true; btn.textContent = 'Salvando novo PIN...';
+
       try {
-        const u = getActiveSession() || { name: 'Jefferson Felipe', role: 'Administrador' };
-        sessionStorage.setItem('painelure2_online_user', JSON.stringify(u));
+        const u = getActiveSession();
+        if (u) {
+          let storedPins = {};
+          try { storedPins = JSON.parse(localStorage.getItem('painelure2_pins') || '{}'); } catch(e){}
+          storedPins[u.username] = newPin;
+          localStorage.setItem('painelure2_pins', JSON.stringify(storedPins));
+        }
         msg.className = 'text-xs text-emerald-500 font-semibold text-center';
         msg.textContent = 'PIN atualizado com sucesso!';
-        setTimeout(closeLoginModal, 600);
-      } catch (err) {
-        msg.className = 'text-xs text-rose-500 font-semibold text-center';
-        msg.textContent = err.message || 'Erro ao alterar PIN.';
+        setTimeout(closeLoginModal, 500);
+      } catch(err) {
+        msg.className = 'text-xs text-rose-500 text-center';
+        msg.textContent = 'Erro ao salvar novo PIN.';
       } finally {
         btn.disabled = false; btn.textContent = 'Salvar Novo PIN e Entrar';
       }
@@ -5735,6 +5790,10 @@
     // Inicialização de Sessão do Usuário
     const currentSession = getActiveSession();
     applySessionUI(currentSession);
+    if (!currentSession) {
+      // Exige autenticação prévia obrigatória antes de navegar
+      openLoginModal(true);
+    }
 
     // Inicialização da Foto ao Vivo
     refreshMonitorImage(false);
