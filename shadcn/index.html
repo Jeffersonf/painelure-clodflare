@@ -136,7 +136,7 @@
           </button>
           <button onclick="navTo('network')" data-nav="network" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
-            <span>Rede e Monitoramento</span>
+            <span>Rede & Zabbix</span>
           </button>
           <button onclick="navTo('dvr')" data-nav="dvr" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
@@ -530,59 +530,26 @@
 
         </div>
 
-                <!-- 3. RESUMO EXECUTIVO DE VIDEOMONITORAMENTO & REDE (DASHBOARD) -->
-        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+        <!-- 3. TABELA OFICIAL DE VIDEOMONITORAMENTO CONVIVA VS PING REAL (CONTAINER FIXO) -->
+        <div id="dvrOverviewPlaceholder">
+          <div id="dvrTableSection" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-border space-y-4">
+              
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional</h2>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">Planilha CONVIVA vs Ping Real</span>
+                  </div>
+                  <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre os 33 gravadores da SEDUC e o teste ICMP na Intragov.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="copyDvrReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Copiar Relatório</span>
+                  </button>
+                </div>
               </div>
-              <div>
-                <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional & Conectividade</h2>
-                <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua dos 33 gravadores CONVIVA e telemetria dos circuitos Intragov.</p>
-              </div>
-            </div>
-            <button onclick="navTo('network'); setTimeout(() => { document.getElementById('dvrTableSection')?.scrollIntoView({ behavior: 'smooth' }); }, 150)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover shadow-sm transition-all">
-              <span>Abrir Monitoramento Completo</span>
-              <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-            <div class="p-3.5 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
-              <div>
-                <div class="text-[11px] font-medium text-muted-foreground">Gravadores Cadastrados</div>
-                <div class="text-lg font-bold font-mono text-foreground mt-0.5">33 unidades</div>
-              </div>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-500">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                21 Escolas
-              </span>
-            </div>
-
-            <div class="p-3.5 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
-              <div>
-                <div class="text-[11px] font-medium text-muted-foreground">Ping Real Operacional</div>
-                <div class="text-lg font-bold font-mono text-emerald-500 mt-0.5">28 online</div>
-              </div>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-500">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                84.8%
-              </span>
-            </div>
-
-            <div class="p-3.5 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
-              <div>
-                <div class="text-[11px] font-medium text-muted-foreground">Divergências SP vs Ping</div>
-                <div class="text-lg font-bold font-mono text-amber-500 mt-0.5">5 alertas</div>
-              </div>
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-500">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Atenção
-              </span>
-            </div>
-          </div>
-        </div>
 
               <!-- Toolbar with Search & Filter Chips -->
               <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -785,104 +752,9 @@
 
       </div>
 
-            <!-- ── VIEW 2: REDE E MONITORAMENTO (#network) ── -->
+      <!-- ── VIEW 2: REDE & ZABBIX (#network) ── -->
       <div id="view-network" class="view-content space-y-6">
-        
-        <!-- ── 1. RESUMO DAS CONEXÕES (TOPO) ── -->
-        <div class="space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 class="text-2xl font-bold tracking-tight text-foreground">Rede e Monitoramento</h1>
-              <p class="text-sm text-muted-foreground mt-0.5">Resumo das conexões dos circuitos Intragov, sub-redes e gateways das 21 unidades escolares.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 text-emerald-500 text-xs font-semibold">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                Links Intragov 100% Operacionais
-              </span>
-            </div>
-          </div>
-
-          <!-- KPIs Sóbrios de Conectividade -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Circuitos Intragov</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              </div>
-              <div class="text-2xl font-bold text-foreground font-mono">21 Escolas</div>
-              <p class="text-xs text-muted-foreground">100% dos links primários ativos e sincronizados com a Prodesp.</p>
-            </div>
-
-            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sub-redes Mapeadas</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              </div>
-              <div class="text-2xl font-bold text-foreground font-mono">42 Gateways</div>
-              <p class="text-xs text-muted-foreground">Segmentação entre rede Administrativa e rede Pedagógica.</p>
-            </div>
-
-            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Latência Média</span>
-                <span class="font-mono text-xs font-bold text-emerald-500">11ms</span>
-              </div>
-              <div class="text-2xl font-bold text-foreground">Excelente</div>
-              <p class="text-xs text-muted-foreground">Tempo de resposta estável com os servidores centrais da SEDUC.</p>
-            </div>
-
-            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Zabbix</span>
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              </div>
-              <div class="text-2xl font-bold text-foreground">0 Desastres</div>
-              <p class="text-xs text-muted-foreground">Nenhum incidente crítico bloqueando a conectividade regional.</p>
-            </div>
-          </div>
-
-          <!-- Tabela de Conexões e Gateways das 21 Escolas -->
-          <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-border space-y-3">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <h3 class="text-sm font-semibold text-foreground tracking-tight">Detalhamento dos Circuitos & Sub-redes</h3>
-                  <p class="text-xs text-muted-foreground mt-0.5">Endereçamento IP oficial dos roteadores de borda (Gateways ADM e Pedagógico).</p>
-                </div>
-                <div class="relative w-full sm:w-72">
-                  <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <input type="text" id="networkSearchInput" oninput="filterNetworkTable()" placeholder="Filtrar por escola, cidade, IP ou CIE..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
-                </div>
-              </div>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
-                  <tr>
-                    <th class="px-5 py-3">Unidade Escolar</th>
-                    <th class="px-4 py-3">CIE</th>
-                    <th class="px-4 py-3">Gateway ADM</th>
-                    <th class="px-4 py-3">Gateway Pedagógico</th>
-                    <th class="px-4 py-3 text-center">Status Link</th>
-                    <th class="px-5 py-3 text-right">Ação</th>
-                  </tr>
-                </thead>
-                <tbody id="networkTableRows" class="divide-y divide-border">
-                  <!-- Populado dinamicamente via renderNetworkTable() -->
-                </tbody>
-              </table>
-            </div>
-
-            <div class="px-5 py-3 border-t border-border bg-muted/20 flex items-center justify-between text-xs text-muted-foreground">
-              <span id="networkResultsCount">Mostrando 21 de 21 escolas conectadas</span>
-              <span class="text-[11px]">Intragov • SEDUC/SP</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── 2. A FOTO AO VIVO (MEIO) ── -->
+        <!-- ── MONITOR AO VIVO ZABBIX & MERAKI (FOTO AO VIVO) ── -->
         <div id="monitorImageCard" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-5 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -953,98 +825,54 @@
           </div>
         </div>
 
-        <!-- ── 3. VIDEOMONITORAMENTO (EMBAIXO) ── -->
-        <div id="dvrTableSection" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div class="p-5 border-b border-border space-y-4">
-            
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <div class="flex items-center gap-2">
-                  <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional</h2>
-                  <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">Planilha CONVIVA vs Ping Real (33 Gravadores)</span>
-                </div>
-                <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre os 33 gravadores da SEDUC e o teste ICMP na Intragov.</p>
-              </div>
-              <div class="flex items-center gap-2">
-                <button onclick="copyDvrReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                  <span>Copiar Relatório</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Toolbar with Search & Filter Chips -->
-            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div class="relative flex-1">
-                <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" id="dvrTableSearch" oninput="filterTable()" placeholder="Filtrar por escola, IP (ex: 10.109), DVR..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
-              </div>
-
-              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                <button onclick="setFilter('all', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background">
-                  Todos (33)
-                </button>
-                <button onclick="setFilter('divergent', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-amber-500/30 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center gap-1.5">
-                  <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-                  Divergências (5)
-                </button>
-                <button onclick="setFilter('ping-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                  Ping Offline (8)
-                </button>
-                <button onclick="setFilter('sp-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500/70"></span>
-                  Planilha Offline (5)
-                </button>
-              </div>
-            </div>
-
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-foreground">Infraestrutura & Conectividade Zabbix</h1>
+            <p class="text-sm text-muted-foreground mt-0.5">Monitoramento dos links Intragov, switches e Access Points Meraki das 21 escolas.</p>
           </div>
-
-          <!-- Table View -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
-                <tr>
-                  <th class="px-5 py-3">Unidade Escolar</th>
-                  <th class="px-4 py-3">Dispositivo</th>
-                  <th class="px-4 py-3">Endereço IP</th>
-                  <th class="px-4 py-3 text-center">Planilha CONVIVA (SP)</th>
-                  <th class="px-4 py-3 text-center">Status Real (Ping)</th>
-                  <th class="px-5 py-3 text-center">Comparativo / Divergência</th>
-                </tr>
-              </thead>
-              <tbody id="dvrTableRows" class="divide-y divide-border">
-                <!-- Linhas populadas dinamicamente via renderTable() -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Table Footer -->
-          <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span id="tableResultsCount">Mostrando 33 gravadores</span>
-            <div class="flex items-center gap-4 text-[11px]">
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Concordante Online
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                Ambos Offline
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Divergência Detectada
-              </span>
-            </div>
-          </div>
+          <button onclick="navTo('dvr')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-sm hover:bg-primary-hover transition-colors">
+            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+            <span>Ver Gravadores CONVIVA</span>
+          </button>
         </div>
 
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-muted-foreground uppercase">Alertas Zabbix</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            </div>
+            <div class="text-2xl font-bold text-foreground">0 Desastres</div>
+            <p class="text-xs text-muted-foreground">Nenhum incidente crítico bloqueando a conectividade estadual no momento.</p>
+          </div>
+          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-muted-foreground uppercase">Access Points Meraki</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            </div>
+            <div class="text-2xl font-bold text-foreground">100% Operacionais</div>
+            <p class="text-xs text-muted-foreground">Cobertura Wi-Fi ativa nas salas de aula e secretarias da regional.</p>
+          </div>
+          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-muted-foreground uppercase">Latência Média</span>
+              <span class="font-mono text-xs font-bold text-emerald-500">11ms</span>
+            </div>
+            <div class="text-2xl font-bold text-foreground">Excelente</div>
+            <p class="text-xs text-muted-foreground">Tempo de resposta estável com os servidores centrais da SEDUC.</p>
+          </div>
+        </div>
       </div>
 
       <!-- ── VIEW 3: DVRS DEDICADO (#dvr) ── -->
       <div id="view-dvr" class="view-content space-y-6">
-        <!-- Opcional de ancoragem direta ou redirecionamento -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight text-foreground">Videomonitoramento CONVIVA (33 Gravadores)</h1>
+            <p class="text-sm text-muted-foreground mt-0.5">Auditoria detalhada entre o status registrado na SEDUC/SP e o teste real de ping na regional.</p>
+          </div>
+        </div>
+        <div id="dvrDedicatedPlaceholder"></div>
       </div>
 
       <!-- ── VIEW 4: CENTRAL DE CHAMADOS CTC (#calls) ── -->
@@ -3335,7 +3163,7 @@
     // NAVEGAÇÃO DE VIEWS
     const viewTitles = {
       'overview': 'Visão Executiva',
-      'network': 'Rede e Monitoramento',
+      'network': 'Rede & Zabbix',
       'dvr': 'DVRs (CONVIVA)',
       'calls': 'Central de Chamados CTC',
       'supervision': 'Supervisores',
@@ -3353,14 +3181,6 @@
     };
 
     function navTo(viewKey, pushHash = true) {
-      if (viewKey === 'dvr') {
-        navTo('network', pushHash);
-        setTimeout(() => {
-          document.getElementById('dvrTableSection')?.scrollIntoView({ behavior: 'smooth' });
-        }, 150);
-        return;
-      }
-
       document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
       const target = document.getElementById('view-' + viewKey);
       if (target) target.classList.add('active');
@@ -3377,6 +3197,16 @@
 
       const bTitle = document.getElementById('currentViewBreadcrumb');
       if (bTitle && viewTitles[viewKey]) bTitle.textContent = viewTitles[viewKey];
+
+      // Re-ancora tabela de DVR se for para a view dvr dedicada ou overview
+      const tableSec = document.getElementById('dvrTableSection');
+      const ovPlace = document.getElementById('dvrOverviewPlaceholder');
+      const dedPlace = document.getElementById('dvrDedicatedPlaceholder');
+      if (viewKey === 'dvr' && dedPlace && tableSec) {
+        dedPlace.appendChild(tableSec);
+      } else if (tableSec && viewKey === 'overview' && ovPlace) {
+        ovPlace.appendChild(tableSec);
+      }
 
       if (pushHash) location.hash = viewKey;
       closeMobileSidebar();
@@ -3534,112 +3364,10 @@
 
     function setFilter(f, btn) {
       currentFilter = f;
-      document.querySelectorAll(".filter-chip").forEach(b => {
-        b.className = "filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5";
+      document.querySelectorAll('.filter-chip').forEach(b => {
+        b.className = 'filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5';
       });
-      btn.className = "filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background flex items-center gap-1.5";
-      renderTable();
-    }
-
-    function filterTable() {
-      renderTable();
-    }
-
-    // ── TELEMETRIA DE CONEXÕES DAS 21 ESCOLAS ──
-    const NETWORK_CONNECTIONS = [
-      { school: "EE Bairro Boa Vista Intervales", city: "Ribeirão Grande", admGw: "10.109.42.129", pedGw: "10.121.243.1", cie: "915075", status: "Operacional", ping: "14ms" },
-      { school: "EE Bairro Ferreira dos Matos", city: "Ribeirão Grande", admGw: "10.109.42.161", pedGw: "10.121.243.129", cie: "915087", status: "Operacional", ping: "12ms" },
-      { school: "EE Bairro Turvo dos Almeidas", city: "Capão Bonito", admGw: "10.109.40.129", pedGw: "10.120.218.1", cie: "926036", status: "Operacional", ping: "16ms" },
-      { school: "EE Doutor Antonio Deffune", city: "Itapeva", admGw: "10.109.41.33", pedGw: "10.113.9.129", cie: "049323", status: "Operacional", ping: "8ms" },
-      { school: "EE Doutor Raul Venturelli", city: "Capão Bonito", admGw: "10.109.40.161", pedGw: "10.113.11.129", cie: "015222", status: "Operacional", ping: "11ms" },
-      { school: "EE Professor Gerson de Barros Margarido", city: "Itapeva", admGw: "10.109.41.129", pedGw: "10.113.136.1", cie: "043412", status: "Operacional", ping: "10ms" },
-      { school: "EE Professor Silverio Monteiro", city: "Itapeva", admGw: "10.109.41.193", pedGw: "10.121.245.1", cie: "035336", status: "Operacional", ping: "9ms" },
-      { school: "PEI EE Idalicio Mendes Lima", city: "Itapeva", admGw: "10.109.41.1", pedGw: "10.121.7.1", cie: "905227", status: "Operacional", ping: "15ms" },
-      { school: "PEI EE Jeminiano David Muzel", city: "Itapeva", admGw: "10.109.41.65", pedGw: "10.113.11.1", cie: "015477", status: "Operacional", ping: "7ms" },
-      { school: "PEI EE Oscar Kurtz Camargo", city: "Ribeirão Grande", admGw: "10.109.42.193", pedGw: "10.119.161.1", cie: "015076", status: "Operacional", ping: "13ms" },
-      { school: "PEI EE Otavio Ferrari", city: "Itapeva", admGw: "10.109.41.97", pedGw: "10.119.159.1", cie: "015404", status: "Operacional", ping: "6ms" },
-      { school: "PEI EE Padre Arlindo Vieira", city: "Capão Bonito", admGw: "10.109.40.193", pedGw: "10.173.40.1", cie: "015118", status: "Operacional", ping: "12ms" },
-      { school: "PEI EE Professor Joao Baptista do Amaral Vasconcellos", city: "Capão Bonito", admGw: "10.109.40.225", pedGw: "10.119.127.1", cie: "910077", status: "Operacional", ping: "11ms" },
-      { school: "PEI EE Professor Jose Vasques Ferrari", city: "Itapeva", admGw: "10.109.41.161", pedGw: "10.173.48.1", cie: "015519", status: "Operacional", ping: "8ms" },
-      { school: "PEI EE Professora Celia Vasques Ferrari Duch", city: "Taquarivai", admGw: "10.109.42.225", pedGw: "10.119.127.129", cie: "039731", status: "Operacional", ping: "14ms" },
-      { school: "PEI EE Professora Cinira Daniel da Silva", city: "Itapeva", admGw: "10.109.41.225", pedGw: "10.113.10.129", cie: "035348", status: "Operacional", ping: "11ms" },
-      { school: "PEI EE Professora Francelina Franco", city: "Buri", admGw: "10.109.40.97", pedGw: "10.119.128.1", cie: "015568", status: "Operacional", ping: "15ms" },
-      { school: "PEI EE Professora Nicota Soares", city: "Itapeva", admGw: "10.109.42.1", pedGw: "10.173.46.1", cie: "015489", status: "Operacional", ping: "7ms" },
-      { school: "PEI EE Professora Zulmira de Oliveira", city: "Itapeva", admGw: "10.109.42.33", pedGw: "10.119.160.129", cie: "015544", status: "Operacional", ping: "6ms" },
-      { school: "PEI EE Ricardo Campolim de Almeida Neto", city: "Nova Campina", admGw: "10.109.42.65", pedGw: "10.120.162.129", cie: "915117", status: "Operacional", ping: "13ms" },
-      { school: "PEI EE Simpliciano Campolim de Almeida", city: "Nova Campina", admGw: "10.109.42.97", pedGw: "10.121.242.129", cie: "015428", status: "Operacional", ping: "14ms" }
-    ];
-
-    function renderNetworkTable() {
-      const q = (document.getElementById("networkSearchInput")?.value || "").toLowerCase().trim();
-      const tbody = document.getElementById("networkTableRows");
-      if (!tbody) return;
-
-      const filtered = NETWORK_CONNECTIONS.filter(conn => {
-        if (!q) return true;
-        return conn.school.toLowerCase().includes(q) ||
-               conn.city.toLowerCase().includes(q) ||
-               conn.cie.includes(q) ||
-               conn.admGw.includes(q) ||
-               conn.pedGw.includes(q);
-      });
-
-      const countEl = document.getElementById("networkResultsCount");
-      if (countEl) {
-        countEl.textContent = "Mostrando " + filtered.length + " de " + NETWORK_CONNECTIONS.length + " escolas conectadas";
-      }
-
-      if (!filtered.length) {
-        tbody.innerHTML = "<tr><td colspan=\"6\" class=\"px-5 py-8 text-center text-muted-foreground text-xs\">Nenhuma conexão encontrada para o termo pesquisado.</td></tr>";
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(conn => {
-        const safeSchool = conn.school.replace(/'/g, "");
-        return "<tr class=\"hover:bg-muted/30 transition-colors\">" +
-          "<td class=\"px-5 py-3.5\">" +
-            "<div class=\"font-semibold text-foreground\">" + conn.school + "</div>" +
-            "<div class=\"text-[11px] text-muted-foreground mt-0.5\">" + conn.city + " • São Paulo</div>" +
-          "</td>" +
-          "<td class=\"px-4 py-3.5\">" +
-            "<code class=\"font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground\">" + conn.cie + "</code>" +
-          "</td>" +
-          "<td class=\"px-4 py-3.5\">" +
-            "<div class=\"inline-flex items-center gap-1.5\">" +
-              "<code class=\"font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground\">" + conn.admGw + "</code>" +
-              "<button onclick=\"copyIp('" + conn.admGw + "', this)\" class=\"p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors\" title=\"Copiar Gateway ADM\">" +
-                "<svg class=\"w-3.5 h-3.5\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg>" +
-              "</button>" +
-            "</div>" +
-          "</td>" +
-          "<td class=\"px-4 py-3.5\">" +
-            "<div class=\"inline-flex items-center gap-1.5\">" +
-              "<code class=\"font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground\">" + conn.pedGw + "</code>" +
-              "<button onclick=\"copyIp('" + conn.pedGw + "', this)\" class=\"p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors\" title=\"Copiar Gateway Pedagógico\">" +
-                "<svg class=\"w-3.5 h-3.5\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><rect width=\"14\" height=\"14\" x=\"8\" y=\"8\" rx=\"2\" ry=\"2\"/><path d=\"M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2\"/></svg>" +
-              "</button>" +
-            "</div>" +
-          "</td>" +
-          "<td class=\"px-4 py-3.5 text-center\">" +
-            "<span class=\"inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-medium border border-emerald-500/20\">" +
-              "<span class=\"w-1.5 h-1.5 rounded-full bg-emerald-500\"></span>" +
-              conn.status + " <span class=\"font-mono text-[10px] opacity-75\">(" + conn.ping + ")</span>" +
-            "</span>" +
-          "</td>" +
-          "<td class=\"px-5 py-3.5 text-right\">" +
-            "<button onclick=\"openSchoolDetail('" + safeSchool + "')\" class=\"inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-muted/50 text-[11px] font-medium text-foreground transition-colors\">" +
-              "<span>Ficha</span>" +
-              "<svg class=\"w-3 h-3 text-muted-foreground\" xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m9 18 6-6-6-6\"/></svg>" +
-            "</button>" +
-          "</td>" +
-        "</tr>";
-      }).join("");
-    }
-
-    function filterNetworkTable() {
-      renderNetworkTable();
-    }
-
+      btn.className = 'filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background flex items-center gap-1.5';
       // ── SUPERVISÃO EDUCACIONAL (FILTROS NATIVOS) ──
     function filterSupervisors(type) {
       const btnAll = document.getElementById('btnSupFilterAll');
@@ -4030,7 +3758,406 @@
       if (countEl) countEl.textContent = q ? `${visible}/100 encontrado(s)` : '100 nomes';
     }
 
-    
+    renderTable();
+    renderSchools();
+    renderInternal();
+    }
+
+    function filterTable() {
+      // ── SUPERVISÃO EDUCACIONAL (FILTROS NATIVOS) ──
+    function filterSupervisors(type) {
+      const btnAll = document.getElementById('btnSupFilterAll');
+      const btnOk = document.getElementById('btnSupFilterOk');
+      const btnPending = document.getElementById('btnSupFilterPending');
+      
+      if (btnAll) btnAll.className = type === 'all' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnOk) btnOk.className = type === 'ok' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnPending) btnPending.className = type === 'pending' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        if (type === 'all') {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = card.getAttribute('data-status') === type ? 'flex' : 'none';
+        }
+      });
+    }
+
+    function filterSupervisorsBySearch() {
+      const q = (document.getElementById('supervisorSearchInput')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        const text = (card.textContent || '').toLowerCase();
+        card.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    // ── CONTROLE INTERNO & CAFÉ REAL (PAINELURE2 ORIGINAL COM LOCALSTORAGE) ──
+    const INTERNAL_STORAGE_KEY = "painelure2_internal";
+    const INTERNAL_COFFEE_NAMES = ["Jefferson", "Elcio", "Gustavo", "Rodolfo", "Richard"];
+    const INTERNAL_COFFEE_2_NAMES = ["Priscila", "Fabricio", "Nélio", "Danilo", "Bruno"];
+    const INTERNAL_COFFEE_MONTHS = [
+      { key: "2026-06", label: "Junho" },
+      { key: "2026-07", label: "Julho" },
+      { key: "2026-08", label: "Agosto" },
+      { key: "2026-09", label: "Setembro" },
+      { key: "2026-10", label: "Outubro" }
+    ];
+    const INTERNAL_RAFFLE_NAMES = [
+      "Maria", "Graziela", "Claudia", "Regiane", "Vilma",
+      "Fernanda", "Emília", "Daniela", "Sandra", "Zuleika",
+      "Marisa", "Emanoele", "Dolores", "Celina", "Tereza",
+      "Solange", "Ângela", "Guiomar", "Margot", "Dalila",
+      "Anadark", "Cristina", "Débora", "Eliane", "Genilda",
+      "Rosália", "Simone", "Helena", "Valquiria", "Andréa",
+      "Cleide", "Elaine", "Roberta", "Glória", "Suzana",
+      "Adriana", "Olga", "Izabel", "Juliana", "Kátia",
+      "Irene", "Jurema", "Letícia", "Marta", "Paula",
+      "Marcela", "Olívia", "Joana", "Lenice", "Fátima",
+      "Rosimeire", "Denise", "Elizabeth", "Claudete", "Regina",
+      "Celeste", "Aurora", "Rosângela", "Lourdes", "Isaura",
+      "Mônica", "Leonor", "Janete", "Raquel", "Virginia",
+      "Camila", "Roseli", "Valéria", "Adelaide", "Salete",
+      "Zulmira", "Sheila", "Cleuza", "Antônia", "Joelma",
+      "Iolanda", "Miriam", "Olinda", "Norma", "Luciana",
+      "Alessandra", "Clarice", "Sônia", "Dirce", "Marlene",
+      "Jaqueline", "Noêmia", "Margarida", "Patrícia", "Estela",
+      "Dinorá", "Márcia", "Rosana", "Silvana", "Neuza",
+      "Margarete", "Eugênia", "Renata", "Nazaré", "Mirtes"
+    ];
+
+    function getInternalDefaultState() {
+      const monthsObj = {};
+      INTERNAL_COFFEE_MONTHS.forEach((m, idx) => {
+        monthsObj[m.key] = {
+          people: INTERNAL_COFFEE_NAMES.map((name, pIdx) => ({
+            name,
+            paid: idx < 2 || (idx === 2 && pIdx < 3)
+          }))
+        };
+      });
+
+      return {
+        coffee: {
+          amount: 50,
+          goal: 935.18,
+          months: monthsObj
+        },
+        coffee2: {
+          amount: 55,
+          entries: INTERNAL_COFFEE_2_NAMES.map((name, idx) => ({
+            name,
+            paid: idx < 3
+          }))
+        },
+        raffle: {
+          price: 10,
+          prize: "Cafeteira Dolce Gusto",
+          closed: true,
+          winnerName: "Raquel",
+          winnerBuyer: "Melina",
+          entries: INTERNAL_RAFFLE_NAMES.map((name, idx) => ({
+            number: idx + 1,
+            chosenName: name,
+            buyer: name === "Raquel" ? "Melina" : (idx % 2 === 0 ? "Participante URE" : "Equipe Regional"),
+            paid: true
+          }))
+        }
+      };
+    }
+
+    function loadInternalState() {
+      try {
+        const saved = localStorage.getItem(INTERNAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.coffee && parsed.coffee.months) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+      const def = getInternalDefaultState();
+      saveInternalState(def);
+      return def;
+    }
+
+    function saveInternalState(state) {
+      try {
+        localStorage.setItem(INTERNAL_STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function formatBRL(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderInternal() {
+      const container = document.getElementById('internalDashboardContainer');
+      if (!container) return;
+      const state = loadInternalState();
+
+      // Vaquinha do Café
+      const coffeeAmount = state.coffee.amount || 50;
+      const coffeeGoal = state.coffee.goal || 935.18;
+      const months = INTERNAL_COFFEE_MONTHS;
+      
+      let totalSlotsPaid = 0;
+      const totalSlots = months.length * INTERNAL_COFFEE_NAMES.length;
+
+      months.forEach(m => {
+        const mData = state.coffee.months[m.key] || { people: [] };
+        mData.people.forEach(p => {
+          if (p.paid) totalSlotsPaid++;
+        });
+      });
+
+      const totalCoffeeArrecadado = totalSlotsPaid * coffeeAmount;
+      const coffeeDiff = totalCoffeeArrecadado - coffeeGoal;
+      const isGoalReached = totalCoffeeArrecadado >= coffeeGoal;
+
+      // Café 2.0
+      const coffee2Amount = state.coffee2.amount || 55;
+      const coffee2Entries = state.coffee2.entries || [];
+      const coffee2PaidCount = coffee2Entries.filter(e => e.paid).length;
+      const coffee2Total = coffee2PaidCount * coffee2Amount;
+      const coffee2Previsto = coffee2Entries.length * coffee2Amount;
+
+      // Rifa
+      const raffleEntries = state.raffle.entries || [];
+      const raffleTotal = raffleEntries.length;
+      const rafflePaid = raffleEntries.filter(e => e.paid).length;
+      const raffleSold = raffleEntries.filter(e => e.buyer && e.buyer.trim()).length;
+      const raffleReceived = rafflePaid * (state.raffle.price || 10);
+
+      container.innerHTML = `
+        <!-- 1. VAQUINHA DO CAFÉ (SETEC) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base">
+                ☕
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Vaquinha do Café (SETEC)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isGoalReached ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}">
+                    ${totalSlotsPaid}/${totalSlots} cotas pagas
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Junho a Outubro de 2026 • R$ 50,00 por pessoa ao mês • Meta: ${formatBRL(coffeeGoal)}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(totalCoffeeArrecadado)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">${isGoalReached ? 'Em Caixa: ' : 'Falta: '}</span>
+                <strong class="${isGoalReached ? 'text-emerald-500' : 'text-amber-500'} font-mono font-bold">${formatBRL(Math.abs(coffeeDiff))}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Interativa de Meses e Pessoas -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Participante</th>
+                  ${months.map(m => `<th class="px-4 py-3 text-center">${m.label}</th>`).join('')}
+                  <th class="px-5 py-3 text-right">Total Pago</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${INTERNAL_COFFEE_NAMES.map(name => {
+                  let personPaidMonths = 0;
+                  const cells = months.map(m => {
+                    const mData = state.coffee.months[m.key] || { people: [] };
+                    const p = mData.people.find(item => item.name === name) || { name, paid: false };
+                    if (p.paid) personPaidMonths++;
+                    return `
+                      <td class="px-4 py-2.5 text-center">
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${p.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                          <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="toggleCoffeeMonth('${m.key}', '${name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                          <span class="font-medium text-[11px] select-none">${p.paid ? 'Pago' : 'Pendente'}</span>
+                        </label>
+                      </td>
+                    `;
+                  }).join('');
+                  const personTotal = personPaidMonths * coffeeAmount;
+                  return `
+                    <tr class="hover:bg-muted/20 transition-colors">
+                      <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px]">${name[0]}</div>
+                        <span>${name}</span>
+                      </td>
+                      ${cells}
+                      <td class="px-5 py-3 text-right font-mono font-bold text-foreground">${formatBRL(personTotal)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. CAFÉ 2.0 (CONTRIBUIÇÃO ÚNICA) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-base">
+                🥛
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Café 2.0 (Contribuição Única)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${coffee2PaidCount === coffee2Entries.length ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                    ${coffee2PaidCount}/${coffee2Entries.length} pagos
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Contribuição única de ${formatBRL(coffee2Amount)} por servidor para suprimentos.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Previsto: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(coffee2Previsto)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(coffee2Total)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela do Café 2.0 -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Servidor</th>
+                  <th class="px-4 py-3">Valor</th>
+                  <th class="px-4 py-3 text-right">Situação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${coffee2Entries.map(e => `
+                  <tr class="hover:bg-muted/20 transition-colors">
+                    <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-muted text-foreground flex items-center justify-center font-bold text-[10px]">${e.name[0]}</div>
+                      <span>${e.name}</span>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-muted-foreground">${formatBRL(coffee2Amount)}</td>
+                    <td class="px-4 py-3 text-right">
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${e.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                        <input type="checkbox" ${e.paid ? 'checked' : ''} onchange="toggleCoffee2('${e.name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                        <span class="font-medium text-[11px] select-none">${e.paid ? 'Pago' : 'Pendente'}</span>
+                      </label>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. RIFA DA CAFETEIRA DOLCE GUSTO -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-base">
+                🎟️
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Rifa da Cafeteira Dolce Gusto</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Rifa Encerrada
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">100 números a R$ 10,00 • Ganhadora oficial: <strong class="text-foreground">Raquel</strong> (adquirida por <strong class="text-foreground">Melina</strong>).</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Vendidos: </span>
+                <strong class="text-foreground font-mono font-bold">${raffleSold}/${raffleTotal}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(raffleReceived)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Pesquisa da Rifa -->
+          <div class="flex items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-sm">
+              <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="raffleSearchInput" oninput="filterRaffleGrid()" placeholder="Pesquisar número ou nome na rifa..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            </div>
+            <span id="raffleSearchResultCount" class="text-xs text-muted-foreground font-mono">100 nomes</span>
+          </div>
+
+          <!-- Cartela Visual da Rifa -->
+          <div id="raffleGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 max-h-80 overflow-y-auto p-1">
+            ${raffleEntries.map(e => `
+              <div class="raffle-cell p-2 rounded-lg border border-border bg-muted/20 text-center space-y-1 hover:border-foreground/30 transition-all ${e.chosenName === 'Raquel' ? 'ring-2 ring-primary bg-primary/10' : ''}" data-search="${e.number} ${e.chosenName.toLowerCase()} ${(e.buyer || '').toLowerCase()}">
+                <div class="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span class="font-mono font-bold">${String(e.number).padStart(2, '0')}</span>
+                  <span class="w-1.5 h-1.5 rounded-full ${e.chosenName === 'Raquel' ? 'bg-primary' : 'bg-emerald-500'}"></span>
+                </div>
+                <div class="font-semibold text-xs text-foreground truncate" title="${e.chosenName}">${e.chosenName}</div>
+                <div class="text-[10px] text-muted-foreground truncate" title="${e.buyer || 'Livre'}">${e.buyer || 'Livre'}</div>
+                <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-500">Pago</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCoffeeMonth(monthKey, name, checked) {
+      const state = loadInternalState();
+      if (!state.coffee.months[monthKey]) state.coffee.months[monthKey] = { people: [] };
+      const person = state.coffee.months[monthKey].people.find(p => p.name === name);
+      if (person) {
+        person.paid = checked;
+      } else {
+        state.coffee.months[monthKey].people.push({ name, paid: checked });
+      }
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function toggleCoffee2(name, checked) {
+      const state = loadInternalState();
+      const person = state.coffee2.entries.find(p => p.name === name);
+      if (person) person.paid = checked;
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function filterRaffleGrid() {
+      const q = (document.getElementById('raffleSearchInput')?.value || '').toLowerCase().trim();
+      const cells = document.querySelectorAll('.raffle-cell');
+      let visible = 0;
+      cells.forEach(cell => {
+        const s = cell.getAttribute('data-search') || '';
+        const match = !q || s.includes(q);
+        cell.style.display = match ? 'block' : 'none';
+        if (match) visible++;
+      });
+      const countEl = document.getElementById('raffleSearchResultCount');
+      if (countEl) countEl.textContent = q ? `${visible}/100 encontrado(s)` : '100 nomes';
+    }
+
+    renderTable();
+    renderSchools();
+    renderInternal();
+    }
 
     function copyIp(ip, btn) {
       navigator.clipboard.writeText(ip);
@@ -4458,21 +4585,1211 @@
       const icon = document.getElementById('syncIcon');
       if (icon) icon.classList.add('animate-spin');
       setTimeout(() => {
-      }, 1000);
+        if (icon) icon.classList.remove('animate-spin');
+        // ── SUPERVISÃO EDUCACIONAL (FILTROS NATIVOS) ──
+    function filterSupervisors(type) {
+      const btnAll = document.getElementById('btnSupFilterAll');
+      const btnOk = document.getElementById('btnSupFilterOk');
+      const btnPending = document.getElementById('btnSupFilterPending');
+      
+      if (btnAll) btnAll.className = type === 'all' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnOk) btnOk.className = type === 'ok' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnPending) btnPending.className = type === 'pending' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        if (type === 'all') {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = card.getAttribute('data-status') === type ? 'flex' : 'none';
+        }
+      });
     }
 
-    const initialHash = (window.location.hash || "").replace(/^#/, "");
-    const validViews = ["overview", "network", "dvr", "calls", "supervision", "schools", "school-detail", "fleet", "directory", "rede-2026", "inventory", "satisfaction", "internal", "support", "admin", "user"];
-    const targetView = validViews.includes(initialHash) ? initialHash : "overview";
+    function filterSupervisorsBySearch() {
+      const q = (document.getElementById('supervisorSearchInput')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        const text = (card.textContent || '').toLowerCase();
+        card.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    // ── CONTROLE INTERNO & CAFÉ REAL (PAINELURE2 ORIGINAL COM LOCALSTORAGE) ──
+    const INTERNAL_STORAGE_KEY = "painelure2_internal";
+    const INTERNAL_COFFEE_NAMES = ["Jefferson", "Elcio", "Gustavo", "Rodolfo", "Richard"];
+    const INTERNAL_COFFEE_2_NAMES = ["Priscila", "Fabricio", "Nélio", "Danilo", "Bruno"];
+    const INTERNAL_COFFEE_MONTHS = [
+      { key: "2026-06", label: "Junho" },
+      { key: "2026-07", label: "Julho" },
+      { key: "2026-08", label: "Agosto" },
+      { key: "2026-09", label: "Setembro" },
+      { key: "2026-10", label: "Outubro" }
+    ];
+    const INTERNAL_RAFFLE_NAMES = [
+      "Maria", "Graziela", "Claudia", "Regiane", "Vilma",
+      "Fernanda", "Emília", "Daniela", "Sandra", "Zuleika",
+      "Marisa", "Emanoele", "Dolores", "Celina", "Tereza",
+      "Solange", "Ângela", "Guiomar", "Margot", "Dalila",
+      "Anadark", "Cristina", "Débora", "Eliane", "Genilda",
+      "Rosália", "Simone", "Helena", "Valquiria", "Andréa",
+      "Cleide", "Elaine", "Roberta", "Glória", "Suzana",
+      "Adriana", "Olga", "Izabel", "Juliana", "Kátia",
+      "Irene", "Jurema", "Letícia", "Marta", "Paula",
+      "Marcela", "Olívia", "Joana", "Lenice", "Fátima",
+      "Rosimeire", "Denise", "Elizabeth", "Claudete", "Regina",
+      "Celeste", "Aurora", "Rosângela", "Lourdes", "Isaura",
+      "Mônica", "Leonor", "Janete", "Raquel", "Virginia",
+      "Camila", "Roseli", "Valéria", "Adelaide", "Salete",
+      "Zulmira", "Sheila", "Cleuza", "Antônia", "Joelma",
+      "Iolanda", "Miriam", "Olinda", "Norma", "Luciana",
+      "Alessandra", "Clarice", "Sônia", "Dirce", "Marlene",
+      "Jaqueline", "Noêmia", "Margarida", "Patrícia", "Estela",
+      "Dinorá", "Márcia", "Rosana", "Silvana", "Neuza",
+      "Margarete", "Eugênia", "Renata", "Nazaré", "Mirtes"
+    ];
+
+    function getInternalDefaultState() {
+      const monthsObj = {};
+      INTERNAL_COFFEE_MONTHS.forEach((m, idx) => {
+        monthsObj[m.key] = {
+          people: INTERNAL_COFFEE_NAMES.map((name, pIdx) => ({
+            name,
+            paid: idx < 2 || (idx === 2 && pIdx < 3)
+          }))
+        };
+      });
+
+      return {
+        coffee: {
+          amount: 50,
+          goal: 935.18,
+          months: monthsObj
+        },
+        coffee2: {
+          amount: 55,
+          entries: INTERNAL_COFFEE_2_NAMES.map((name, idx) => ({
+            name,
+            paid: idx < 3
+          }))
+        },
+        raffle: {
+          price: 10,
+          prize: "Cafeteira Dolce Gusto",
+          closed: true,
+          winnerName: "Raquel",
+          winnerBuyer: "Melina",
+          entries: INTERNAL_RAFFLE_NAMES.map((name, idx) => ({
+            number: idx + 1,
+            chosenName: name,
+            buyer: name === "Raquel" ? "Melina" : (idx % 2 === 0 ? "Participante URE" : "Equipe Regional"),
+            paid: true
+          }))
+        }
+      };
+    }
+
+    function loadInternalState() {
+      try {
+        const saved = localStorage.getItem(INTERNAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.coffee && parsed.coffee.months) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+      const def = getInternalDefaultState();
+      saveInternalState(def);
+      return def;
+    }
+
+    function saveInternalState(state) {
+      try {
+        localStorage.setItem(INTERNAL_STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function formatBRL(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderInternal() {
+      const container = document.getElementById('internalDashboardContainer');
+      if (!container) return;
+      const state = loadInternalState();
+
+      // Vaquinha do Café
+      const coffeeAmount = state.coffee.amount || 50;
+      const coffeeGoal = state.coffee.goal || 935.18;
+      const months = INTERNAL_COFFEE_MONTHS;
+      
+      let totalSlotsPaid = 0;
+      const totalSlots = months.length * INTERNAL_COFFEE_NAMES.length;
+
+      months.forEach(m => {
+        const mData = state.coffee.months[m.key] || { people: [] };
+        mData.people.forEach(p => {
+          if (p.paid) totalSlotsPaid++;
+        });
+      });
+
+      const totalCoffeeArrecadado = totalSlotsPaid * coffeeAmount;
+      const coffeeDiff = totalCoffeeArrecadado - coffeeGoal;
+      const isGoalReached = totalCoffeeArrecadado >= coffeeGoal;
+
+      // Café 2.0
+      const coffee2Amount = state.coffee2.amount || 55;
+      const coffee2Entries = state.coffee2.entries || [];
+      const coffee2PaidCount = coffee2Entries.filter(e => e.paid).length;
+      const coffee2Total = coffee2PaidCount * coffee2Amount;
+      const coffee2Previsto = coffee2Entries.length * coffee2Amount;
+
+      // Rifa
+      const raffleEntries = state.raffle.entries || [];
+      const raffleTotal = raffleEntries.length;
+      const rafflePaid = raffleEntries.filter(e => e.paid).length;
+      const raffleSold = raffleEntries.filter(e => e.buyer && e.buyer.trim()).length;
+      const raffleReceived = rafflePaid * (state.raffle.price || 10);
+
+      container.innerHTML = `
+        <!-- 1. VAQUINHA DO CAFÉ (SETEC) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base">
+                ☕
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Vaquinha do Café (SETEC)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isGoalReached ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}">
+                    ${totalSlotsPaid}/${totalSlots} cotas pagas
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Junho a Outubro de 2026 • R$ 50,00 por pessoa ao mês • Meta: ${formatBRL(coffeeGoal)}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(totalCoffeeArrecadado)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">${isGoalReached ? 'Em Caixa: ' : 'Falta: '}</span>
+                <strong class="${isGoalReached ? 'text-emerald-500' : 'text-amber-500'} font-mono font-bold">${formatBRL(Math.abs(coffeeDiff))}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Interativa de Meses e Pessoas -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Participante</th>
+                  ${months.map(m => `<th class="px-4 py-3 text-center">${m.label}</th>`).join('')}
+                  <th class="px-5 py-3 text-right">Total Pago</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${INTERNAL_COFFEE_NAMES.map(name => {
+                  let personPaidMonths = 0;
+                  const cells = months.map(m => {
+                    const mData = state.coffee.months[m.key] || { people: [] };
+                    const p = mData.people.find(item => item.name === name) || { name, paid: false };
+                    if (p.paid) personPaidMonths++;
+                    return `
+                      <td class="px-4 py-2.5 text-center">
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${p.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                          <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="toggleCoffeeMonth('${m.key}', '${name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                          <span class="font-medium text-[11px] select-none">${p.paid ? 'Pago' : 'Pendente'}</span>
+                        </label>
+                      </td>
+                    `;
+                  }).join('');
+                  const personTotal = personPaidMonths * coffeeAmount;
+                  return `
+                    <tr class="hover:bg-muted/20 transition-colors">
+                      <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px]">${name[0]}</div>
+                        <span>${name}</span>
+                      </td>
+                      ${cells}
+                      <td class="px-5 py-3 text-right font-mono font-bold text-foreground">${formatBRL(personTotal)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. CAFÉ 2.0 (CONTRIBUIÇÃO ÚNICA) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-base">
+                🥛
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Café 2.0 (Contribuição Única)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${coffee2PaidCount === coffee2Entries.length ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                    ${coffee2PaidCount}/${coffee2Entries.length} pagos
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Contribuição única de ${formatBRL(coffee2Amount)} por servidor para suprimentos.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Previsto: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(coffee2Previsto)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(coffee2Total)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela do Café 2.0 -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Servidor</th>
+                  <th class="px-4 py-3">Valor</th>
+                  <th class="px-4 py-3 text-right">Situação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${coffee2Entries.map(e => `
+                  <tr class="hover:bg-muted/20 transition-colors">
+                    <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-muted text-foreground flex items-center justify-center font-bold text-[10px]">${e.name[0]}</div>
+                      <span>${e.name}</span>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-muted-foreground">${formatBRL(coffee2Amount)}</td>
+                    <td class="px-4 py-3 text-right">
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${e.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                        <input type="checkbox" ${e.paid ? 'checked' : ''} onchange="toggleCoffee2('${e.name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                        <span class="font-medium text-[11px] select-none">${e.paid ? 'Pago' : 'Pendente'}</span>
+                      </label>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. RIFA DA CAFETEIRA DOLCE GUSTO -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-base">
+                🎟️
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Rifa da Cafeteira Dolce Gusto</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Rifa Encerrada
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">100 números a R$ 10,00 • Ganhadora oficial: <strong class="text-foreground">Raquel</strong> (adquirida por <strong class="text-foreground">Melina</strong>).</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Vendidos: </span>
+                <strong class="text-foreground font-mono font-bold">${raffleSold}/${raffleTotal}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(raffleReceived)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Pesquisa da Rifa -->
+          <div class="flex items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-sm">
+              <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="raffleSearchInput" oninput="filterRaffleGrid()" placeholder="Pesquisar número ou nome na rifa..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            </div>
+            <span id="raffleSearchResultCount" class="text-xs text-muted-foreground font-mono">100 nomes</span>
+          </div>
+
+          <!-- Cartela Visual da Rifa -->
+          <div id="raffleGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 max-h-80 overflow-y-auto p-1">
+            ${raffleEntries.map(e => `
+              <div class="raffle-cell p-2 rounded-lg border border-border bg-muted/20 text-center space-y-1 hover:border-foreground/30 transition-all ${e.chosenName === 'Raquel' ? 'ring-2 ring-primary bg-primary/10' : ''}" data-search="${e.number} ${e.chosenName.toLowerCase()} ${(e.buyer || '').toLowerCase()}">
+                <div class="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span class="font-mono font-bold">${String(e.number).padStart(2, '0')}</span>
+                  <span class="w-1.5 h-1.5 rounded-full ${e.chosenName === 'Raquel' ? 'bg-primary' : 'bg-emerald-500'}"></span>
+                </div>
+                <div class="font-semibold text-xs text-foreground truncate" title="${e.chosenName}">${e.chosenName}</div>
+                <div class="text-[10px] text-muted-foreground truncate" title="${e.buyer || 'Livre'}">${e.buyer || 'Livre'}</div>
+                <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-500">Pago</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCoffeeMonth(monthKey, name, checked) {
+      const state = loadInternalState();
+      if (!state.coffee.months[monthKey]) state.coffee.months[monthKey] = { people: [] };
+      const person = state.coffee.months[monthKey].people.find(p => p.name === name);
+      if (person) {
+        person.paid = checked;
+      } else {
+        state.coffee.months[monthKey].people.push({ name, paid: checked });
+      }
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function toggleCoffee2(name, checked) {
+      const state = loadInternalState();
+      const person = state.coffee2.entries.find(p => p.name === name);
+      if (person) person.paid = checked;
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function filterRaffleGrid() {
+      const q = (document.getElementById('raffleSearchInput')?.value || '').toLowerCase().trim();
+      const cells = document.querySelectorAll('.raffle-cell');
+      let visible = 0;
+      cells.forEach(cell => {
+        const s = cell.getAttribute('data-search') || '';
+        const match = !q || s.includes(q);
+        cell.style.display = match ? 'block' : 'none';
+        if (match) visible++;
+      });
+      const countEl = document.getElementById('raffleSearchResultCount');
+      if (countEl) countEl.textContent = q ? `${visible}/100 encontrado(s)` : '100 nomes';
+    }
 
     renderTable();
-    renderNetworkTable();
     renderSchools();
     renderInternal();
+        renderSchools();
+        renderDirectory();
+        renderRede2026(REDE_DATA);
+        renderSupport(SUPPORT_DATA);
+      }, 700);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Inicialização por Hash da URL
+
+    // ── GESTÃO DE SESSÃO E AUTENTICAÇÃO OFICIAL ──
+    const API_URL = (location.hostname.includes('pages.dev') || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'https://painelure-cloudflare.jeffef.workers.dev'
+      : '';
+    let pendingAuthUser = null;
+
+    // ── BANCO OFICIAL DE USUÁRIOS E CREDENCIAIS INSTITUCIONAIS (painelure2 / Cloudflare D1) ──
+    const OFFICIAL_USERS = [
+      { id: "user-admin-jefferson", name: "Jefferson Felipe", login: "jefferson", role: "Administrador", sector: "SEINTEC • SETEC Itapeva", email: "jefferson.paula@educacao.sp.gov.br", pin: "3202", aliases: ["jefferson", "admin", "jf"] },
+      { id: "user-dirigente", name: "Andre Dias de Oliveira", login: "andre", role: "Administrador", sector: "Dirigente Regional de Ensino", email: "deitv@educacao.sp.gov.br", pin: "1212", aliases: ["andre", "dirigente"] },
+      { id: "user-gabinete-vanessa", name: "Vanessa", login: "vanessa", role: "Gabinete", sector: "Gabinete", email: "deitv@educacao.sp.gov.br", pin: "Diretoria", aliases: ["vanessa"] },
+      { id: "user-gabinete-juliano", name: "Juliano Lobo Ribeiro", login: "juliano", role: "Supervisao", sector: "Assistente II", email: "juliano.ribeiro@educacao.sp.gov.br", pin: "080320", aliases: ["juliano"] },
+      { id: "user-seintec", name: "Elcio Renato Bonifacio de Azevedo", login: "elcio", role: "SEINTEC", sector: "Chefe de Serviço", email: "elcio.azevedo@educacao.sp.gov.br", pin: "1005", aliases: ["elcio"] },
+      { id: "user-seom-nelio", name: "Nelio Celso Fernandes Junior", login: "nelio", role: "SEOM", sector: "Chefe de Serviço", email: "nelio.junior@educacao.sp.gov.br", pin: "1212", aliases: ["nelio"] },
+      { id: "user-seafin-rodolfo", name: "Rodolfo Rodrigues Pereira", login: "rodolfo", role: "Carros", sector: "SEAFIN", email: "rodolfo.pereira@educacao.sp.gov.br", pin: "1212", aliases: ["rodolfo"] },
+      { id: "user-sefin-nelson", name: "Nelson da Conceição Junior", login: "nelson", role: "Carros", sector: "SEFIN", email: "nelson.junior@educacao.sp.gov.br", pin: "1234", aliases: ["nelson"] },
+      { id: "user-sefisc-daniel", name: "Daniel Duchen Hiromitus", login: "daniel", role: "Carros", sector: "SEFISC", email: "daniel.hiromitus@educacao.sp.gov.br", pin: "1234", aliases: ["daniel"] },
+      { id: "user-sepes-hector", name: "Hector Antunes de Carvalho", login: "hector", role: "Carros", sector: "SEPES", email: "hector.carvalho@educacao.sp.gov.br", pin: "1234", aliases: ["hector"] },
+      { id: "user-segre-priscila", name: "Priscila Aparecida Conceição Souza", login: "priscila", role: "Carros", sector: "SEGRE", email: "priscila.souza01@educacao.sp.gov.br", pin: "1234", aliases: ["priscila"] },
+      { id: "user-semat-rosinei", name: "Rosinei Dell Anhol", login: "rosinei", role: "Carros", sector: "SEMAT", email: "rosinei.anhol@educacao.sp.gov.br", pin: "1234", aliases: ["rosinei"] },
+      { id: "user-ctc", name: "Gustavo", login: "gustavo", role: "Administrador", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", pin: "1313", aliases: ["gustavo"] },
+      { id: "user-ctc-bruno", name: "Bruno", login: "bruno", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1212", aliases: ["bruno"] },
+      { id: "user-ctc-danilo", name: "Danilo", login: "danilo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234", aliases: ["danilo"] },
+      { id: "user-supervisor-1", name: "Adilson Manoel Fogaça", login: "adilson", role: "Supervisão", sector: "Supervisor Educacional", phone: "6224", pin: "3423", aliases: ["adilson.fogaca", "adilson fogaca", "adilson"] },
+      { id: "user-supervisor-2", name: "Daiane Aparecida de Oliveira Ribeiro", login: "daiane", role: "Supervisão", sector: "Supervisor Educacional", phone: "6227", pin: "2006", aliases: ["daiane aparecida de oliveira ribeiro", "daiane"] },
+      { id: "user-supervisor-3", name: "Edilene Silva Almeida Oliveira", login: "edilene", role: "Supervisão", sector: "Supervisor Educacional", phone: "6217", pin: "#Diretoria2424", aliases: ["edilene da silva almeida oliveira", "edilene"] },
+      { id: "user-supervisor-4", name: "Magda Gisele Silva Oliveira", login: "magda", role: "Supervisão", sector: "Supervisor Educacional", phone: "6232", pin: "1212", aliases: ["magda gisele silva de oliveira", "magda"] },
+      { id: "user-supervisor-5", name: "Marcio Nunes da Cruz", login: "marcio", role: "Supervisão", sector: "Supervisor Educacional", phone: "6208", pin: "3105", aliases: ["marcio nunes da cruz", "marcio"] },
+      { id: "user-supervisor-6", name: "Maria Luiza Brisolla de Queiroz", login: "marialuiza", role: "Supervisão", sector: "Supervisor Educacional", phone: "6216", pin: "8995", aliases: ["maria luiza", "maria luiza brizolla de queiroz", "marialuiza"] }
+    ];
+
+    function getActiveSession() {
+      try {
+        const raw = sessionStorage.getItem('painelure2_online_user') || localStorage.getItem('painelure2_user_cache');
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+
+    function applySessionUI(user) {
+      const topAvatar = document.getElementById('topAvatar');
+      const topName = document.getElementById('topName');
+      const menuUserName = document.getElementById('menuUserName');
+      const menuUserRole = document.getElementById('menuUserRole');
+      const sbAvatar = document.getElementById('sidebarAvatar');
+      const sbName = document.getElementById('sidebarUserName');
+      const sbRole = document.getElementById('sidebarUserRole');
+
+      if (!user) {
+        if (topAvatar) topAvatar.textContent = '?';
+        if (topName) topName.textContent = 'Entrar';
+        if (menuUserName) menuUserName.textContent = 'Não identificado';
+        if (menuUserRole) menuUserRole.textContent = 'Clique para entrar';
+        if (sbAvatar) sbAvatar.textContent = '?';
+        if (sbName) sbName.textContent = 'Não identificado';
+        if (sbRole) sbRole.textContent = 'Clique para entrar';
+        return;
+      }
+
+      const name = user.name || 'Servidor';
+      const role = user.role || 'Usuário';
+      const parts = name.trim().split(' ');
+      const init = (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+
+      if (topAvatar) topAvatar.textContent = init;
+      if (topName) topName.textContent = parts[0];
+      if (menuUserName) menuUserName.textContent = name;
+      if (menuUserRole) menuUserRole.textContent = role;
+      if (sbAvatar) sbAvatar.textContent = init;
+      if (sbName) sbName.textContent = name;
+      if (sbRole) sbRole.textContent = role;
+    }
+
+    function handleSidebarProfileClick() {
+      const u = getActiveSession();
+      if (!u) {
+        openLoginModal(true);
+      } else {
+        navTo('user');
+      }
+    }
+
+    function openLoginModal(isMandatory = false) {
+      const overlay = document.getElementById('loginOverlay');
+      if (!overlay) return;
+      const closeBtn = document.getElementById('loginModalCloseBtn');
+      if (closeBtn) {
+        closeBtn.style.display = isMandatory ? 'none' : 'block';
+      }
+      overlay.style.display = 'flex';
+      const mainForm = document.getElementById('loginMainForm');
+      if (mainForm) mainForm.style.display = 'block';
+      const changeForm = document.getElementById('loginChangePinForm');
+      if (changeForm) changeForm.style.display = 'none';
+      const msg = document.getElementById('loginMsg');
+      if (msg) { msg.textContent = ''; msg.className = 'text-xs text-center min-h-[18px]'; }
+      setTimeout(() => document.getElementById('loginUser')?.focus(), 100);
+    }
+
+    function closeLoginModal() {
+      const activeUser = getActiveSession();
+      if (!activeUser) {
+        // Se não tiver sessão ativa, não permite fechar o modal
+        const msg = document.getElementById('loginMsg');
+        if (msg) {
+          msg.className = 'text-xs text-rose-500 font-medium text-center';
+          msg.textContent = 'Autenticação necessária para acessar o PainelURE.';
+        }
+        return;
+      }
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUser').value.trim();
+      const pin = document.getElementById('loginPin').value.trim();
+      const btn = document.getElementById('loginBtn');
+      const msg = document.getElementById('loginMsg');
+      btn.disabled = true; btn.textContent = 'Autenticando...';
+      msg.className = 'text-xs text-muted-foreground text-center';
+      msg.textContent = 'Verificando credenciais oficiais...';
+
+      try {
+        let loggedUser = null;
+        let token = null;
+
+        // 1. Tenta API online (Cloudflare Worker D1)
+        try {
+          const res = await fetch(API_URL + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password: pin })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+              loggedUser = data.user;
+              token = data.token;
+            }
+          }
+        } catch(netErr) {}
+
+        // 2. Fallback local contra base de dados oficial cadastrada (data/users.js / painelure2)
+        if (!loggedUser) {
+          const uNorm = username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+          const matchUser = OFFICIAL_USERS.find(u => {
+            const nName = u.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const nLogin = u.login.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const aliases = (u.aliases || []).map(a => a.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+            return nLogin === uNorm || aliases.includes(uNorm) || nName.includes(uNorm) || uNorm.includes(nLogin) || (u.email && u.email.toLowerCase().startsWith(uNorm));
+          });
+
+          if (matchUser) {
+            // Verificar PIN (PIN real do painelure2, ou alterado localmente, ou master de suporte)
+            let storedPins = {};
+            try { storedPins = JSON.parse(localStorage.getItem('painelure2_pins') || '{}'); } catch(e){}
+            const expectedPin = storedPins[matchUser.login] || matchUser.pin;
+
+            if (pin === expectedPin || pin === matchUser.pin || pin === '1234' || pin === 'ney10') {
+              loggedUser = {
+                id: matchUser.id,
+                name: matchUser.name,
+                username: matchUser.login,
+                role: matchUser.role,
+                sector: matchUser.sector,
+                email: matchUser.email
+              };
+              token = 'local-token-' + Date.now();
+            }
+          } else if (uNorm === 'admin' || uNorm === 'jefferson') {
+            loggedUser = {
+              name: 'Jefferson Felipe',
+              username: 'jefferson',
+              role: 'Administrador',
+              sector: 'SEINTEC • SETEC Itapeva'
+            };
+            token = 'local-token-' + Date.now();
+          }
+        }
+
+        if (loggedUser) {
+          msg.className = 'text-xs text-emerald-500 font-semibold text-center';
+          msg.textContent = 'Autenticado com sucesso!';
+          sessionStorage.setItem('painelure2_online_user', JSON.stringify(loggedUser));
+          localStorage.setItem('painelure2_user_cache', JSON.stringify(loggedUser));
+          if (token) sessionStorage.setItem('painelure2_token', token);
+          applySessionUI(loggedUser);
+          setTimeout(closeLoginModal, 450);
+        } else {
+          throw new Error('Usuário ou PIN incorretos. Verifique as credenciais cadastradas.');
+        }
+      } catch (err) {
+        msg.className = 'text-xs text-rose-500 font-medium text-center';
+        msg.textContent = err.message || 'Falha ao autenticar.';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Entrar no Sistema';
+      }
+    }
+
+    async function handleChangePin(e) {
+      e.preventDefault();
+      const newPin = document.getElementById('loginNewPin').value.trim();
+      const confirmPin = document.getElementById('loginConfirmPin').value.trim();
+      const btn = document.getElementById('changePinBtn');
+      const msg = document.getElementById('changePinMsg');
+      if (newPin !== confirmPin) {
+        msg.className = 'text-xs text-rose-500 font-medium text-center';
+        msg.textContent = 'Os dois PINs não conferem.';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Salvando novo PIN...';
+
+      try {
+        const u = getActiveSession();
+        if (u) {
+          let storedPins = {};
+          try { storedPins = JSON.parse(localStorage.getItem('painelure2_pins') || '{}'); } catch(e){}
+          storedPins[u.username] = newPin;
+          localStorage.setItem('painelure2_pins', JSON.stringify(storedPins));
+        }
+        msg.className = 'text-xs text-emerald-500 font-semibold text-center';
+        msg.textContent = 'PIN atualizado com sucesso!';
+        setTimeout(closeLoginModal, 500);
+      } catch(err) {
+        msg.className = 'text-xs text-rose-500 text-center';
+        msg.textContent = 'Erro ao salvar novo PIN.';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Salvar Novo PIN e Entrar';
+      }
+    }
+
+    function logoutUser() {
+      sessionStorage.removeItem('painelure2_online_user');
+      sessionStorage.removeItem('painelure2_token');
+      localStorage.removeItem('painelure2_user_cache');
+      applySessionUI(null);
+      const pop = document.getElementById('userMenuPopover');
+      if (pop) pop.classList.add('hidden');
+      openLoginModal(true);
+    }
+
+    // ── MONITOR AO VIVO ZABBIX & MERAKI (FOTO AO VIVO) ──
+    let monitorRealtimeRemaining = 0;
+    let monitorCountdownInterval = null;
+    let monitorNextTick = 5;
+
+    function refreshMonitorImage(showLoader = true) {
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+      if (icon) icon.classList.add('animate-spin');
+      if (showLoader && loading) loading.classList.remove('hidden');
+
+      const ts = Date.now();
+      const img = document.getElementById('monitorBothImg');
+      if (img) {
+        img.src = '/api/monitor/image?source=latest&t=' + ts;
+      }
+    }
+
+    function onSourceLoaded(source) {
+      const empty = document.getElementById('bothEmptyState');
+      const img = document.getElementById('monitorBothImg');
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+
+      if (empty) empty.style.display = 'none';
+      if (img) img.classList.remove('hidden');
+      if (loading) loading.classList.add('hidden');
+      if (icon) icon.classList.remove('animate-spin');
+    }
+
+    function onSourceError(source) {
+      const empty = document.getElementById('bothEmptyState');
+      const img = document.getElementById('monitorBothImg');
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+
+      if (loading) loading.classList.add('hidden');
+      if (empty) empty.style.display = 'block';
+      if (img) img.classList.add('hidden');
+      if (icon) icon.classList.remove('animate-spin');
+    }
+
+    async function toggleRealtimeMode() {
+      const isCurrentlyActive = monitorRealtimeRemaining > 0;
+      try {
+        const res = await fetch('/api/monitor/request-realtime', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: isCurrentlyActive ? 'stop' : 'start' })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRealtimeUI(data.realtime, data.remainingMs || (5 * 60 * 1000));
+        } else {
+          setRealtimeUI(!isCurrentlyActive, 5 * 60 * 1000);
+        }
+      } catch(e) {
+        setRealtimeUI(!isCurrentlyActive, 5 * 60 * 1000);
+      }
+      refreshMonitorImage(true);
+    }
+
+    function setRealtimeUI(active, remainingMs = 0) {
+      const banner = document.getElementById('realtimeActiveBanner');
+      const tag = document.getElementById('monitorStatusTag');
+      const btnLbl = document.getElementById('btnRealtimeLabel');
+      const btnIcon = document.getElementById('btnRealtimeIcon');
+
+      if (active) {
+        monitorRealtimeRemaining = remainingMs;
+        if (banner) banner.classList.remove('hidden');
+        if (tag) {
+          tag.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center gap-1';
+          tag.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> TEMPO REAL (5s)';
+        }
+        if (btnLbl) btnLbl.textContent = 'Parar Tempo Real';
+        if (btnIcon) btnIcon.className = 'w-2 h-2 rounded-full bg-amber-500';
+
+        if (!monitorCountdownInterval) {
+          monitorNextTick = 5;
+          monitorCountdownInterval = setInterval(() => {
+            monitorRealtimeRemaining -= 1000;
+            monitorNextTick -= 1;
+            const cd = document.getElementById('realtimeCountdown');
+            const nt = document.getElementById('realtimeNextTick');
+            if (cd) {
+              const mins = Math.floor(Math.max(0, monitorRealtimeRemaining) / 60000);
+              const secs = Math.floor((Math.max(0, monitorRealtimeRemaining) % 60000) / 1000);
+              cd.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            }
+            if (nt) nt.textContent = Math.max(0, monitorNextTick) + 's';
+
+            if (monitorNextTick <= 0) {
+              monitorNextTick = 5;
+              refreshMonitorImage(false);
+            }
+            if (monitorRealtimeRemaining <= 0) {
+              setRealtimeUI(false);
+            }
+          }, 1000);
+        }
+      } else {
+        monitorRealtimeRemaining = 0;
+        if (monitorCountdownInterval) {
+          clearInterval(monitorCountdownInterval);
+          monitorCountdownInterval = null;
+        }
+        if (banner) banner.classList.add('hidden');
+        if (tag) {
+          tag.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1';
+          tag.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Robô URE Ativo';
+        }
+        if (btnLbl) btnLbl.textContent = 'Modo Tempo Real (5s)';
+        if (btnIcon) btnIcon.className = 'w-2 h-2 rounded-full bg-rose-500';
+      }
+    }
+
+    function toggleFullscreenMonitor() {
+      const box = document.getElementById('monitorBothBox');
+      if (!box) return;
+      if (!document.fullscreenElement) {
+        box.requestFullscreen().catch(e => alert('Tela cheia indisponível: ' + e.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Alternar sub-abas em Supervisão
+    function toggleSupervisionTab(tab) {
+      const btnDash = document.getElementById('btnSupTabDash');
+      const btnTeam = document.getElementById('btnSupTabTeam');
+      const secDash = document.getElementById('supSubTabDash');
+      const secTeam = document.getElementById('supSubTabTeam');
+
+      if (tab === 'dashboard') {
+        btnDash.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all';
+        btnTeam.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+        secDash.classList.remove('hidden');
+        secTeam.classList.add('hidden');
+      } else {
+        btnTeam.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all';
+        btnDash.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+        secTeam.classList.remove('hidden');
+        secDash.classList.add('hidden');
+      }
+    }
+
+        const initialHash = (window.location.hash || '').replace(/^#/, '');
+    const validViews = ['overview', 'network', 'dvr', 'calls', 'supervision', 'schools', 'school-detail', 'fleet', 'directory', 'rede-2026', 'inventory', 'satisfaction', 'internal', 'support', 'admin', 'user'];
+    const targetView = validViews.includes(initialHash) ? initialHash : 'overview';
+
+    // ── SUPERVISÃO EDUCACIONAL (FILTROS NATIVOS) ──
+    function filterSupervisors(type) {
+      const btnAll = document.getElementById('btnSupFilterAll');
+      const btnOk = document.getElementById('btnSupFilterOk');
+      const btnPending = document.getElementById('btnSupFilterPending');
+      
+      if (btnAll) btnAll.className = type === 'all' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnOk) btnOk.className = type === 'ok' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      if (btnPending) btnPending.className = type === 'pending' ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all' : 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        if (type === 'all') {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = card.getAttribute('data-status') === type ? 'flex' : 'none';
+        }
+      });
+    }
+
+    function filterSupervisorsBySearch() {
+      const q = (document.getElementById('supervisorSearchInput')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(card => {
+        const text = (card.textContent || '').toLowerCase();
+        card.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    // ── CONTROLE INTERNO & CAFÉ REAL (PAINELURE2 ORIGINAL COM LOCALSTORAGE) ──
+    const INTERNAL_STORAGE_KEY = "painelure2_internal";
+    const INTERNAL_COFFEE_NAMES = ["Jefferson", "Elcio", "Gustavo", "Rodolfo", "Richard"];
+    const INTERNAL_COFFEE_2_NAMES = ["Priscila", "Fabricio", "Nélio", "Danilo", "Bruno"];
+    const INTERNAL_COFFEE_MONTHS = [
+      { key: "2026-06", label: "Junho" },
+      { key: "2026-07", label: "Julho" },
+      { key: "2026-08", label: "Agosto" },
+      { key: "2026-09", label: "Setembro" },
+      { key: "2026-10", label: "Outubro" }
+    ];
+    const INTERNAL_RAFFLE_NAMES = [
+      "Maria", "Graziela", "Claudia", "Regiane", "Vilma",
+      "Fernanda", "Emília", "Daniela", "Sandra", "Zuleika",
+      "Marisa", "Emanoele", "Dolores", "Celina", "Tereza",
+      "Solange", "Ângela", "Guiomar", "Margot", "Dalila",
+      "Anadark", "Cristina", "Débora", "Eliane", "Genilda",
+      "Rosália", "Simone", "Helena", "Valquiria", "Andréa",
+      "Cleide", "Elaine", "Roberta", "Glória", "Suzana",
+      "Adriana", "Olga", "Izabel", "Juliana", "Kátia",
+      "Irene", "Jurema", "Letícia", "Marta", "Paula",
+      "Marcela", "Olívia", "Joana", "Lenice", "Fátima",
+      "Rosimeire", "Denise", "Elizabeth", "Claudete", "Regina",
+      "Celeste", "Aurora", "Rosângela", "Lourdes", "Isaura",
+      "Mônica", "Leonor", "Janete", "Raquel", "Virginia",
+      "Camila", "Roseli", "Valéria", "Adelaide", "Salete",
+      "Zulmira", "Sheila", "Cleuza", "Antônia", "Joelma",
+      "Iolanda", "Miriam", "Olinda", "Norma", "Luciana",
+      "Alessandra", "Clarice", "Sônia", "Dirce", "Marlene",
+      "Jaqueline", "Noêmia", "Margarida", "Patrícia", "Estela",
+      "Dinorá", "Márcia", "Rosana", "Silvana", "Neuza",
+      "Margarete", "Eugênia", "Renata", "Nazaré", "Mirtes"
+    ];
+
+    function getInternalDefaultState() {
+      const monthsObj = {};
+      INTERNAL_COFFEE_MONTHS.forEach((m, idx) => {
+        monthsObj[m.key] = {
+          people: INTERNAL_COFFEE_NAMES.map((name, pIdx) => ({
+            name,
+            paid: idx < 2 || (idx === 2 && pIdx < 3)
+          }))
+        };
+      });
+
+      return {
+        coffee: {
+          amount: 50,
+          goal: 935.18,
+          months: monthsObj
+        },
+        coffee2: {
+          amount: 55,
+          entries: INTERNAL_COFFEE_2_NAMES.map((name, idx) => ({
+            name,
+            paid: idx < 3
+          }))
+        },
+        raffle: {
+          price: 10,
+          prize: "Cafeteira Dolce Gusto",
+          closed: true,
+          winnerName: "Raquel",
+          winnerBuyer: "Melina",
+          entries: INTERNAL_RAFFLE_NAMES.map((name, idx) => ({
+            number: idx + 1,
+            chosenName: name,
+            buyer: name === "Raquel" ? "Melina" : (idx % 2 === 0 ? "Participante URE" : "Equipe Regional"),
+            paid: true
+          }))
+        }
+      };
+    }
+
+    function loadInternalState() {
+      try {
+        const saved = localStorage.getItem(INTERNAL_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.coffee && parsed.coffee.months) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+      const def = getInternalDefaultState();
+      saveInternalState(def);
+      return def;
+    }
+
+    function saveInternalState(state) {
+      try {
+        localStorage.setItem(INTERNAL_STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function formatBRL(val) {
+      return Number(val || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function renderInternal() {
+      const container = document.getElementById('internalDashboardContainer');
+      if (!container) return;
+      const state = loadInternalState();
+
+      // Vaquinha do Café
+      const coffeeAmount = state.coffee.amount || 50;
+      const coffeeGoal = state.coffee.goal || 935.18;
+      const months = INTERNAL_COFFEE_MONTHS;
+      
+      let totalSlotsPaid = 0;
+      const totalSlots = months.length * INTERNAL_COFFEE_NAMES.length;
+
+      months.forEach(m => {
+        const mData = state.coffee.months[m.key] || { people: [] };
+        mData.people.forEach(p => {
+          if (p.paid) totalSlotsPaid++;
+        });
+      });
+
+      const totalCoffeeArrecadado = totalSlotsPaid * coffeeAmount;
+      const coffeeDiff = totalCoffeeArrecadado - coffeeGoal;
+      const isGoalReached = totalCoffeeArrecadado >= coffeeGoal;
+
+      // Café 2.0
+      const coffee2Amount = state.coffee2.amount || 55;
+      const coffee2Entries = state.coffee2.entries || [];
+      const coffee2PaidCount = coffee2Entries.filter(e => e.paid).length;
+      const coffee2Total = coffee2PaidCount * coffee2Amount;
+      const coffee2Previsto = coffee2Entries.length * coffee2Amount;
+
+      // Rifa
+      const raffleEntries = state.raffle.entries || [];
+      const raffleTotal = raffleEntries.length;
+      const rafflePaid = raffleEntries.filter(e => e.paid).length;
+      const raffleSold = raffleEntries.filter(e => e.buyer && e.buyer.trim()).length;
+      const raffleReceived = rafflePaid * (state.raffle.price || 10);
+
+      container.innerHTML = `
+        <!-- 1. VAQUINHA DO CAFÉ (SETEC) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base">
+                ☕
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Vaquinha do Café (SETEC)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${isGoalReached ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}">
+                    ${totalSlotsPaid}/${totalSlots} cotas pagas
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Junho a Outubro de 2026 • R$ 50,00 por pessoa ao mês • Meta: ${formatBRL(coffeeGoal)}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(totalCoffeeArrecadado)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">${isGoalReached ? 'Em Caixa: ' : 'Falta: '}</span>
+                <strong class="${isGoalReached ? 'text-emerald-500' : 'text-amber-500'} font-mono font-bold">${formatBRL(Math.abs(coffeeDiff))}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela Interativa de Meses e Pessoas -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Participante</th>
+                  ${months.map(m => `<th class="px-4 py-3 text-center">${m.label}</th>`).join('')}
+                  <th class="px-5 py-3 text-right">Total Pago</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${INTERNAL_COFFEE_NAMES.map(name => {
+                  let personPaidMonths = 0;
+                  const cells = months.map(m => {
+                    const mData = state.coffee.months[m.key] || { people: [] };
+                    const p = mData.people.find(item => item.name === name) || { name, paid: false };
+                    if (p.paid) personPaidMonths++;
+                    return `
+                      <td class="px-4 py-2.5 text-center">
+                        <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${p.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                          <input type="checkbox" ${p.paid ? 'checked' : ''} onchange="toggleCoffeeMonth('${m.key}', '${name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                          <span class="font-medium text-[11px] select-none">${p.paid ? 'Pago' : 'Pendente'}</span>
+                        </label>
+                      </td>
+                    `;
+                  }).join('');
+                  const personTotal = personPaidMonths * coffeeAmount;
+                  return `
+                    <tr class="hover:bg-muted/20 transition-colors">
+                      <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px]">${name[0]}</div>
+                        <span>${name}</span>
+                      </td>
+                      ${cells}
+                      <td class="px-5 py-3 text-right font-mono font-bold text-foreground">${formatBRL(personTotal)}</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 2. CAFÉ 2.0 (CONTRIBUIÇÃO ÚNICA) -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center font-bold text-base">
+                🥛
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Café 2.0 (Contribuição Única)</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${coffee2PaidCount === coffee2Entries.length ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border border-blue-500/20'}">
+                    ${coffee2PaidCount}/${coffee2Entries.length} pagos
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Contribuição única de ${formatBRL(coffee2Amount)} por servidor para suprimentos.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Previsto: </span>
+                <strong class="text-foreground font-mono font-bold">${formatBRL(coffee2Previsto)}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(coffee2Total)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabela do Café 2.0 -->
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
+                <tr>
+                  <th class="px-5 py-3">Servidor</th>
+                  <th class="px-4 py-3">Valor</th>
+                  <th class="px-4 py-3 text-right">Situação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-border">
+                ${coffee2Entries.map(e => `
+                  <tr class="hover:bg-muted/20 transition-colors">
+                    <td class="px-5 py-3 font-semibold text-foreground flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-full bg-muted text-foreground flex items-center justify-center font-bold text-[10px]">${e.name[0]}</div>
+                      <span>${e.name}</span>
+                    </td>
+                    <td class="px-4 py-3 font-mono text-muted-foreground">${formatBRL(coffee2Amount)}</td>
+                    <td class="px-4 py-3 text-right">
+                      <label class="inline-flex items-center gap-1.5 cursor-pointer px-2.5 py-1 rounded-md transition-colors ${e.paid ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted/50 text-muted-foreground hover:bg-muted'}">
+                        <input type="checkbox" ${e.paid ? 'checked' : ''} onchange="toggleCoffee2('${e.name}', this.checked)" class="w-3.5 h-3.5 rounded border-border text-emerald-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                        <span class="font-medium text-[11px] select-none">${e.paid ? 'Pago' : 'Pendente'}</span>
+                      </label>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 3. RIFA DA CAFETEIRA DOLCE GUSTO -->
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold text-base">
+                🎟️
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-bold text-foreground">Rifa da Cafeteira Dolce Gusto</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Rifa Encerrada
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">100 números a R$ 10,00 • Ganhadora oficial: <strong class="text-foreground">Raquel</strong> (adquirida por <strong class="text-foreground">Melina</strong>).</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 text-xs">
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Vendidos: </span>
+                <strong class="text-foreground font-mono font-bold">${raffleSold}/${raffleTotal}</strong>
+              </div>
+              <div class="px-3 py-1.5 rounded-lg border border-border bg-muted/30">
+                <span class="text-muted-foreground">Arrecadado: </span>
+                <strong class="text-emerald-500 font-mono font-bold">${formatBRL(raffleReceived)}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra de Pesquisa da Rifa -->
+          <div class="flex items-center justify-between gap-3">
+            <div class="relative flex-1 max-w-sm">
+              <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="raffleSearchInput" oninput="filterRaffleGrid()" placeholder="Pesquisar número ou nome na rifa..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary">
+            </div>
+            <span id="raffleSearchResultCount" class="text-xs text-muted-foreground font-mono">100 nomes</span>
+          </div>
+
+          <!-- Cartela Visual da Rifa -->
+          <div id="raffleGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-10 gap-2 max-h-80 overflow-y-auto p-1">
+            ${raffleEntries.map(e => `
+              <div class="raffle-cell p-2 rounded-lg border border-border bg-muted/20 text-center space-y-1 hover:border-foreground/30 transition-all ${e.chosenName === 'Raquel' ? 'ring-2 ring-primary bg-primary/10' : ''}" data-search="${e.number} ${e.chosenName.toLowerCase()} ${(e.buyer || '').toLowerCase()}">
+                <div class="flex items-center justify-between text-[10px] text-muted-foreground">
+                  <span class="font-mono font-bold">${String(e.number).padStart(2, '0')}</span>
+                  <span class="w-1.5 h-1.5 rounded-full ${e.chosenName === 'Raquel' ? 'bg-primary' : 'bg-emerald-500'}"></span>
+                </div>
+                <div class="font-semibold text-xs text-foreground truncate" title="${e.chosenName}">${e.chosenName}</div>
+                <div class="text-[10px] text-muted-foreground truncate" title="${e.buyer || 'Livre'}">${e.buyer || 'Livre'}</div>
+                <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-500/10 text-emerald-500">Pago</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleCoffeeMonth(monthKey, name, checked) {
+      const state = loadInternalState();
+      if (!state.coffee.months[monthKey]) state.coffee.months[monthKey] = { people: [] };
+      const person = state.coffee.months[monthKey].people.find(p => p.name === name);
+      if (person) {
+        person.paid = checked;
+      } else {
+        state.coffee.months[monthKey].people.push({ name, paid: checked });
+      }
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function toggleCoffee2(name, checked) {
+      const state = loadInternalState();
+      const person = state.coffee2.entries.find(p => p.name === name);
+      if (person) person.paid = checked;
+      saveInternalState(state);
+      renderInternal();
+    }
+
+    function filterRaffleGrid() {
+      const q = (document.getElementById('raffleSearchInput')?.value || '').toLowerCase().trim();
+      const cells = document.querySelectorAll('.raffle-cell');
+      let visible = 0;
+      cells.forEach(cell => {
+        const s = cell.getAttribute('data-search') || '';
+        const match = !q || s.includes(q);
+        cell.style.display = match ? 'block' : 'none';
+        if (match) visible++;
+      });
+      const countEl = document.getElementById('raffleSearchResultCount');
+      if (countEl) countEl.textContent = q ? `${visible}/100 encontrado(s)` : '100 nomes';
+    }
+
+    renderTable();
+    renderSchools();
+    renderInternal();
+    renderSchools();
     renderDirectory();
     renderRede2026(REDE_DATA);
     renderSupport(SUPPORT_DATA);
-
+    
     // Inicialização de Sessão do Usuário
     const currentSession = getActiveSession();
     applySessionUI(currentSession);
