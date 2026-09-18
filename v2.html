@@ -274,6 +274,12 @@
           <svg id="syncIcon" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
         </button>
 
+                <!-- Botão Acessar V1 Clássica -->
+        <a href="/v1" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-muted-foreground hover:text-foreground transition-all" title="Acessar versão clássica V1">
+          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span>V1 Clássica</span>
+        </a>
+
         <!-- Botão de Monitor ao Vivo Rápido -->
         <button onclick="navTo('network'); setTimeout(() => { document.getElementById('monitorImageCard')?.scrollIntoView({ behavior: 'smooth' }); }, 150)" title="Abrir Monitor Zabbix & Meraki Ao Vivo" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all">
           <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
@@ -297,6 +303,10 @@
                 <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Minha Conta & Preferências
               </button>
+              <a href="/v1" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-muted text-foreground flex items-center gap-2 transition-colors">
+                <svg class="w-3.5 h-3.5 text-amber-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+                <span>Acessar Painel V1 (Clássico)</span>
+              </a>
               <button onclick="navTo('admin'); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-muted text-foreground flex items-center gap-2 transition-colors">
                 <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 Governança & Admin
@@ -1354,234 +1364,30 @@
       </div>
 
       <!-- ── VIEW 8: FROTA & VIAGENS (#fleet) ── -->
-      <div id="view-fleet" class="view-content space-y-6">
+      <div id="view-fleet" class="view-content space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-2xl font-bold tracking-tight text-foreground">Frota Oficial & Deslocamentos</h1>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                3 Viaturas Ativas
+              <h1 class="text-2xl font-bold tracking-tight text-foreground">Carros Oficiais</h1>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                Agendamentos & Motoristas
               </span>
             </div>
-            <p class="text-sm text-muted-foreground mt-0.5">Gestão operacional de veículos, motoristas e agenda oficial de viagens da regional.</p>
+            <p class="text-sm text-muted-foreground mt-0.5">Agendamento de carros oficiais, destinos, motoristas e integração com o SharePoint da regional.</p>
           </div>
           <div class="flex items-center gap-2">
             <a href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-colors flex items-center gap-1.5 shadow-sm">
-              <span>Agendar no SharePoint</span>
-              <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+              <span>Abrir no SharePoint ↗</span>
+            </a>
+            <a href="assets/cars.html" target="_blank" class="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Abrir em Nova Aba">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
             </a>
           </div>
         </div>
 
-        <!-- 3 Bento Cards dos Veículos Oficiais -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          <!-- Carro 1: Chevrolet Spin -->
-          <div class="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 hover:border-foreground/20 transition-all flex flex-col justify-between">
-            <div class="space-y-3">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">Oficial 1</span>
-                    <span class="text-xs text-muted-foreground">7 Lugares</span>
-                  </div>
-                  <h3 class="font-bold text-base text-foreground mt-1">Chevrolet Spin</h3>
-                  <p class="text-xs text-muted-foreground">Transporte de Equipes & Gestão Regional</p>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Reservado
-                </span>
-              </div>
-
-              <div class="space-y-2 pt-2 border-t border-border text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Destino Atual:</span>
-                  <span class="font-medium text-foreground">Regional Itapeva & Polo</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Motorista:</span>
-                  <span class="font-medium text-foreground">Danilo</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Solicitante:</span>
-                  <span class="font-medium text-foreground">Gabinete / Dirigente</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Horário Previsto:</span>
-                  <span class="font-mono text-muted-foreground">14:00 às 18:00</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-              <span>Manutenção em dia</span>
-              <span class="text-emerald-500 font-medium">Tanque 90%</span>
-            </div>
-          </div>
-
-          <!-- Carro 2: Renault Logan -->
-          <div class="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 hover:border-foreground/20 transition-all flex flex-col justify-between">
-            <div class="space-y-3">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-muted text-foreground border border-border">Oficial 2</span>
-                    <span class="text-xs text-muted-foreground">5 Lugares</span>
-                  </div>
-                  <h3 class="font-bold text-base text-foreground mt-1">Renault Logan</h3>
-                  <p class="text-xs text-muted-foreground">Suporte Técnico CTC & Manutenção</p>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Disponível
-                </span>
-              </div>
-
-              <div class="space-y-2 pt-2 border-t border-border text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Localização:</span>
-                  <span class="font-medium text-foreground">Garagem Sede Regional</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Motorista:</span>
-                  <span class="font-medium text-foreground">Bruno (Plantão)</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Solicitante:</span>
-                  <span class="font-medium text-foreground">SETEC / Atendimento</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Status:</span>
-                  <span class="text-emerald-500 font-medium">Pronto para saída</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-              <span>Revisão 2026 OK</span>
-              <span class="text-emerald-500 font-medium">Tanque 85%</span>
-            </div>
-          </div>
-
-          <!-- Carro 3: Renault Duster -->
-          <div class="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 hover:border-foreground/20 transition-all flex flex-col justify-between">
-            <div class="space-y-3">
-              <div class="flex items-start justify-between gap-2">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Oficial 3</span>
-                    <span class="text-xs text-muted-foreground">Tração 4x4</span>
-                  </div>
-                  <h3 class="font-bold text-base text-foreground mt-1">Renault Duster</h3>
-                  <p class="text-xs text-muted-foreground">Vistoria Pedagógica & Acesso Rural</p>
-                </div>
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                  <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>Em Viagem
-                </span>
-              </div>
-
-              <div class="space-y-2 pt-2 border-t border-border text-xs">
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Destino:</span>
-                  <span class="font-medium text-foreground">Capão Bonito & Ribeirão Grande</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Equipe:</span>
-                  <span class="font-medium text-foreground">Supervisão Educacional</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Motorista:</span>
-                  <span class="font-medium text-foreground">A definir / Escala</span>
-                </div>
-                <div class="flex justify-between items-center">
-                  <span class="text-muted-foreground">Retorno Estimado:</span>
-                  <span class="font-mono text-muted-foreground">Hoje às 17:30</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-              <span>Equipado p/ Estrada de Terra</span>
-              <span class="text-blue-400 font-medium">Em Trânsito</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tabela de Agenda Semanal de Deslocamentos -->
-        <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div class="p-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 class="font-semibold text-sm text-foreground">Agenda e Escala Oficial da Semana</h3>
-              <p class="text-xs text-muted-foreground mt-0.5">Histórico e previsões de agendamentos autorizados para as 3 viaturas.</p>
-            </div>
-            <a href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer" class="text-xs text-primary hover:underline font-medium flex items-center gap-1">
-              <span>Consultar Planilha Geral no SharePoint</span>
-              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-            </a>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold">
-                <tr>
-                  <th class="px-5 py-3">Data</th>
-                  <th class="px-4 py-3">Veículo Oficial</th>
-                  <th class="px-4 py-3">Destino / Finalidade</th>
-                  <th class="px-4 py-3">Setor Solicitante</th>
-                  <th class="px-4 py-3">Motorista</th>
-                  <th class="px-4 py-3 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-border">
-                <tr class="hover:bg-muted/30 transition-colors">
-                  <td class="px-5 py-3 font-mono font-semibold text-foreground">18/09/2026</td>
-                  <td class="px-4 py-3 font-medium text-foreground">Chevrolet Spin (Oficial 1)</td>
-                  <td class="px-4 py-3 text-muted-foreground">Itapeva / Visita Institucional Polo</td>
-                  <td class="px-4 py-3 text-muted-foreground">Gabinete</td>
-                  <td class="px-4 py-3 text-foreground">Danilo</td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Confirmado
-                    </span>
-                  </td>
-                </tr>
-                <tr class="hover:bg-muted/30 transition-colors">
-                  <td class="px-5 py-3 font-mono font-semibold text-foreground">19/09/2026</td>
-                  <td class="px-4 py-3 font-medium text-foreground">Renault Duster (Oficial 3)</td>
-                  <td class="px-4 py-3 text-muted-foreground">Capão Bonito (PEI Raul Venturelli)</td>
-                  <td class="px-4 py-3 text-muted-foreground">Supervisão</td>
-                  <td class="px-4 py-3 text-foreground">A definir</td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">
-                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Agendado
-                    </span>
-                  </td>
-                </tr>
-                <tr class="hover:bg-muted/30 transition-colors">
-                  <td class="px-5 py-3 font-mono font-semibold text-foreground">22/09/2026</td>
-                  <td class="px-4 py-3 font-medium text-foreground">Renault Logan (Oficial 2)</td>
-                  <td class="px-4 py-3 text-muted-foreground">Ribeirão Grande (Escolas Estaduais)</td>
-                  <td class="px-4 py-3 text-muted-foreground">SEINTEC</td>
-                  <td class="px-4 py-3 text-foreground">Bruno</td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Confirmado
-                    </span>
-                  </td>
-                </tr>
-                <tr class="hover:bg-muted/30 transition-colors">
-                  <td class="px-5 py-3 font-mono font-semibold text-foreground">23/09/2026</td>
-                  <td class="px-4 py-3 font-medium text-foreground">Chevrolet Spin (Oficial 1)</td>
-                  <td class="px-4 py-3 text-muted-foreground">Nova Campina & Taquarivaí</td>
-                  <td class="px-4 py-3 text-muted-foreground">Supervisão</td>
-                  <td class="px-4 py-3 text-foreground">Danilo</td>
-                  <td class="px-4 py-3 text-right">
-                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">
-                      <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Agendado
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <!-- Módulo Oficial de Carros (Original do PainelURE) -->
+        <div class="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
+          <iframe id="carsFrame" src="assets/cars.html" class="w-full" style="height: calc(100vh - 210px); min-height: 850px; border: none;" allow="fullscreen"></iframe>
         </div>
       </div>
 
