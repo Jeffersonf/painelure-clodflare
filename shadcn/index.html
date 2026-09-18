@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PainelURE — Shadcn UI Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            border: 'hsl(var(--border))',
+            input: 'hsl(var(--input))',
+            ring: 'hsl(var(--ring))',
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: {
+              DEFAULT: '#dc2626',
+              hover: '#ef4444',
+              foreground: '#ffffff',
+            },
+            secondary: {
+              DEFAULT: 'hsl(var(--secondary))',
+              foreground: 'hsl(var(--secondary-foreground))',
+            },
+            muted: {
+              DEFAULT: 'hsl(var(--muted))',
+              foreground: 'hsl(var(--muted-foreground))',
+            },
+            card: {
+              DEFAULT: 'hsl(var(--card))',
+              foreground: 'hsl(var(--card-foreground))',
+            },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 240 10% 3.9%;
+      --card: 0 0% 100%;
+      --card-foreground: 240 10% 3.9%;
+      --muted: 240 4.8% 95.9%;
+      --muted-foreground: 240 3.8% 46.1%;
+      --border: 240 5.9% 90%;
+      --input: 240 5.9% 90%;
+      --ring: 0 72% 51%;
+    }
+    .dark {
+      --background: 240 10% 3.9%;
+      --foreground: 0 0% 98%;
+      --card: 240 10% 6.5%;
+      --card-foreground: 0 0% 98%;
+      --muted: 240 3.7% 15.9%;
+      --muted-foreground: 240 5% 64.9%;
+      --border: 240 3.7% 15.9%;
+      --input: 240 3.7% 15.9%;
+      --ring: 0 72% 51%;
+    }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: -0.011em;
+    }
+    /* Custom clean scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(120, 120, 128, 0.2);
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(120, 120, 128, 0.35);
+    }
+  </style>
+</head>
+<body class="bg-background text-foreground antialiased min-h-screen flex">
+
+  <!-- ══ SIDEBAR (SHADCN / LINEAR STYLE) ══ -->
+  <aside class="w-64 border-r border-border bg-card/60 backdrop-blur-xl hidden md:flex flex-col flex-shrink-0 h-screen sticky top-0">
+    
+    <!-- Workspace Brand Header -->
+    <div class="h-16 px-5 border-b border-border flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm shadow-sm shadow-primary/20">
+          U
+        </div>
+        <div>
+          <div class="text-sm font-semibold tracking-tight leading-none text-foreground">PainelURE</div>
+          <div class="text-[11px] font-medium text-muted-foreground mt-0.5">Itapeva • SEDUC/SP</div>
+        </div>
+      </div>
+      <button onclick="toggleTheme()" class="w-7 h-7 rounded-md border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" title="Alternar tema claro/escuro">
+        <svg id="themeIconDark" class="w-3.5 h-3.5 hidden dark:block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg id="themeIconLight" class="w-3.5 h-3.5 block dark:hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+
+    <!-- Quick Search Command (⌘K) -->
+    <div class="px-3 py-3 border-b border-border">
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/40 text-muted-foreground text-xs hover:border-foreground/20 cursor-pointer transition-colors">
+        <svg class="w-3.5 h-3.5 opacity-60" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span class="flex-1">Buscar escola, IP...</span>
+        <kbd class="px-1.5 py-0.5 rounded bg-background border border-border text-[10px] font-mono">⌘K</kbd>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+      
+      <!-- Section: Monitoramento -->
+      <div>
+        <div class="px-2 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Monitoramento</div>
+        <nav class="space-y-1">
+          <a href="#overview" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium bg-muted text-foreground transition-colors">
+            <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            Visão Geral
+          </a>
+          <a href="#network" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
+            Rede & Zabbix
+            <span class="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          </a>
+          <a href="#dvr" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+            DVRs (CONVIVA)
+            <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">5 div</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Section: Operações e Suporte -->
+      <div>
+        <div class="px-2 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Operações</div>
+        <nav class="space-y-1">
+          <a href="#calls" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            Chamados STI
+            <span class="ml-auto text-[11px] font-mono text-muted-foreground">13</span>
+          </a>
+          <a href="#schools" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/></svg>
+            Escolas da Região
+            <span class="ml-auto text-[11px] font-mono text-muted-foreground">21</span>
+          </a>
+          <a href="#fleet" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+            Frota & Viagens
+          </a>
+          <a href="#directory" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Ramais & Equipe
+            <span class="ml-auto text-[11px] font-mono text-muted-foreground">44</span>
+          </a>
+        </nav>
+      </div>
+
+    </div>
+
+    <!-- User Profile Footer -->
+    <div class="p-3 border-t border-border">
+      <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer">
+        <div class="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center font-bold text-xs text-foreground">
+          JF
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xs font-semibold text-foreground truncate">Jefferson Felipe</div>
+          <div class="text-[11px] text-muted-foreground truncate">Chefe de Seção • SETEC</div>
+        </div>
+        <div class="w-2 h-2 rounded-full bg-emerald-500" title="Online na rede"></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══ MAIN CONTENT AREA ══ -->
+  <main class="flex-1 flex flex-col min-w-0">
+
+    <!-- Top Header Bar -->
+    <header class="h-16 border-b border-border bg-card/40 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-20">
+      
+      <!-- Breadcrumbs -->
+      <div class="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>Painel Regional</span>
+        <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+        <span class="font-medium text-foreground">Visão Executiva & Videomonitoramento</span>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Link to v1 Clássico -->
+        <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors" title="Alternar para o PainelURE Clássico">
+          <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <span class="hidden md:inline">Painel Clássico (v1)</span>
+        </a>
+
+        <!-- Live Status Pill (Anti-AI-Slop: subtle dot + clean surface) -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Robô URE Ativo • 5s</span>
+        </div>
+
+        <!-- Date Range Filter -->
+        <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium transition-colors">
+          <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Hoje, 18 Set 2026</span>
+        </button>
+
+        <!-- Notification Bell -->
+        <button class="relative w-8 h-8 rounded-lg border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-primary"></span>
+        </button>
+
+        <!-- Primary Action Button -->
+        <button class="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-semibold shadow-sm transition-all active:scale-95">
+          <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>Exportar Relatório</span>
+        </button>
+
+      </div>
+
+    </header>
+
+    <!-- Dashboard Content Body -->
+    <div class="p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto">
+
+      <!-- Section Title & Subtitle -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-2xl font-bold tracking-tight text-foreground">Diretoria Regional de Ensino — Itapeva</h1>
+          <p class="text-sm text-muted-foreground mt-0.5">Visão consolidada de infraestrutura, links Intragov, videomonitoramento CONVIVA e chamados de TI.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="refreshData()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+            <svg id="syncIcon" class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            <span>Sincronizar</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ 1. KPI STAT CARDS (SHADCN 4-COLUMN ROW) ══ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Card 1: Conectividade Escolar -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Conectividade Regional</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold tracking-tight text-foreground">95.2%</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <span class="text-emerald-500 font-semibold flex items-center gap-0.5">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>
+                20/21
+              </span>
+              <span>escolas online na Intragov</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Videomonitoramento CONVIVA -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">DVRs CONVIVA</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold tracking-tight text-foreground">25 <span class="text-sm font-normal text-muted-foreground">/ 33</span></div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 text-[10px] font-semibold">
+                5 divergências
+              </span>
+              <span>auditadas via Ping</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Chamados de Suporte STI -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Chamados Abertos</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold tracking-tight text-foreground">13</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <span class="text-rose-500 font-semibold">3 urgentes</span>
+              <span>• Fila Connectcom</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Frota Regional -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-muted-foreground uppercase tracking-wider">Frota Operacional</span>
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+            </div>
+          </div>
+          <div>
+            <div class="text-2xl font-bold tracking-tight text-foreground">3 <span class="text-sm font-normal text-muted-foreground">viaturas</span></div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>100% roteiros atendidos</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ 2. ANALYTICS & CHARTS ROW ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Main Area Chart: Tráfego e Estabilidade Intragov -->
+        <div class="lg:col-span-2 rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-base font-semibold text-foreground">Estabilidade e Tráfego Intragov</h3>
+              <p class="text-xs text-muted-foreground mt-0.5">Latência média e disponibilidade das escolas na última semana</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span class="w-2.5 h-2.5 rounded-sm bg-primary"></span>
+                Latência (ms)
+              </span>
+            </div>
+          </div>
+
+          <!-- Pure SVG Chart (Anti-AI-Slop, No bloated external libs) -->
+          <div class="h-48 w-full mt-2">
+            <svg class="w-full h-full" viewBox="0 0 500 150" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#dc2626" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#dc2626" stop-opacity="0.0"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid lines -->
+              <line x1="0" y1="30" x2="500" y2="30" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="4"/>
+              <line x1="0" y1="70" x2="500" y2="70" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="4"/>
+              <line x1="0" y1="110" x2="500" y2="110" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="4"/>
+              <!-- Area fill -->
+              <polygon points="0,150 0,105 70,85 140,95 210,65 280,75 350,45 420,55 500,40 500,150" fill="url(#chartGrad)"/>
+              <!-- Line -->
+              <polyline points="0,105 70,85 140,95 210,65 280,75 350,45 420,55 500,40" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <!-- Data Points -->
+              <circle cx="70" cy="85" r="3" fill="#dc2626" class="transition-transform hover:scale-150"/>
+              <circle cx="140" cy="95" r="3" fill="#dc2626"/>
+              <circle cx="210" cy="65" r="3" fill="#dc2626"/>
+              <circle cx="280" cy="75" r="3" fill="#dc2626"/>
+              <circle cx="350" cy="45" r="3" fill="#dc2626"/>
+              <circle cx="420" cy="55" r="3" fill="#dc2626"/>
+              <circle cx="500" cy="40" r="4" fill="#ffffff" stroke="#dc2626" stroke-width="2"/>
+            </svg>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] font-mono text-muted-foreground pt-4 border-t border-border mt-2">
+            <span>Seg 12/09</span>
+            <span>Ter 13/09</span>
+            <span>Qua 14/09</span>
+            <span>Qui 15/09</span>
+            <span>Sex 16/09</span>
+            <span>Sáb 17/09</span>
+            <span class="text-foreground font-semibold">Hoje 18/09 (11ms)</span>
+          </div>
+        </div>
+
+        <!-- Donut Distribution Chart: Chamados por Categoria -->
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 class="text-base font-semibold text-foreground">Demandas de Suporte</h3>
+            <p class="text-xs text-muted-foreground mt-0.5">Distribuição das solicitações da regional</p>
+          </div>
+
+          <div class="flex items-center justify-center my-4">
+            <div class="relative w-36 h-36">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                <!-- Background circle -->
+                <path class="text-muted/40" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <!-- Segment 1: Hardware (48%) -->
+                <path stroke="#dc2626" stroke-width="3.8" stroke-dasharray="48, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+                <!-- Segment 2: Redes (32%) -->
+                <path stroke="#3b82f6" stroke-width="3.8" stroke-dasharray="32, 100" stroke-dashoffset="-48" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+                <!-- Segment 3: Software (20%) -->
+                <path stroke="#10b981" stroke-width="3.8" stroke-dasharray="20, 100" stroke-dashoffset="-80" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+              </svg>
+              <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span class="text-xl font-bold text-foreground">13</span>
+                <span class="text-[10px] text-muted-foreground uppercase font-medium">Tickets</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 text-muted-foreground">
+                <span class="w-2 h-2 rounded-full bg-primary"></span>
+                Hardware / Peças
+              </span>
+              <span class="font-mono font-medium text-foreground">48% (6)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 text-muted-foreground">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                Rede & Conectividade
+              </span>
+              <span class="font-mono font-medium text-foreground">32% (4)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 text-muted-foreground">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Sistemas & Software
+              </span>
+              <span class="font-mono font-medium text-foreground">20% (3)</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ══ 3. TABELA DE VIDEOMONITORAMENTO CONVIVA VS PING REAL (DESTAQUE) ══ -->
+      <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        
+        <!-- Table Header & Filters Toolbar -->
+        <div class="p-5 border-b border-border space-y-4">
+          
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional</h2>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">Planilha CONVIVA vs Ping Real</span>
+              </div>
+              <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre os 33 gravadores da SEDUC e o teste ICMP na Intragov.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="copyDvrReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copiar Relatório</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Toolbar with Search & Filter Chips (Shadcn pattern) -->
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            
+            <div class="relative flex-1">
+              <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" id="dvrTableSearch" oninput="filterTable()" placeholder="Filtrar por escola, IP (ex: 10.109), DVR..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+            </div>
+
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              <button onclick="setFilter('all', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background">
+                Todos (33)
+              </button>
+              <button onclick="setFilter('divergent', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-amber-500/30 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center gap-1.5">
+                <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                Divergências (5)
+              </button>
+              <button onclick="setFilter('ping-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Ping Offline (8)
+              </button>
+              <button onclick="setFilter('sp-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500/70"></span>
+                Planilha Offline (5)
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Table View -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
+              <tr>
+                <th class="px-5 py-3">Unidade Escolar</th>
+                <th class="px-4 py-3">Dispositivo</th>
+                <th class="px-4 py-3">Endereço IP</th>
+                <th class="px-4 py-3 text-center">Planilha CONVIVA (SP)</th>
+                <th class="px-4 py-3 text-center">Status Real (Ping)</th>
+                <th class="px-5 py-3 text-center">Comparativo / Divergência</th>
+              </tr>
+            </thead>
+            <tbody id="dvrTableRows" class="divide-y divide-border">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer -->
+        <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span id="tableResultsCount">Mostrando 33 gravadores</span>
+          <div class="flex items-center gap-4 text-[11px]">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Concordante Online
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              Ambos Offline
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Divergência Detectada
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══ 4. RECENT ACTIVITY & CONTACTS ROW ══ -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Recent STI Calls List -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold text-foreground">Últimos Chamados de TI (STI)</h3>
+              <p class="text-xs text-muted-foreground">Atendimento de campo e fornecedor Connectcom</p>
+            </div>
+            <a href="#calls" class="text-xs text-primary hover:underline font-medium">Ver todos</a>
+          </div>
+
+          <div class="space-y-3">
+            
+            <!-- Item 1 -->
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs font-semibold text-foreground">STI-26/20803</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Aguardando Análise</span>
+                </div>
+                <div class="text-xs text-muted-foreground truncate mt-0.5">EE Professor Silverio Monteiro • Hardware</div>
+              </div>
+              <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
+                <div>28/05 08:17</div>
+                <div class="text-foreground/80 font-medium">Connectcom</div>
+              </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs font-semibold text-foreground">STI-26/20802</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Aguardando Análise</span>
+                </div>
+                <div class="text-xs text-muted-foreground truncate mt-0.5">EE Professor Gerson de Barros Margarido • Hardware</div>
+              </div>
+              <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
+                <div>28/05 08:16</div>
+                <div class="text-foreground/80 font-medium">Connectcom</div>
+              </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-mono text-xs font-semibold text-foreground">STI-26/19901</span>
+                  <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Concluído</span>
+                </div>
+                <div class="text-xs text-muted-foreground truncate mt-0.5">PEI EE Professora Francelina Franco • Intermitência de Link</div>
+              </div>
+              <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
+                <div>26/05 09:59</div>
+                <div class="text-foreground/80 font-medium">Téc. Danilo</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Regional Leadership & Key Extension Contacts -->
+        <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold text-foreground">Diretoria Regional & Suporte Rápido</h3>
+              <p class="text-xs text-muted-foreground">Ramais institucionais e lideranças de núcleo</p>
+            </div>
+            <a href="#directory" class="text-xs text-primary hover:underline font-medium">44 Ramais</a>
+          </div>
+
+          <div class="space-y-3">
+            
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-bold text-xs">
+                  AD
+                </div>
+                <div>
+                  <div class="text-xs font-semibold text-foreground">André Dias de Oliveira</div>
+                  <div class="text-[11px] text-muted-foreground">Dirigente Regional de Ensino • GAB</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-mono text-xs font-semibold text-foreground">Ramal 6202</div>
+                <div class="text-[11px] text-muted-foreground">(15) 3526-6202</div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20 flex items-center justify-center font-bold text-xs">
+                  EA
+                </div>
+                <div>
+                  <div class="text-xs font-semibold text-foreground">Elcio Renato B. de Azevedo</div>
+                  <div class="text-[11px] text-muted-foreground">Chefe de Serviço • SEINTEC / SETEC</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-mono text-xs font-semibold text-foreground">Ramal 6211</div>
+                <div class="text-[11px] text-muted-foreground">(15) 3526-6211</div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center font-bold text-xs">
+                  WA
+                </div>
+                <div>
+                  <div class="text-xs font-semibold text-foreground">WhatsApp Institucional</div>
+                  <div class="text-[11px] text-muted-foreground">Suporte Regional e Plantão Técnico</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-mono text-xs font-semibold text-foreground">Ramal 6210</div>
+                <div class="text-[11px] text-emerald-500 font-medium">Ativo 24/7</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ══ SCRIPT DE DADOS REAIS & INTERATIVIDADE ══ -->
+  <script>
+    // 33 DVRs reais da SEDUC/SP (Planilha CONVIVA) + Status Ping Real URE
+    const DVRS_DATA = [
+      { school: "EE Doutor Antonio Deffune", name: "DVR 1", ip: "10.113.9.148", cameras: 16, sp: "online", ping: "online", lat: 11 },
+      { school: "EE Doutor Raul Venturelli", name: "DVR 1", ip: "10.109.40.179", cameras: 16, sp: "online", ping: "offline", lat: null },
+      { school: "EE Doutor Raul Venturelli", name: "DVR 2", ip: "10.109.40.173", cameras: null, sp: "offline", ping: "offline", lat: null },
+      { school: "EE Doutor Raul Venturelli", name: "DVR 3", ip: "10.109.40.188", cameras: null, sp: "online", ping: "offline", lat: null },
+      { school: "EE Bairro Ferreira dos Matos", name: "DVR 1", ip: "10.121.243.147", cameras: 15, sp: "online", ping: "offline", lat: null },
+      { school: "EE Bairro Ferreira dos Matos", name: "DVR 2", ip: "10.121.243.144", cameras: 8, sp: "online", ping: "offline", lat: null },
+      { school: "PEI EE Professora Francelina Franco", name: "DVR 2", ip: "10.119.128.21", cameras: 14, sp: "offline", ping: "offline", lat: null },
+      { school: "PEI EE Professora Francelina Franco", name: "DVR 3", ip: "10.119.128.20", cameras: null, sp: "online", ping: "online", lat: 14 },
+      { school: "PEI EE Professora Francelina Franco", name: "DVR 1", ip: "10.119.128.20", cameras: 25, sp: "online", ping: "online", lat: 14 },
+      { school: "EE Bairro Turvo dos Almeidas", name: "DVR 1", ip: "10.120.218.20", cameras: 4, sp: "online", ping: "online", lat: 21 },
+      { school: "EE Professor Silverio Monteiro", name: "DVR 1", ip: "10.121.245.47", cameras: 9, sp: "offline", ping: "offline", lat: null },
+      { school: "EE Professor Silverio Monteiro", name: "DVR 2", ip: "10.121.245.48", cameras: 15, sp: "offline", ping: "offline", lat: null },
+      { school: "PEI EE Jeminiano David Muzel", name: "DVR 1", ip: "10.109.41.66", cameras: 36, sp: "online", ping: "online", lat: 9 },
+      { school: "PEI EE Jeminiano David Muzel", name: "DVR 2", ip: "10.109.41.68", cameras: 13, sp: "online", ping: "online", lat: 9 },
+      { school: "PEI EE Professora Nicota Soares", name: "DVR 1", ip: "10.173.46.20", cameras: 16, sp: "online", ping: "online", lat: 12 },
+      { school: "PEI EE Professora Nicota Soares", name: "DVR 2", ip: "10.173.46.21", cameras: 18, sp: "online", ping: "online", lat: 12 },
+      { school: "PEI EE Professora Nicota Soares", name: "DVR 3", ip: "10.173.46.22", cameras: 16, sp: "online", ping: "online", lat: 13 },
+      { school: "PEI EE Professora Zulmira de Oliveira", name: "DVR 1", ip: "10.119.160.148", cameras: 11, sp: "online", ping: "online", lat: 10 },
+      { school: "PEI EE Professora Zulmira de Oliveira", name: "DVR 2", ip: "10.119.160.149", cameras: 13, sp: "online", ping: "online", lat: 10 },
+      { school: "PEI EE Idalicio Mendes Lima", name: "DVR 1", ip: "10.109.41.3", cameras: 15, sp: "online", ping: "online", lat: 18 },
+      { school: "PEI EE Padre Arlindo Vieira", name: "DVR 1", ip: "10.109.40.194", cameras: 9, sp: "online", ping: "online", lat: 15 },
+      { school: "PEI EE Professora Celia Vasques Ferrari Duch", name: "DVR 1", ip: "10.109.42.226", cameras: 12, sp: "online", ping: "online", lat: 14 },
+      { school: "PEI EE Professora Cinira Daniel da Silva", name: "DVR 1", ip: "10.109.41.226", cameras: 10, sp: "online", ping: "online", lat: 16 },
+      { school: "PEI EE Professor Joao Baptista do Amaral Vasconcellos", name: "DVR 1", ip: "10.119.127.20", cameras: 15, sp: "online", ping: "online", lat: 12 },
+      { school: "PEI EE Professor Joao Baptista do Amaral Vasconcellos", name: "DVR 2", ip: "10.119.127.23", cameras: null, sp: "online", ping: "online", lat: 12 },
+      { school: "PEI EE Professor Joao Baptista do Amaral Vasconcellos", name: "DVR 3", ip: "10.119.127.22", cameras: null, sp: "online", ping: "online", lat: 13 },
+      { school: "PEI EE Professor Jose Vasques Ferrari", name: "DVR 1", ip: "10.173.48.20", cameras: 16, sp: "online", ping: "online", lat: 11 },
+      { school: "PEI EE Oscar Kurtz Camargo", name: "DVR 1", ip: "10.119.161.20", cameras: 9, sp: "online", ping: "online", lat: 19 },
+      { school: "PEI EE Otavio Ferrari", name: "DVR 1", ip: "10.119.159.20", cameras: 24, sp: "online", ping: "online", lat: 8 },
+      { school: "PEI EE Ricardo Campolim de Almeida Neto", name: "DVR 1", ip: "10.109.42.66", cameras: 9, sp: "online", ping: "online", lat: 17 },
+      { school: "PEI EE Simpliciano Campolim de Almeida", name: "DVR 1", ip: "10.121.242.148", cameras: 12, sp: "offline", ping: "online", lat: 7 },
+      { school: "EE Professor Gerson de Barros Margarido", name: "DVR 1", ip: "10.109.41.131", cameras: null, sp: "online", ping: "online", lat: 11 },
+      { school: "EE Professor Gerson de Barros Margarido", name: "DVR 2", ip: "10.113.136.20", cameras: null, sp: "online", ping: "online", lat: 12 }
+    ];
+
+    let currentFilter = 'all';
+
+    function renderTable() {
+      const q = (document.getElementById('dvrTableSearch')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('dvrTableRows');
+      if (!tbody) return;
+
+      const filtered = DVRS_DATA.filter(d => {
+        const isDivergent = d.sp !== d.ping;
+        if (currentFilter === 'divergent' && !isDivergent) return false;
+        if (currentFilter === 'ping-off' && d.ping !== 'offline') return false;
+        if (currentFilter === 'sp-off' && d.sp !== 'offline') return false;
+
+        if (!q) return true;
+        return d.school.toLowerCase().includes(q) || d.ip.includes(q) || d.name.toLowerCase().includes(q);
+      });
+
+      document.getElementById('tableResultsCount').textContent = `Mostrando ${filtered.length} de ${DVRS_DATA.length} gravadores`;
+
+      if (!filtered.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-muted-foreground text-xs">Nenhum equipamento encontrado para o filtro.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(d => {
+        const isDivergent = d.sp !== d.ping;
+        const rowHighlight = isDivergent ? 'bg-amber-500/[0.03] hover:bg-amber-500/[0.06]' : 'hover:bg-muted/30';
+
+        // SP Status
+        const spTag = d.sp === 'online'
+          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Online</span>`
+          : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 text-[11px] font-medium"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Offline</span>`;
+
+        // Ping Status
+        const pingTag = d.ping === 'online'
+          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-[11px] font-medium"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Online <span class="text-[10px] opacity-75">(${d.lat}ms)</span></span>`
+          : `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-500 text-[11px] font-medium"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>Sem resposta</span>`;
+
+        // Comparison column
+        let compBadge = '';
+        if (isDivergent) {
+          const detail = d.sp === 'online' ? 'SP ONLINE ≠ Ping OFFLINE' : 'SP OFFLINE ≠ Ping ONLINE';
+          compBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-500 border border-amber-500/30 text-[11px] font-semibold">
+            <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+            ${detail}
+          </span>`;
+        } else if (d.sp === 'offline' && d.ping === 'offline') {
+          compBadge = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-rose-500/10 text-rose-500 border border-rose-500/20 text-xs font-bold" title="Ambos Offline">✕</span>`;
+        } else {
+          compBadge = `<span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold" title="Ambos Online">✓</span>`;
+        }
+
+        return `
+          <tr class="transition-colors ${rowHighlight}">
+            <td class="px-5 py-3 font-semibold text-foreground">${d.school}</td>
+            <td class="px-4 py-3 text-muted-foreground">
+              <span class="font-medium text-foreground">${d.name}</span>
+              ${d.cameras ? `<span class="block text-[11px] text-muted-foreground">${d.cameras} câmeras</span>` : ''}
+            </td>
+            <td class="px-4 py-3">
+              <div class="inline-flex items-center gap-1.5">
+                <code class="font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground">${d.ip}</code>
+                <button onclick="copyIp('${d.ip}', this)" class="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copiar IP">
+                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </button>
+              </div>
+            </td>
+            <td class="px-4 py-3 text-center">${spTag}</td>
+            <td class="px-4 py-3 text-center">${pingTag}</td>
+            <td class="px-5 py-3 text-center">${compBadge}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setFilter(f, btn) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-chip').forEach(b => {
+        b.className = 'filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5';
+      });
+      btn.className = 'filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background flex items-center gap-1.5';
+      renderTable();
+    }
+
+    function filterTable() {
+      renderTable();
+    }
+
+    function copyIp(ip, btn) {
+      navigator.clipboard.writeText(ip);
+      const original = btn.innerHTML;
+      btn.innerHTML = `<svg class="w-3.5 h-3.5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+      setTimeout(() => { btn.innerHTML = original; }, 1500);
+    }
+
+    function copyDvrReport() {
+      const divergent = DVRS_DATA.filter(d => d.sp !== d.ping);
+      let txt = `RELATÓRIO REGIONAL DE VIDEOMONITORAMENTO — SEDUC/SP (ITAPEVA)\n`;
+      txt += `Total: 33 DVRs • CONVIVA: 28 ON / 5 OFF • Ping: 25 ON / 8 OFF\n\n`;
+      txt += `DIVERGÊNCIAS DETECTADAS (${divergent.length}):\n`;
+      divergent.forEach((d, i) => {
+        txt += `${i + 1}. ${d.school} — ${d.name} (${d.ip})\n`;
+        txt += `   • Planilha CONVIVA: ${d.sp.toUpperCase()} | Ping Real URE: ${d.ping.toUpperCase()}\n`;
+      });
+      navigator.clipboard.writeText(txt);
+      alert('Relatório copiado para a área de transferência!');
+    }
+
+    function refreshData() {
+      const icon = document.getElementById('syncIcon');
+      icon.classList.add('animate-spin');
+      setTimeout(() => {
+        icon.classList.remove('animate-spin');
+        renderTable();
+      }, 700);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      } else {
+        html.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      }
+    }
+
+    // Inicialização
+    renderTable();
+  </script>
+</body>
+</html>

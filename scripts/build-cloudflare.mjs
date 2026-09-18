@@ -10,6 +10,7 @@ const outputs = [
 
 const files = [
   'index.html',
+  'v2.html',
   '404.html',
   'app.js',
   'config.js',
@@ -37,6 +38,15 @@ function copyPublicFiles(output) {
   // Copia arquivos do agente para download direto via curl no terminal
   fs.copyFileSync(path.join(root, 'painelure-agent', 'agent.js'), path.join(output, 'agent.js'));
   fs.copyFileSync(path.join(root, 'painelure-agent', 'abrir-chrome-monitor.bat'), path.join(output, 'abrir-chrome-monitor.bat'));
+
+  // Copia rotas v2 e shadcn para Cloudflare Pages
+  const v2Dir = path.join(output, 'v2');
+  fs.mkdirSync(v2Dir, { recursive: true });
+  fs.copyFileSync(path.join(root, 'v2.html'), path.join(v2Dir, 'index.html'));
+
+  const shadcnDir = path.join(output, 'shadcn');
+  fs.mkdirSync(shadcnDir, { recursive: true });
+  fs.copyFileSync(path.join(root, 'v2.html'), path.join(shadcnDir, 'index.html'));
 
   // Copia APK atualizado e disponibiliza em /painelure.apk e /apk
   const apkPath = path.join(root, 'painelure.apk');
