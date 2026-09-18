@@ -11,6 +11,7 @@ const outputs = [
 const files = [
   'index.html',
   'v2.html',
+  'v1.html',
   '404.html',
   'app.js',
   'config.js',
@@ -47,6 +48,13 @@ function copyPublicFiles(output) {
   const shadcnDir = path.join(output, 'shadcn');
   fs.mkdirSync(shadcnDir, { recursive: true });
   fs.copyFileSync(path.join(root, 'v2.html'), path.join(shadcnDir, 'index.html'));
+
+  // Copia arquivo legado v1 caso necessário
+  if (fs.existsSync(path.join(root, 'v1.html'))) {
+    const v1Dir = path.join(output, 'v1');
+    fs.mkdirSync(v1Dir, { recursive: true });
+    fs.copyFileSync(path.join(root, 'v1.html'), path.join(v1Dir, 'index.html'));
+  }
 
   // Copia APK atualizado e disponibiliza em /painelure.apk e /apk
   const apkPath = path.join(root, 'painelure.apk');
