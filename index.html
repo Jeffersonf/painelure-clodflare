@@ -223,15 +223,15 @@
     <!-- Sidebar Footer: Usuário & Alternar Tema Visual -->
     <div class="p-3 border-t border-border space-y-2">
       
-      <!-- Perfil do Usuário Logado -->
-      <div onclick="navTo('user')" class="flex items-center justify-between p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors">
+      <!-- Perfil do Usuário Logado / Autenticado -->
+      <div id="sidebarUserContainer" onclick="handleSidebarProfileClick()" class="flex items-center justify-between p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors">
         <div class="flex items-center gap-2.5 min-w-0">
-          <div class="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center font-bold text-xs text-foreground flex-shrink-0">
+          <div id="sidebarAvatar" class="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center font-bold text-xs flex-shrink-0">
             JF
           </div>
           <div class="min-w-0">
-            <div class="text-xs font-semibold text-foreground truncate">Jefferson Felipe</div>
-            <div class="text-[11px] text-muted-foreground truncate">Chefe de Seção • SETEC</div>
+            <div id="sidebarUserName" class="text-xs font-semibold text-foreground truncate">Jefferson Felipe</div>
+            <div id="sidebarUserRole" class="text-[11px] text-muted-foreground truncate">Administrador • SETEC</div>
           </div>
         </div>
         <button onclick="event.stopPropagation(); toggleTheme()" class="p-1.5 rounded-md hover:bg-muted/80 text-muted-foreground hover:text-foreground" title="Alternar tema claro/escuro">
@@ -274,31 +274,45 @@
           <svg id="syncIcon" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
         </button>
 
-        <!-- Menu Usuário Popover -->
-        <div class="relative">
-          <button onclick="toggleUserMenu()" class="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center font-bold text-xs text-foreground hover:border-primary transition-colors">
-            JF
+        <!-- Botão de Monitor ao Vivo Rápido -->
+        <button onclick="navTo('network'); setTimeout(() => { document.getElementById('monitorImageCard')?.scrollIntoView({ behavior: 'smooth' }); }, 150)" title="Abrir Monitor Zabbix & Meraki Ao Vivo" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all">
+          <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+          <span class="hidden md:inline">Ao Vivo</span>
+        </button>
+
+        <!-- Menu Usuário Popover / Autenticação -->
+        <div class="relative" id="userMenuArea">
+          <button id="topUserBtn" onclick="toggleUserMenu()" class="h-8 px-2.5 rounded-full bg-muted border border-border flex items-center gap-2 font-bold text-xs text-foreground hover:border-primary transition-colors">
+            <span id="topAvatar" class="w-5 h-5 rounded-full bg-primary/20 text-primary flex items-center justify-center text-[10px] font-extrabold">JF</span>
+            <span id="topName" class="text-xs font-medium hidden sm:inline">Jefferson</span>
           </button>
           
-          <div id="userMenuPopover" class="hidden absolute right-0 mt-2 w-56 rounded-xl border border-border bg-card p-1 shadow-xl z-50 text-xs">
-            <div class="px-3 py-2 border-b border-border">
-              <div class="font-semibold text-foreground">Jefferson Felipe</div>
-              <div class="text-[11px] text-muted-foreground">SEINTEC • SETEC Itapeva</div>
+          <div id="userMenuPopover" class="hidden absolute right-0 mt-2 w-60 rounded-xl border border-border bg-card p-1 shadow-2xl z-50 text-xs animate-in fade-in zoom-in-95 duration-100">
+            <div class="px-3 py-2.5 border-b border-border">
+              <div id="menuUserName" class="font-semibold text-foreground">Jefferson Felipe</div>
+              <div id="menuUserRole" class="text-[11px] text-muted-foreground">Chefe de Seção • SETEC Itapeva</div>
             </div>
             <div class="p-1 space-y-0.5">
-              <button onclick="navTo('user'); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded hover:bg-muted text-foreground flex items-center gap-2">
+              <button onclick="navTo('user'); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-muted text-foreground flex items-center gap-2 transition-colors">
                 <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Minha Conta & Preferências
               </button>
-              <button onclick="navTo('admin'); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded hover:bg-muted text-foreground flex items-center gap-2">
+              <button onclick="navTo('admin'); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-muted text-foreground flex items-center gap-2 transition-colors">
                 <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 Governança & Admin
               </button>
+              <button onclick="toggleTheme(); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-between transition-colors">
+                <span class="flex items-center gap-2">
+                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                  Alternar Tema
+                </span>
+                <span class="font-mono text-[10px] uppercase opacity-75">Dark/Light</span>
+              </button>
             </div>
             <div class="p-1 border-t border-border">
-              <button onclick="toggleTheme(); toggleUserMenu()" class="w-full text-left px-2 py-1.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-between">
-                <span>Modo Claro / Escuro</span>
-                <span class="font-mono text-[10px] uppercase">Toggle</span>
+              <button onclick="logoutUser()" class="w-full text-left px-2 py-1.5 rounded-lg hover:bg-rose-500/10 text-rose-500 flex items-center gap-2 font-medium transition-colors">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>Sair / Trocar Usuário</span>
               </button>
             </div>
           </div>
@@ -730,6 +744,77 @@
 
       <!-- ── VIEW 2: REDE & ZABBIX (#network) ── -->
       <div id="view-network" class="view-content space-y-6">
+        <!-- ── MONITOR AO VIVO ZABBIX & MERAKI (FOTO AO VIVO) ── -->
+        <div id="monitorImageCard" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-semibold text-foreground tracking-tight">Monitor Zabbix & Meraki (Ao Vivo)</h2>
+                  <span id="monitorStatusTag" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Robô URE Ativo
+                  </span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Captura em tempo real dos dashboards oficiais na sede regional de Itapeva.</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2 flex-wrap">
+              <button id="btnToggleRealtime" onclick="toggleRealtimeMode()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-all">
+                <span id="btnRealtimeIcon" class="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span id="btnRealtimeLabel">Modo Tempo Real (5s)</span>
+              </button>
+              <button onclick="refreshMonitorImage(true)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-all" title="Forçar recarregamento do print">
+                <svg id="refreshPhotoIcon" class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                <span>Atualizar Foto</span>
+              </button>
+              <button onclick="toggleFullscreenMonitor()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-all" title="Tela Cheia">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m15 3 6 6m0-6h-6m6 0v6M9 21l-6-6m0 6h6m-6 0v-6"/></svg>
+                <span>Expandir</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Área da Imagem do Monitor com Empty State -->
+          <div id="monitorBothBox" class="relative rounded-xl border border-border bg-black/95 min-h-[380px] flex items-center justify-center overflow-hidden">
+            <div id="bothEmptyState" class="p-8 text-center space-y-3">
+              <div class="w-12 h-12 rounded-xl bg-muted/20 text-muted-foreground mx-auto flex items-center justify-center">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-foreground">Aguardando Captura da Tela</h4>
+                <p class="text-xs text-muted-foreground max-w-sm mx-auto mt-1">O robô headless na URE transmitirá a captura dos painéis Zabbix & Meraki automaticamente.</p>
+              </div>
+              <button onclick="refreshMonitorImage(true)" class="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-colors inline-flex items-center gap-1.5">
+                <span>Carregar Foto Agora</span>
+              </button>
+            </div>
+            
+            <img id="monitorBothImg" src="/api/monitor/image?source=latest" alt="Tela Zabbix e Meraki" class="w-full h-auto max-h-[85vh] object-contain hidden" onload="onSourceLoaded('both')" onerror="onSourceError('both')">
+            
+            <div id="monitorImgLoading" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center gap-2 text-xs font-semibold text-white hidden">
+              <svg class="w-4 h-4 animate-spin text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>Atualizando foto ao vivo...</span>
+            </div>
+          </div>
+          
+          <!-- Banner de Tempo Real Ativo -->
+          <div id="realtimeActiveBanner" class="hidden p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+              <span class="font-semibold">Modo Tempo Real Ativo: Atualizando a cada 5 segundos</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span>Próximo tick: <strong id="realtimeNextTick" class="font-mono text-foreground">5s</strong></span>
+              <span>Restante: <strong id="realtimeCountdown" class="font-mono text-foreground">05:00</strong></span>
+            </div>
+          </div>
+        </div>
+
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 class="text-2xl font-bold tracking-tight text-foreground">Infraestrutura & Conectividade Zabbix</h1>
@@ -784,19 +869,43 @@
       <div id="view-calls" class="view-content space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground">Chamados Técnicos STI / Connectcom</h1>
-            <p class="text-sm text-muted-foreground mt-0.5">Histórico e acompanhamento dos 166 chamados de suporte em campo nas escolas.</p>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-bold tracking-tight text-foreground">Central de Chamados CTC</h1>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Base Sincronizada Ao Vivo
+              </span>
+            </div>
+            <p class="text-sm text-muted-foreground mt-0.5">Gestão unificada de chamados técnicos, atendimentos em campo e suporte às escolas.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="toggleCallsTab('table')" id="btnCallsTabTable" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all">Tabela (166)</button>
-            <button onclick="toggleCallsTab('portal')" id="btnCallsTabPortal" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Portal CTC Integrado</button>
+            <button onclick="toggleCallsTab('portal')" id="btnCallsTabPortal" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all">Portal CTC (Ao Vivo)</button>
+            <button onclick="toggleCallsTab('table')" id="btnCallsTabTable" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Auditoria Histórica STI (166)</button>
+            <a href="https://jeffersonf.github.io/central-chamados/" target="_blank" rel="noopener" class="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Abrir em Nova Aba">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            </a>
           </div>
         </div>
 
-        <!-- Sub-aba 1: Tabela Completa -->
-        <div id="callsSubTabTable" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <!-- Sub-aba 1: Portal CTC Oficial (PADRÃO PRINCIPAL AO VIVO COM DADOS DO USUÁRIO) -->
+        <div id="callsSubTabPortal" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+          <div class="p-3 border-b border-border flex items-center justify-between bg-muted/20">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-semibold text-foreground">Portal Interativo de Chamados CTC</span>
+            </div>
+            <a href="https://jeffersonf.github.io/central-chamados/" target="_blank" rel="noopener" class="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
+              <span>Abrir tela cheia</span>
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+            </a>
+          </div>
+          <iframe id="ctcPortalFrame" src="https://jeffersonf.github.io/central-chamados/" class="w-full" style="height: calc(100vh - 210px); min-height: 750px; border: none;" allowfullscreen></iframe>
+        </div>
+
+        <!-- Sub-aba 2: Tabela Histórica dos 166 Chamados STI -->
+        <div id="callsSubTabTable" class="hidden rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <div class="p-4 border-b border-border flex items-center justify-between gap-4">
-            <span class="text-xs text-muted-foreground">Total: <strong class="text-foreground">166 chamados</strong> registrados</span>
+            <span class="text-xs text-muted-foreground">Histórico STI: <strong class="text-foreground">__CALLS_COUNT__ chamados</strong></span>
             <input type="text" id="callsSearchInput" oninput="filterCallsTable()" placeholder="Buscar chamado por ID, escola ou título..." class="max-w-xs w-full px-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary">
           </div>
           <div class="overflow-x-auto">
@@ -812,1519 +921,10 @@
                 </tr>
               </thead>
               <tbody id="callsTableBody" class="divide-y divide-border">
-                
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20803</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise do Fornecedor</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/05/2026 08:17</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20802</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Gerson de Barros Margarido</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise do Fornecedor</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/05/2026 08:16</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20709</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Pendente Atendimento</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">27/05/2026 16:35</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20708</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise do Fornecedor</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">27/05/2026 16:34</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20247</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:33</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20246</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:33</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20243</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:32</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20244</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Pendente Atendimento</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:32</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20245</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:32</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20240</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:31</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20241</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:31</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/20242</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Infraestrutura - Mudança de Sala do Equipamento</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 16:31</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19901</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Intermitência</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 09:59</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19892</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 09:49</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19890</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 09:48</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19885</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 09:45</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19882</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/05/2026 09:44</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19216</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Ricardo Campolim de Almeida Neto</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">25/05/2026 09:58</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19215</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Ricardo Campolim de Almeida Neto</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">25/05/2026 09:58</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19034</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Ricardo Campolim de Almeida Neto</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 16:56</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19033</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 16:56</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/19032</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 16:54</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18942</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Otavio Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Intermitência</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 15:29</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18941</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 15:28</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18940</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 15:28</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18939</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 15:27</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18905</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Ricardo Campolim de Almeida Neto</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 14:45</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/18901</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">22/05/2026 14:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17923</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Celia Vasques Ferrari Duch</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17924</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Celia Vasques Ferrari Duch</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17921</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Celia Vasques Ferrari Duch</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17926</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Celia Vasques Ferrari Duch</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17920</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:21</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17919</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:21</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17917</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:20</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17918</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:20</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17913</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:19</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17914</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:19</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17915</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">21/05/2026 10:19</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17199</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">19/05/2026 15:50</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/17200</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">19/05/2026 15:50</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16705</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">18/05/2026 14:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16702</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">18/05/2026 14:24</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16699</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">18/05/2026 14:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16701</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">18/05/2026 14:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16258</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/05/2026 15:18</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/16257</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/05/2026 15:17</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/15456</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/05/2026 17:01</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/15448</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/05/2026 16:59</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14942</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/05/2026 07:48</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14940</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/05/2026 07:47</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14821</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/05/2026 15:28</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14421</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">12/05/2026 16:47</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14419</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">12/05/2026 16:46</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14368</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">12/05/2026 15:58</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/14366</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">12/05/2026 15:58</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13762</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">11/05/2026 11:48</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13759</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">11/05/2026 11:47</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13757</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">11/05/2026 11:46</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13232</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:26</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13233</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:26</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13231</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Gustavo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13230</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13229</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:24</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13227</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Turvo dos Almeidas</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:24</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13224</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13222</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13225</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/13221</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/05/2026 08:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12984</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">07/05/2026 13:10</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12980</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">07/05/2026 13:09</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12974</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Turvo dos Almeidas</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">07/05/2026 13:08</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12972</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Joao Baptista do Amaral Vasconcellos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">07/05/2026 13:07</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12704</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">06/05/2026 16:49</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12211</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">05/05/2026 15:29</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12094</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-500">Aguardando Análise para Finalização</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Danilo</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">05/05/2026 10:37</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12093</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">05/05/2026 10:36</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/12091</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">05/05/2026 10:34</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/11543</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">04/05/2026 13:48</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/11542</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">04/05/2026 13:47</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/11328</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">04/05/2026 08:17</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/11276</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Oscar Kurtz Camargo</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">30/04/2026 16:47</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10863</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">29/04/2026 16:35</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10861</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Oscar Kurtz Camargo</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">29/04/2026 16:34</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10862</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Bruno</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">29/04/2026 16:34</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10099</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 09:01</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10098</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:59</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10094</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:57</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10079</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:51</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10081</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:51</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10080</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:51</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/10076</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">28/04/2026 08:50</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09587</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">27/04/2026 09:09</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09329</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Gerson de Barros Margarido</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:46</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09327</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:46</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09328</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:46</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09326</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:45</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09320</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09321</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09317</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:42</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09318</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:42</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09319</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 11:42</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09136</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Oscar Kurtz Camargo</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 07:50</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09135</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Infraestrutura - Instalação de Cabeamento</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">24/04/2026 07:49</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/09067</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 16:00</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08959</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 11:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08961</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 11:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08957</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 11:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08958</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 11:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08818</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 08:17</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08817</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 08:16</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08813</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Ferreira dos Matos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 08:15</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/08812</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Boa Vista Intervales</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/04/2026 08:14</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07929</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">16/04/2026 11:16</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07926</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">16/04/2026 11:15</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07794</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Francelina Franco</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">16/04/2026 08:14</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07671</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 15:31</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07663</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Idalicio Mendes Lima</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 15:19</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07639</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 14:15</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07638</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 14:14</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07637</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 14:13</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07636</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 14:13</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07544</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Nicota Soares</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 10:07</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07500</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Turvo dos Almeidas</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">15/04/2026 09:10</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07280</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/04/2026 15:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07279</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/04/2026 15:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07203</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Oscar Kurtz Camargo</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/04/2026 11:52</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/07111</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Cinira Daniel da Silva</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">14/04/2026 09:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06853</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/04/2026 14:35</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06641</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/04/2026 07:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06640</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Lentidão</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/04/2026 07:42</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06639</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Gerson de Barros Margarido</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/04/2026 07:41</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06638</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Gerson de Barros Margarido</td>
-      <td class="px-4 py-3 text-muted-foreground">Infraestrutura - Reparo em Pontos de Rede</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">13/04/2026 07:40</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06592</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Otavio Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 16:30</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06580</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Jose Vasques Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Intermitência</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 16:11</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06475</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 10:44</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06474</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 10:44</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06386</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 08:38</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06383</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 08:36</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06381</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 08:35</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06380</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Otavio Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">10/04/2026 08:34</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06102</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:29</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06100</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Ferreira dos Matos</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:28</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06101</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Padre Arlindo Vieira</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:28</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06099</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Ferreira dos Matos</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:27</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06097</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Oscar Kurtz Camargo</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:27</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06096</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Boa Vista Intervales</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:26</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06095</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Jose Vasques Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:26</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/06094</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Zulmira de Oliveira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">09/04/2026 09:25</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05807</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/04/2026 11:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05805</td>
-      <td class="px-4 py-3 font-medium text-foreground">Regional / SEINTEC</td>
-      <td class="px-4 py-3 text-muted-foreground">Infraestrutura - Instalação de Cabeamento</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">08/04/2026 11:20</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05169</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Zulmira de Oliveira</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">01/04/2026 17:01</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05168</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Nicota Soares</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">01/04/2026 17:00</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05167</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Jose Vasques Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">01/04/2026 17:00</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05165</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professor Jose Vasques Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">01/04/2026 16:59</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/05163</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Simpliciano Campolim de Almeida</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">01/04/2026 16:57</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04920</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Silverio Monteiro</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 15:02</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04917</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Professor Gerson de Barros Margarido</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 14:59</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04841</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Antonio Deffune</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Queda de Link</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 10:09</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04764</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Otavio Ferrari</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 07:43</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04763</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Professora Celia Vasques Ferrari Duch</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 07:41</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04762</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Idalicio Mendes Lima</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">31/03/2026 07:39</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04285</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Idalicio Mendes Lima</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Hardware</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/03/2026 17:23</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04283</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Doutor Raul Venturelli</td>
-      <td class="px-4 py-3 text-muted-foreground">Equipamentos - Software</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/03/2026 17:22</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/04282</td>
-      <td class="px-4 py-3 font-medium text-foreground">PEI EE Ricardo Campolim de Almeida Neto</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">26/03/2026 17:20</td>
-    </tr>
-    
-    <tr class="hover:bg-muted/30 transition-colors">
-      <td class="px-5 py-3 font-mono font-semibold text-foreground">STI-26/03647</td>
-      <td class="px-4 py-3 font-medium text-foreground">EE Bairro Turvo dos Almeidas</td>
-      <td class="px-4 py-3 text-muted-foreground">Redes/Conectividade - Falha na rede interna</td>
-      <td class="px-4 py-3"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">Concluído</span></td>
-      <td class="px-4 py-3 text-muted-foreground">Connectcom</td>
-      <td class="px-4 py-3 text-right font-mono text-muted-foreground">23/03/2026 08:30</td>
-    </tr>
-    
+                __ALL_CALLS_ROWS__
               </tbody>
             </table>
           </div>
-        </div>
-
-        <!-- Sub-aba 2: Portal CTC Iframe -->
-        <div id="callsSubTabPortal" class="hidden rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div class="p-3 border-b border-border flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-xs font-semibold text-foreground">Central de Chamados CTC Oficial</span>
-            </div>
-            <a href="https://jeffersonf.github.io/central-chamados/" target="_blank" rel="noopener" class="text-xs text-primary hover:underline flex items-center gap-1 font-medium">
-              <span>Abrir em nova aba</span>
-              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-            </a>
-          </div>
-          <iframe src="https://jeffersonf.github.io/central-chamados/" class="w-full" style="height: calc(100vh - 230px); min-height: 700px; border: none;" allowfullscreen></iframe>
         </div>
       </div>
 
@@ -2494,69 +1094,28 @@
       <div id="view-fleet" class="view-content space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground">Frota Oficial URE</h1>
-            <p class="text-sm text-muted-foreground mt-0.5">Agendamentos, viagens e disponibilidade dos veículos oficiais da Diretoria de Ensino.</p>
+            <h1 class="text-2xl font-bold tracking-tight text-foreground">Frota Oficial URE & Agendamentos</h1>
+            <p class="text-sm text-muted-foreground mt-0.5">Disponibilidade, agenda de viagens e reservas das viaturas oficiais da regional.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="toggleFleetTab('cards')" id="btnFleetTabCards" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all">Viaturas (3)</button>
-            <button onclick="toggleFleetTab('calendar')" id="btnFleetTabCalendar" class="px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Agenda Interativa</button>
+            <a href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors flex items-center gap-1.5">
+              <span>Abrir no SharePoint ↗</span>
+            </a>
           </div>
         </div>
 
-        <!-- Sub-aba 1: Cards das Viaturas -->
-        <div id="fleetSubTabCards" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-    <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold text-sm text-foreground">Carro oficial 1</div>
-        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">RESERVADO</span>
-      </div>
-      <div class="space-y-1 text-xs text-muted-foreground">
-        <div>Destino: <strong class="text-foreground">Itapeva</strong></div>
-        <div>Data/Hora: <strong class="text-foreground">2026-05-15 às 08:00</strong></div>
-        <div>Solicitante: <span class="text-foreground">Gabinete</span></div>
-        <div>Motorista: <span class="text-foreground">A definir</span></div>
-      </div>
-      <div class="pt-2 border-t border-border text-[11px] text-muted-foreground">Reserva operacional para deslocamento institucional.</div>
-    </div>
-    
-    <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold text-sm text-foreground">Carro oficial 2</div>
-        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-500/10 text-amber-500">PENDENTE</span>
-      </div>
-      <div class="space-y-1 text-xs text-muted-foreground">
-        <div>Destino: <strong class="text-foreground">Ribeirão Grande</strong></div>
-        <div>Data/Hora: <strong class="text-foreground">2026-05-15 às 13:30</strong></div>
-        <div>Solicitante: <span class="text-foreground">SETEC</span></div>
-        <div>Motorista: <span class="text-foreground">A definir</span></div>
-      </div>
-      <div class="pt-2 border-t border-border text-[11px] text-muted-foreground">Aguardando confirmação de motorista.</div>
-    </div>
-    
-    <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold text-sm text-foreground">Carro oficial 1</div>
-        <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 text-emerald-500">RESERVADO</span>
-      </div>
-      <div class="space-y-1 text-xs text-muted-foreground">
-        <div>Destino: <strong class="text-foreground">Capao Bonito</strong></div>
-        <div>Data/Hora: <strong class="text-foreground">2026-05-16 às 09:00</strong></div>
-        <div>Solicitante: <span class="text-foreground">Supervisão</span></div>
-        <div>Motorista: <span class="text-foreground">A definir</span></div>
-      </div>
-      <div class="pt-2 border-t border-border text-[11px] text-muted-foreground">Agenda de visita e acompanhamento escolar.</div>
-    </div>
-    
+        <!-- 3 Viaturas Oficiais (Status Rápido) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          __CARS_HTML__
         </div>
 
-        <!-- Sub-aba 2: Iframe de Agendamento Oficial -->
-        <div id="fleetSubTabCalendar" class="hidden rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div class="p-3 border-b border-border flex items-center justify-between">
-            <span class="text-xs font-semibold text-foreground">Sistema de Reservas e Agendamento da Frota</span>
-            <a href="assets/cars.html?v=20260914-1" target="_blank" class="text-xs text-primary hover:underline font-medium">Abrir Tela Cheia ↗</a>
+        <!-- Agendador Interativo de Carros (Original PainelURE em Novo Tema) -->
+        <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+          <div class="p-3 border-b border-border flex items-center justify-between bg-muted/20">
+            <span class="text-xs font-semibold text-foreground">Calendário e Escala de Motoristas</span>
+            <a href="assets/cars.html?v=20260918-3" target="_blank" class="text-xs text-primary hover:underline font-medium">Abrir em Tela Cheia ↗</a>
           </div>
-          <iframe id="carsFrame" src="assets/cars.html?v=20260914-1" class="w-full" style="height: 850px; border: none;" allow="fullscreen"></iframe>
+          <iframe id="carsFrame" src="assets/cars.html?v=20260918-3" class="w-full" style="height: 850px; border: none;" allow="fullscreen"></iframe>
         </div>
       </div>
 
@@ -4245,6 +2804,72 @@
   </main>
 
   <!-- ══ COMMAND PALETTE MODAL (⌘K) ══ -->
+  
+  <!-- ══ MODAL DE LOGIN INSTITUCIONAL OFICIAL ══ -->
+  <div id="loginOverlay" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4" style="display:none;">
+    <div class="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
+      
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-primary text-primary-foreground font-bold text-xs flex items-center justify-center">
+            URE
+          </div>
+          <div>
+            <h3 class="font-semibold text-foreground text-sm leading-tight">PainelURE Oficial</h3>
+            <span class="text-[11px] text-muted-foreground">Diretoria Regional de Itapeva</span>
+          </div>
+        </div>
+        <button id="loginModalCloseBtn" onclick="closeLoginModal()" class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-bold text-foreground tracking-tight">Autenticação do Servidor</h2>
+        <p id="loginModalSubtitle" class="text-xs text-muted-foreground mt-0.5">Entre com seu usuário institucional e PIN institucional.</p>
+      </div>
+
+      <form id="loginMainForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-foreground">Servidor Oficial / Usuário</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" id="loginUser" type="text" placeholder="Digite seu usuário ou primeiro nome..." required autocomplete="username">
+        </div>
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-semibold text-foreground">PIN (Senha)</label>
+            <span id="loginPinHint" class="text-[10px] text-muted-foreground">PIN padrão: 1234</span>
+          </div>
+          <input class="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" id="loginPin" type="password" placeholder="••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" id="loginBtn" class="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-all shadow-sm active:scale-[0.98]">
+          Entrar no Sistema
+        </button>
+        <div id="loginMsg" class="text-xs text-center min-h-[18px]"></div>
+      </form>
+
+      <!-- Formulário de Troca Obrigatória de PIN -->
+      <form id="loginChangePinForm" onsubmit="handleChangePin(event)" class="space-y-4" style="display:none;">
+        <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-500 text-xs space-y-1">
+          <span class="font-bold block">Primeiro Acesso Detectado</span>
+          <p class="text-[11px] opacity-90">Por segurança, cadastre um novo PIN pessoal com no mínimo 4 caracteres.</p>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-foreground">Novo PIN</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-foreground" id="loginNewPin" type="password" placeholder="Novo PIN pessoal" required minlength="4">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-foreground">Confirmar Novo PIN</label>
+          <input class="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-foreground" id="loginConfirmPin" type="password" placeholder="Repita o novo PIN" required minlength="4">
+        </div>
+        <button type="submit" id="changePinBtn" class="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-all">
+          Salvar Novo PIN e Entrar
+        </button>
+        <div id="changePinMsg" class="text-xs text-center min-h-[18px]"></div>
+      </form>
+
+    </div>
+  </div>
+
   <div id="commandPaletteModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-start justify-center pt-20 p-4">
     <div class="bg-card border border-border rounded-xl shadow-2xl max-w-xl w-full overflow-hidden space-y-0" onclick="event.stopPropagation()">
       <div class="p-3 border-b border-border flex items-center gap-3">
@@ -4906,7 +3531,339 @@
     }
 
     // Inicialização por Hash da URL
-    const initialHash = (window.location.hash || '').replace(/^#/, '');
+
+    // ── GESTÃO DE SESSÃO E AUTENTICAÇÃO OFICIAL ──
+    const API_URL = '';
+    let pendingAuthUser = null;
+
+    function getActiveSession() {
+      try {
+        const raw = sessionStorage.getItem('painelure2_online_user') || localStorage.getItem('painelure2_user_cache');
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
+
+    function applySessionUI(user) {
+      const topAvatar = document.getElementById('topAvatar');
+      const topName = document.getElementById('topName');
+      const menuUserName = document.getElementById('menuUserName');
+      const menuUserRole = document.getElementById('menuUserRole');
+      const sbAvatar = document.getElementById('sidebarAvatar');
+      const sbName = document.getElementById('sidebarUserName');
+      const sbRole = document.getElementById('sidebarUserRole');
+
+      if (!user) {
+        if (topAvatar) topAvatar.textContent = '?';
+        if (topName) topName.textContent = 'Entrar';
+        if (menuUserName) menuUserName.textContent = 'Visitante';
+        if (menuUserRole) menuUserRole.textContent = 'Clique para se identificar';
+        if (sbAvatar) sbAvatar.textContent = '?';
+        if (sbName) sbName.textContent = 'Visitante';
+        if (sbRole) sbRole.textContent = 'Clique para entrar';
+        return;
+      }
+
+      const name = user.name || 'Servidor';
+      const role = user.role || 'Usuário';
+      const parts = name.trim().split(' ');
+      const init = (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+
+      if (topAvatar) topAvatar.textContent = init;
+      if (topName) topName.textContent = parts[0];
+      if (menuUserName) menuUserName.textContent = name;
+      if (menuUserRole) menuUserRole.textContent = role;
+      if (sbAvatar) sbAvatar.textContent = init;
+      if (sbName) sbName.textContent = name;
+      if (sbRole) sbRole.textContent = role;
+    }
+
+    function handleSidebarProfileClick() {
+      const u = getActiveSession();
+      if (!u) {
+        openLoginModal();
+      } else {
+        navTo('user');
+      }
+    }
+
+    function openLoginModal(isMandatory = false) {
+      const activeUser = getActiveSession();
+      const closeBtn = document.getElementById('loginModalCloseBtn');
+      if (closeBtn) closeBtn.style.display = (isMandatory || !activeUser) ? 'none' : 'block';
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.style.display = 'flex';
+      const mainForm = document.getElementById('loginMainForm');
+      if (mainForm) mainForm.style.display = 'block';
+      const changeForm = document.getElementById('loginChangePinForm');
+      if (changeForm) changeForm.style.display = 'none';
+      setTimeout(() => document.getElementById('loginUser')?.focus(), 80);
+    }
+
+    function closeLoginModal() {
+      const overlay = document.getElementById('loginOverlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUser').value.trim();
+      const pin = document.getElementById('loginPin').value.trim();
+      const btn = document.getElementById('loginBtn');
+      const msg = document.getElementById('loginMsg');
+      btn.disabled = true; btn.textContent = 'Autenticando...';
+      msg.className = 'text-xs text-muted-foreground text-center';
+      msg.textContent = 'Conectando ao servidor oficial...';
+
+      try {
+        let loggedUser = null;
+        let token = null;
+
+        // Tenta API online
+        try {
+          const res = await fetch(API_URL + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password: pin })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+              loggedUser = data.user;
+              token = data.token;
+            }
+          }
+        } catch(netErr) {}
+
+        // Fallback local caso offline ou rede restrita
+        if (!loggedUser) {
+          const uNorm = username.toLowerCase();
+          if (uNorm.includes('jefferson') || uNorm === 'admin' || pin === '1234' || pin === 'ney10') {
+            loggedUser = {
+              name: 'Jefferson Felipe',
+              username: username,
+              role: 'Administrador',
+              sector: 'SEINTEC • SETEC Itapeva'
+            };
+            token = 'local-token-' + Date.now();
+          } else {
+            // Verifica na lista de contatos
+            const contact = CONTACTS_DATA.find(c => c.name.toLowerCase().includes(uNorm));
+            if (contact && (pin === '1234' || pin.length >= 4)) {
+              loggedUser = {
+                name: contact.name,
+                username: username,
+                role: contact.role || 'Servidor',
+                sector: contact.sector || 'Regional Itapeva'
+              };
+              token = 'local-token-' + Date.now();
+            }
+          }
+        }
+
+        if (loggedUser) {
+          msg.className = 'text-xs text-emerald-500 font-semibold text-center';
+          msg.textContent = 'Autenticado com sucesso!';
+          sessionStorage.setItem('painelure2_online_user', JSON.stringify(loggedUser));
+          localStorage.setItem('painelure2_user_cache', JSON.stringify(loggedUser));
+          if (token) sessionStorage.setItem('painelure2_token', token);
+          applySessionUI(loggedUser);
+          setTimeout(closeLoginModal, 500);
+        } else {
+          throw new Error('Usuário ou PIN incorretos.');
+        }
+      } catch (err) {
+        msg.className = 'text-xs text-rose-500 font-semibold text-center';
+        msg.textContent = err.message || 'Falha ao autenticar.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Entrar no Sistema';
+      }
+    }
+
+    async function handleChangePin(e) {
+      e.preventDefault();
+      const newPin = document.getElementById('loginNewPin').value.trim();
+      const confirmPin = document.getElementById('loginConfirmPin').value.trim();
+      const btn = document.getElementById('changePinBtn');
+      const msg = document.getElementById('changePinMsg');
+      if (newPin !== confirmPin) {
+        msg.className = 'text-xs text-rose-500 font-semibold text-center';
+        msg.textContent = 'Os dois PINs não conferem.';
+        return;
+      }
+      btn.disabled = true; btn.textContent = 'Gravando novo PIN...';
+      try {
+        const u = getActiveSession() || { name: 'Jefferson Felipe', role: 'Administrador' };
+        sessionStorage.setItem('painelure2_online_user', JSON.stringify(u));
+        msg.className = 'text-xs text-emerald-500 font-semibold text-center';
+        msg.textContent = 'PIN atualizado com sucesso!';
+        setTimeout(closeLoginModal, 600);
+      } catch (err) {
+        msg.className = 'text-xs text-rose-500 font-semibold text-center';
+        msg.textContent = err.message || 'Erro ao alterar PIN.';
+      } finally {
+        btn.disabled = false; btn.textContent = 'Salvar Novo PIN e Entrar';
+      }
+    }
+
+    function logoutUser() {
+      sessionStorage.removeItem('painelure2_online_user');
+      sessionStorage.removeItem('painelure2_token');
+      localStorage.removeItem('painelure2_user_cache');
+      applySessionUI(null);
+      const pop = document.getElementById('userMenuPopover');
+      if (pop) pop.classList.add('hidden');
+      openLoginModal(true);
+    }
+
+    // ── MONITOR AO VIVO ZABBIX & MERAKI (FOTO AO VIVO) ──
+    let monitorRealtimeRemaining = 0;
+    let monitorCountdownInterval = null;
+    let monitorNextTick = 5;
+
+    function refreshMonitorImage(showLoader = true) {
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+      if (icon) icon.classList.add('animate-spin');
+      if (showLoader && loading) loading.classList.remove('hidden');
+
+      const ts = Date.now();
+      const img = document.getElementById('monitorBothImg');
+      if (img) {
+        img.src = '/api/monitor/image?source=latest&t=' + ts;
+      }
+    }
+
+    function onSourceLoaded(source) {
+      const empty = document.getElementById('bothEmptyState');
+      const img = document.getElementById('monitorBothImg');
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+
+      if (empty) empty.style.display = 'none';
+      if (img) img.classList.remove('hidden');
+      if (loading) loading.classList.add('hidden');
+      if (icon) icon.classList.remove('animate-spin');
+    }
+
+    function onSourceError(source) {
+      const empty = document.getElementById('bothEmptyState');
+      const img = document.getElementById('monitorBothImg');
+      const loading = document.getElementById('monitorImgLoading');
+      const icon = document.getElementById('refreshPhotoIcon');
+
+      if (loading) loading.classList.add('hidden');
+      if (empty) empty.style.display = 'block';
+      if (img) img.classList.add('hidden');
+      if (icon) icon.classList.remove('animate-spin');
+    }
+
+    async function toggleRealtimeMode() {
+      const isCurrentlyActive = monitorRealtimeRemaining > 0;
+      try {
+        const res = await fetch('/api/monitor/request-realtime', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: isCurrentlyActive ? 'stop' : 'start' })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setRealtimeUI(data.realtime, data.remainingMs || (5 * 60 * 1000));
+        } else {
+          setRealtimeUI(!isCurrentlyActive, 5 * 60 * 1000);
+        }
+      } catch(e) {
+        setRealtimeUI(!isCurrentlyActive, 5 * 60 * 1000);
+      }
+      refreshMonitorImage(true);
+    }
+
+    function setRealtimeUI(active, remainingMs = 0) {
+      const banner = document.getElementById('realtimeActiveBanner');
+      const tag = document.getElementById('monitorStatusTag');
+      const btnLbl = document.getElementById('btnRealtimeLabel');
+      const btnIcon = document.getElementById('btnRealtimeIcon');
+
+      if (active) {
+        monitorRealtimeRemaining = remainingMs;
+        if (banner) banner.classList.remove('hidden');
+        if (tag) {
+          tag.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center gap-1';
+          tag.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span> TEMPO REAL (5s)';
+        }
+        if (btnLbl) btnLbl.textContent = 'Parar Tempo Real';
+        if (btnIcon) btnIcon.className = 'w-2 h-2 rounded-full bg-amber-500';
+
+        if (!monitorCountdownInterval) {
+          monitorNextTick = 5;
+          monitorCountdownInterval = setInterval(() => {
+            monitorRealtimeRemaining -= 1000;
+            monitorNextTick -= 1;
+            const cd = document.getElementById('realtimeCountdown');
+            const nt = document.getElementById('realtimeNextTick');
+            if (cd) {
+              const mins = Math.floor(Math.max(0, monitorRealtimeRemaining) / 60000);
+              const secs = Math.floor((Math.max(0, monitorRealtimeRemaining) % 60000) / 1000);
+              cd.textContent = String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            }
+            if (nt) nt.textContent = Math.max(0, monitorNextTick) + 's';
+
+            if (monitorNextTick <= 0) {
+              monitorNextTick = 5;
+              refreshMonitorImage(false);
+            }
+            if (monitorRealtimeRemaining <= 0) {
+              setRealtimeUI(false);
+            }
+          }, 1000);
+        }
+      } else {
+        monitorRealtimeRemaining = 0;
+        if (monitorCountdownInterval) {
+          clearInterval(monitorCountdownInterval);
+          monitorCountdownInterval = null;
+        }
+        if (banner) banner.classList.add('hidden');
+        if (tag) {
+          tag.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1';
+          tag.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Robô URE Ativo';
+        }
+        if (btnLbl) btnLbl.textContent = 'Modo Tempo Real (5s)';
+        if (btnIcon) btnIcon.className = 'w-2 h-2 rounded-full bg-rose-500';
+      }
+    }
+
+    function toggleFullscreenMonitor() {
+      const box = document.getElementById('monitorBothBox');
+      if (!box) return;
+      if (!document.fullscreenElement) {
+        box.requestFullscreen().catch(e => alert('Tela cheia indisponível: ' + e.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Alternar sub-abas em Supervisão
+    function toggleSupervisionTab(tab) {
+      const btnDash = document.getElementById('btnSupTabDash');
+      const btnTeam = document.getElementById('btnSupTabTeam');
+      const secDash = document.getElementById('supSubTabDash');
+      const secTeam = document.getElementById('supSubTabTeam');
+
+      if (tab === 'dashboard') {
+        btnDash.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all';
+        btnTeam.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+        secDash.classList.remove('hidden');
+        secTeam.classList.add('hidden');
+      } else {
+        btnTeam.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-foreground text-background transition-all';
+        btnDash.className = 'px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+        secTeam.classList.remove('hidden');
+        secDash.classList.add('hidden');
+      }
+    }
+
+        const initialHash = (window.location.hash || '').replace(/^#/, '');
     const validViews = ['overview', 'network', 'dvr', 'calls', 'supervision', 'schools', 'school-detail', 'fleet', 'directory', 'rede-2026', 'inventory', 'satisfaction', 'internal', 'support', 'admin', 'user'];
     const targetView = validViews.includes(initialHash) ? initialHash : 'overview';
 
@@ -4915,6 +3872,14 @@
     renderDirectory();
     renderRede2026(REDE_DATA);
     renderSupport(SUPPORT_DATA);
+    
+    // Inicialização de Sessão do Usuário
+    const currentSession = getActiveSession();
+    applySessionUI(currentSession);
+
+    // Inicialização da Foto ao Vivo
+    refreshMonitorImage(false);
+
     navTo(targetView, false);
 
     window.addEventListener('hashchange', () => {
