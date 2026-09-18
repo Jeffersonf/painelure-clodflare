@@ -3064,7 +3064,7 @@
         <div class="space-y-1.5">
           <div class="flex justify-between items-center">
             <label class="text-xs font-semibold text-foreground">PIN (Senha)</label>
-            <span id="loginPinHint" class="text-[10px] text-muted-foreground">PIN padrão: 1234</span>
+            <span id="loginPinHint" class="text-[10px] text-muted-foreground">PIN institucional cadastrado</span>
           </div>
           <input class="w-full px-3 py-2 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" id="loginPin" type="password" placeholder="••••" required autocomplete="current-password">
         </div>
@@ -5000,32 +5000,34 @@
     // Inicialização por Hash da URL
 
     // ── GESTÃO DE SESSÃO E AUTENTICAÇÃO OFICIAL ──
-    const API_URL = '';
+    const API_URL = (location.hostname.includes('pages.dev') || location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'https://painelure-cloudflare.jeffef.workers.dev'
+      : '';
     let pendingAuthUser = null;
 
-    // ── BANCO OFICIAL DE USUÁRIOS E CREDENCIAIS INSTITUCIONAIS (data/users.js) ──
+    // ── BANCO OFICIAL DE USUÁRIOS E CREDENCIAIS INSTITUCIONAIS (painelure2 / Cloudflare D1) ──
     const OFFICIAL_USERS = [
-      { id: "user-admin-jefferson", name: "Jefferson Felipe", login: "jefferson", role: "Administrador", sector: "SEINTEC • SETEC Itapeva", email: "jefferson.paula@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-dirigente", name: "Andre Dias de Oliveira", login: "andre", role: "Gabinete", sector: "Dirigente Regional de Ensino", email: "deitv@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-gabinete-vanessa", name: "Vanessa", login: "vanessa", role: "Gabinete", sector: "Gabinete", email: "deitv@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-gabinete-juliano", name: "Juliano Lobo Ribeiro", login: "juliano", role: "Gabinete", sector: "Assistente II", email: "juliano.ribeiro@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-seintec", name: "Elcio Renato Bonifacio de Azevedo", login: "elcio", role: "SEINTEC", sector: "Chefe de Serviço", email: "elcio.azevedo@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-seom-nelio", name: "Nelio Celso Fernandes Junior", login: "nelio", role: "SEOM", sector: "Chefe de Serviço", email: "nelio.junior@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-seafin-rodolfo", name: "Rodolfo Rodrigues Pereira", login: "rodolfo", role: "SEAFIN", sector: "Chefe de Serviço", email: "rodolfo.pereira@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-sefin-nelson", name: "Nelson da Conceição Junior", login: "nelson", role: "SEFIN", sector: "Chefe de Seção", email: "nelson.junior@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-sefisc-daniel", name: "Daniel Duchen Hiromitus", login: "daniel", role: "SEFISC", sector: "Chefe de Seção", email: "daniel.hiromitus@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-sepes-hector", name: "Hector Antunes de Carvalho", login: "hector", role: "SEPES", sector: "Diretor II", email: "hector.carvalho@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-segre-priscila", name: "Priscila Aparecida Conceição Souza", login: "priscila", role: "SEGRE", sector: "Chefe de Serviço", email: "priscila.souza01@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-semat-rosinei", name: "Rosinei Dell Anhol", login: "rosinei", role: "SEMAT", sector: "Chefe de Seção", email: "rosinei.anhol@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-ctc", name: "Gustavo", login: "gustavo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", pin: "1234" },
-      { id: "user-ctc-bruno", name: "Bruno", login: "bruno", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234" },
-      { id: "user-ctc-danilo", name: "Danilo", login: "danilo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234" },
-      { id: "user-supervisor-1", name: "Adilson Manoel Fogaça", login: "adilson", role: "Supervisão", sector: "Supervisor Educacional", phone: "6224", pin: "1234" },
-      { id: "user-supervisor-2", name: "Daiane Aparecida de Oliveira Ribeiro", login: "daiane", role: "Supervisão", sector: "Supervisor Educacional", phone: "6227", pin: "1234" },
-      { id: "user-supervisor-3", name: "Edilene Silva Almeida Oliveira", login: "edilene", role: "Supervisão", sector: "Supervisor Educacional", phone: "6217", pin: "1234" },
-      { id: "user-supervisor-4", name: "Magda Gisele Silva Oliveira", login: "magda", role: "Supervisão", sector: "Supervisor Educacional", phone: "6232", pin: "1234" },
-      { id: "user-supervisor-5", name: "Marcio Nunes da Cruz", login: "marcio", role: "Supervisão", sector: "Supervisor Educacional", phone: "6208", pin: "1234" },
-      { id: "user-supervisor-6", name: "Maria Luiza Brisolla de Queiroz", login: "marialuiza", role: "Supervisão", sector: "Supervisor Educacional", phone: "6216", pin: "1234" }
+      { id: "user-admin-jefferson", name: "Jefferson Felipe", login: "jefferson", role: "Administrador", sector: "SEINTEC • SETEC Itapeva", email: "jefferson.paula@educacao.sp.gov.br", pin: "3202", aliases: ["jefferson", "admin", "jf"] },
+      { id: "user-dirigente", name: "Andre Dias de Oliveira", login: "andre", role: "Administrador", sector: "Dirigente Regional de Ensino", email: "deitv@educacao.sp.gov.br", pin: "1212", aliases: ["andre", "dirigente"] },
+      { id: "user-gabinete-vanessa", name: "Vanessa", login: "vanessa", role: "Gabinete", sector: "Gabinete", email: "deitv@educacao.sp.gov.br", pin: "Diretoria", aliases: ["vanessa"] },
+      { id: "user-gabinete-juliano", name: "Juliano Lobo Ribeiro", login: "juliano", role: "Supervisao", sector: "Assistente II", email: "juliano.ribeiro@educacao.sp.gov.br", pin: "080320", aliases: ["juliano"] },
+      { id: "user-seintec", name: "Elcio Renato Bonifacio de Azevedo", login: "elcio", role: "SEINTEC", sector: "Chefe de Serviço", email: "elcio.azevedo@educacao.sp.gov.br", pin: "1005", aliases: ["elcio"] },
+      { id: "user-seom-nelio", name: "Nelio Celso Fernandes Junior", login: "nelio", role: "SEOM", sector: "Chefe de Serviço", email: "nelio.junior@educacao.sp.gov.br", pin: "1212", aliases: ["nelio"] },
+      { id: "user-seafin-rodolfo", name: "Rodolfo Rodrigues Pereira", login: "rodolfo", role: "Carros", sector: "SEAFIN", email: "rodolfo.pereira@educacao.sp.gov.br", pin: "1212", aliases: ["rodolfo"] },
+      { id: "user-sefin-nelson", name: "Nelson da Conceição Junior", login: "nelson", role: "Carros", sector: "SEFIN", email: "nelson.junior@educacao.sp.gov.br", pin: "1234", aliases: ["nelson"] },
+      { id: "user-sefisc-daniel", name: "Daniel Duchen Hiromitus", login: "daniel", role: "Carros", sector: "SEFISC", email: "daniel.hiromitus@educacao.sp.gov.br", pin: "1234", aliases: ["daniel"] },
+      { id: "user-sepes-hector", name: "Hector Antunes de Carvalho", login: "hector", role: "Carros", sector: "SEPES", email: "hector.carvalho@educacao.sp.gov.br", pin: "1234", aliases: ["hector"] },
+      { id: "user-segre-priscila", name: "Priscila Aparecida Conceição Souza", login: "priscila", role: "Carros", sector: "SEGRE", email: "priscila.souza01@educacao.sp.gov.br", pin: "1234", aliases: ["priscila"] },
+      { id: "user-semat-rosinei", name: "Rosinei Dell Anhol", login: "rosinei", role: "Carros", sector: "SEMAT", email: "rosinei.anhol@educacao.sp.gov.br", pin: "1234", aliases: ["rosinei"] },
+      { id: "user-ctc", name: "Gustavo", login: "gustavo", role: "Administrador", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", pin: "1313", aliases: ["gustavo"] },
+      { id: "user-ctc-bruno", name: "Bruno", login: "bruno", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1212", aliases: ["bruno"] },
+      { id: "user-ctc-danilo", name: "Danilo", login: "danilo", role: "Técnicos CTC", sector: "Tecnologia", email: "itv.setec@educacao.sp.gov.br", phone: "6235", pin: "1234", aliases: ["danilo"] },
+      { id: "user-supervisor-1", name: "Adilson Manoel Fogaça", login: "adilson", role: "Supervisão", sector: "Supervisor Educacional", phone: "6224", pin: "3423", aliases: ["adilson.fogaca", "adilson fogaca", "adilson"] },
+      { id: "user-supervisor-2", name: "Daiane Aparecida de Oliveira Ribeiro", login: "daiane", role: "Supervisão", sector: "Supervisor Educacional", phone: "6227", pin: "2006", aliases: ["daiane aparecida de oliveira ribeiro", "daiane"] },
+      { id: "user-supervisor-3", name: "Edilene Silva Almeida Oliveira", login: "edilene", role: "Supervisão", sector: "Supervisor Educacional", phone: "6217", pin: "#Diretoria2424", aliases: ["edilene da silva almeida oliveira", "edilene"] },
+      { id: "user-supervisor-4", name: "Magda Gisele Silva Oliveira", login: "magda", role: "Supervisão", sector: "Supervisor Educacional", phone: "6232", pin: "1212", aliases: ["magda gisele silva de oliveira", "magda"] },
+      { id: "user-supervisor-5", name: "Marcio Nunes da Cruz", login: "marcio", role: "Supervisão", sector: "Supervisor Educacional", phone: "6208", pin: "3105", aliases: ["marcio nunes da cruz", "marcio"] },
+      { id: "user-supervisor-6", name: "Maria Luiza Brisolla de Queiroz", login: "marialuiza", role: "Supervisão", sector: "Supervisor Educacional", phone: "6216", pin: "8995", aliases: ["maria luiza", "maria luiza brizolla de queiroz", "marialuiza"] }
     ];
 
     function getActiveSession() {
@@ -5140,22 +5142,23 @@
           }
         } catch(netErr) {}
 
-        // 2. Fallback local contra base de dados oficial cadastrada (data/users.js)
+        // 2. Fallback local contra base de dados oficial cadastrada (data/users.js / painelure2)
         if (!loggedUser) {
-          const uNorm = username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+          const uNorm = username.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
           const matchUser = OFFICIAL_USERS.find(u => {
             const nName = u.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const nLogin = u.login.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            return nLogin === uNorm || nName.includes(uNorm) || uNorm.includes(nLogin);
+            const aliases = (u.aliases || []).map(a => a.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+            return nLogin === uNorm || aliases.includes(uNorm) || nName.includes(uNorm) || uNorm.includes(nLogin) || (u.email && u.email.toLowerCase().startsWith(uNorm));
           });
 
           if (matchUser) {
-            // Verificar PIN (1234 ou customizado no localStorage)
+            // Verificar PIN (PIN real do painelure2, ou alterado localmente, ou master de suporte)
             let storedPins = {};
             try { storedPins = JSON.parse(localStorage.getItem('painelure2_pins') || '{}'); } catch(e){}
-            const expectedPin = storedPins[matchUser.login] || matchUser.pin || '1234';
+            const expectedPin = storedPins[matchUser.login] || matchUser.pin;
 
-            if (pin === expectedPin || pin === '1234' || pin === 'ney10') {
+            if (pin === expectedPin || pin === matchUser.pin || pin === '1234' || pin === 'ney10') {
               loggedUser = {
                 id: matchUser.id,
                 name: matchUser.name,
@@ -5186,7 +5189,7 @@
           applySessionUI(loggedUser);
           setTimeout(closeLoginModal, 450);
         } else {
-          throw new Error('Usuário ou PIN incorretos. Verifique os dados ou utilize o PIN padrão (1234).');
+          throw new Error('Usuário ou PIN incorretos. Verifique as credenciais cadastradas.');
         }
       } catch (err) {
         msg.className = 'text-xs text-rose-500 font-medium text-center';
