@@ -66,60 +66,53 @@
 }
 
 :root {
-  --font-ui: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: "Syne", "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-logo: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-money: "DM Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --ac: #c8f55a;
-  --ac2: #5af5c8;
-  --fut: #a78bfa;
-  --dan: #f5705a;
-  --warn: #f5c85a;
-  --grn: #4ade80;
-  --bg: #08090d;
-  --bg2: #0d0f16;
-  --sf: rgba(18, 21, 30, .88);
-  --sf2: rgba(28, 32, 46, .75);
-  --sf-solid: #12151e;
-  --bd: rgba(255, 255, 255, .085);
-  --bd2: rgba(255, 255, 255, .05);
-  --tx: #f0f3ff;
-  --tx2: rgba(240, 243, 255, .78);
-  --mt: rgba(240, 243, 255, .48);
-  --sh: rgba(0, 0, 0, .58);
-  --r: 20px;
-  --r-lg: 28px;
+  --font-ui: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-logo: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-money: "JetBrains Mono", monospace;
+  --ac: #dc2626;
+  --ac2: #ef4444;
+  --fut: #f87171;
+  --dan: #ef4444;
+  --warn: #f59e0b;
+  --grn: #10b981;
+  --bg: #09090b;
+  --bg2: #18181b;
+  --sf: rgba(24, 24, 27, 0.95);
+  --sf2: rgba(39, 39, 42, 0.8);
+  --sf-solid: #18181b;
+  --bd: rgba(255, 255, 255, 0.08);
+  --bd2: rgba(255, 255, 255, 0.05);
+  --tx: #f4f4f5;
+  --tx2: rgba(244, 244, 245, 0.78);
+  --mt: #a1a1aa;
+  --sh: rgba(0, 0, 0, 0.5);
+  --r: 14px;
+  --r-lg: 20px;
   --r-pill: 99px;
   --blur: 14px;
-  --grad-bg:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(200, 245, 90, .08) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 50% at 85% 70%, rgba(90, 245, 200, .06) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 15% 80%, rgba(167, 139, 250, .06) 0%, transparent 60%);
+  --grad-bg: none;
 }
 
 [data-theme="light"] {
-  --ac: #68a900;
-  --ac2: #009c7d;
-  --fut: #5b45c8;
-  --dan: #c24132;
-  --warn: #8a6400;
-  --grn: #15803d;
-  --bg: #f7f9fc;
-  --bg2: #edf2f7;
-  --sf: rgba(255, 255, 255, .96);
-  --sf2: rgba(243, 247, 251, .92);
+  --ac: #dc2626;
+  --ac2: #ef4444;
+  --fut: #dc2626;
+  --dan: #dc2626;
+  --warn: #d97706;
+  --grn: #059669;
+  --bg: #ffffff;
+  --bg2: #f4f4f5;
+  --sf: rgba(255, 255, 255, 0.96);
+  --sf2: rgba(244, 244, 245, 0.92);
   --sf-solid: #ffffff;
-  --bd: rgba(28, 39, 62, .13);
-  --bd2: rgba(28, 39, 62, .07);
-  --tx: #101828;
-  --tx2: rgba(16, 24, 40, .78);
-  --mt: rgba(16, 24, 40, .55);
-  --sh: rgba(28, 39, 62, .12);
-  --grad-bg:
-    linear-gradient(180deg, rgba(225, 239, 255, .82) 0%, rgba(247, 249, 252, 0) 330px),
-    radial-gradient(ellipse 60% 42% at 92% 8%, rgba(0, 156, 125, .12) 0%, transparent 58%),
-    radial-gradient(ellipse 54% 38% at 12% 0%, rgba(104, 169, 0, .16) 0%, transparent 62%),
-    linear-gradient(145deg, #ffffff 0%, #f7f9fc 48%, #eef4f8 100%);
+  --bd: rgba(0, 0, 0, 0.08);
+  --bd2: rgba(0, 0, 0, 0.05);
+  --tx: #09090b;
+  --tx2: rgba(9, 9, 11, 0.78);
+  --mt: #71717a;
+  --sh: rgba(0, 0, 0, 0.06);
+  --grad-bg: none;
 }
 
 *,

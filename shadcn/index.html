@@ -1007,32 +1007,221 @@
       </div>
 
       <!-- ── VIEW 5: SUPERVISÃO (#supervision) ── -->
-      <div id="view-supervision" class="view-content space-y-4">
+      <div id="view-supervision" class="view-content space-y-6">
+        <!-- Topo da View de Supervisão -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
           <div>
             <div class="flex items-center gap-2.5">
               <h1 class="text-2xl font-bold tracking-tight text-foreground">Supervisão Educacional</h1>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
-                Planilha Oficial & Metas Live
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                Planilha Oficial Live
               </span>
             </div>
             <p class="text-sm text-muted-foreground mt-0.5">Acompanhamento pedagógico, metas mensais e registros de visitas das 21 escolas jurisdicionadas.</p>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="reloadSupervisionFrame()" class="px-3.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm" title="Sincronizar dados com a planilha oficial">
-              <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
+
+          <!-- Controles de Mês & Sincronização -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Seletor de Mês -->
+            <div class="inline-flex items-center bg-card border border-border rounded-xl p-1 shadow-sm">
+              <button onclick="changeSupervisionMonth(-1)" class="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" title="Mês anterior">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <span id="supervisionMonthLabel" class="px-3 text-xs font-bold text-foreground select-none font-mono min-w-[120px] text-center">Setembro / 2026</span>
+              <button onclick="changeSupervisionMonth(1)" class="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" title="Próximo mês">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+
+            <!-- Botão Sincronizar -->
+            <button id="btnSyncSupervision" onclick="syncOfficialSupervision(true)" class="px-3.5 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm active:scale-95" title="Sincronizar com a planilha oficial de supervisão">
+              <svg id="syncSupervisionIcon" class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
               <span>Sincronizar</span>
-            </button>
-            <button onclick="toggleFullscreenSupervision()" class="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-colors flex items-center gap-1.5 shadow-sm" title="Abrir em Tela Cheia">
-              <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m15 3 6 6m0-6h-6m6 0v6M9 21l-6-6m0 6h6m-6 0v-6"/></svg>
-              <span>Tela Cheia</span>
             </button>
           </div>
         </div>
 
-        <!-- Módulo Oficial de Supervisão Integrado -->
-        <div class="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
-          <iframe id="supervisionFrame" src="assets/supervision.html" class="w-full" style="height: calc(100vh - 210px); min-height: 900px; border: none;" allow="fullscreen"></iframe>
+        <!-- Status da Planilha -->
+        <div id="supervisionStatusRow" class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs text-muted-foreground px-1">
+          <div class="flex items-center gap-2">
+            <span id="supervisionStatusDot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="supervisionStatusText">Conectado à Planilha Oficial • 6 supervisores monitorados</span>
+          </div>
+          <span id="supervisionStatusTime" class="font-mono text-[11px] text-muted-foreground"></span>
+        </div>
+
+        <!-- 4 Bento Cards de KPIs da Supervisão -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
+            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Escolas Atribuídas</span>
+            <div id="kpiSupSchools" class="text-2xl font-bold tracking-tight text-foreground font-mono">21 / 21</div>
+            <p class="text-xs text-muted-foreground">100% da rede sob cobertura ativa</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
+            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Visitas no Mês</span>
+            <div id="kpiSupVisits" class="text-2xl font-bold tracking-tight text-foreground font-mono">-- / --</div>
+            <p id="kpiSupVisitsPct" class="text-xs text-muted-foreground">Cumprimento da meta regional</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
+            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Supervisores em Meta</span>
+            <div id="kpiSupGoalMet" class="text-2xl font-bold tracking-tight text-foreground font-mono">-- / 6</div>
+            <p class="text-xs text-muted-foreground">Acompanhamento e conformidade</p>
+          </div>
+          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
+            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Eficiência Regional</span>
+            <div id="kpiSupEfficiency" class="text-2xl font-bold tracking-tight text-foreground font-mono">--%</div>
+            <p class="text-xs text-muted-foreground">Presença técnica e pedagógica</p>
+          </div>
+        </div>
+
+        <!-- Barra de Busca e Filtros -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="supervisorSearchInput" oninput="filterSupervisorsNative()" placeholder="Buscar por supervisor ou nome de escola atribuída..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="setSupervisorFilter('all', this)" class="sup-filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-foreground text-background transition-all">Todos (6)</button>
+            <button onclick="setSupervisorFilter('ok', this)" class="sup-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Meta Cumprida</button>
+            <button onclick="setSupervisorFilter('warn', this)" class="sup-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Em Andamento</button>
+          </div>
+        </div>
+
+        <!-- Tabela Master da Planilha Oficial -->
+        <div class="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <div class="p-4 sm:p-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+              <h2 class="text-base font-bold text-foreground">Tabela de Metas e Acompanhamento</h2>
+              <span class="text-xs text-muted-foreground font-mono" id="supTableCount">6 supervisores</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] text-muted-foreground">Clique no botão "Detalhes" para ver o calendário individual de visitas</span>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
+                <tr>
+                  <th class="px-5 py-3">Supervisor</th>
+                  <th class="px-4 py-3">Escolas Atribuídas</th>
+                  <th class="px-3 py-3 text-center">Meta Semanal</th>
+                  <th class="px-3 py-3 text-center">Semana Atual</th>
+                  <th class="px-3 py-3 text-center">Indicador Semana</th>
+                  <th class="px-4 py-3 text-center">Meta Mensal</th>
+                  <th class="px-3 py-3 text-center">Indicador Mês</th>
+                  <th class="px-4 py-3">Justificativa</th>
+                  <th class="px-4 py-3 text-right">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="supervisorTableBody" class="divide-y divide-border font-normal">
+                <!-- Linhas inseridas dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Rodapé com Metadados da Planilha -->
+          <div class="p-3 sm:px-5 border-t border-border bg-muted/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-muted-foreground">
+            <span>Fonte: Planilha oficial de supervisão de ensino (Google Sheets)</span>
+            <span id="supFooterUpdated">Sincronização em tempo real</span>
+          </div>
+        </div>
+
+        <!-- Grid de Cards Bento dos Supervisores -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-foreground">Carteira Individual de Supervisão</h2>
+            <span class="text-xs text-muted-foreground">Visão expandida por supervisor</span>
+          </div>
+          <div id="supervisorsCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Cards inseridos dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Modal / Drawer de Detalhes do Supervisor (Drilldown) -->
+        <div id="supervisorDetailModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+          <div class="bg-card border border-border rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <!-- Cabeçalho do Modal -->
+            <div class="p-5 border-b border-border flex items-center justify-between bg-card">
+              <div class="flex items-center gap-3">
+                <div id="modalSupAvatar" class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold flex items-center justify-center text-sm">
+                  --
+                </div>
+                <div>
+                  <h3 id="modalSupName" class="text-base font-bold text-foreground">Supervisor</h3>
+                  <p id="modalSupMeta" class="text-xs text-muted-foreground">Supervisor de Ensino • ESE Itapeva</p>
+                </div>
+              </div>
+              <button onclick="closeSupervisorDetailModal()" class="w-8 h-8 rounded-lg border border-border bg-muted/40 hover:bg-muted text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors">
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <!-- Corpo do Modal com Scroll -->
+            <div class="p-5 overflow-y-auto space-y-6 text-xs flex-1">
+              <!-- Mini KPIs do Supervisor -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="p-3 rounded-xl border border-border bg-muted/20 text-center">
+                  <span class="text-[10px] uppercase font-semibold text-muted-foreground block">Meta Mensal</span>
+                  <strong id="modalSupKpiMeta" class="text-base font-mono font-bold text-foreground mt-1 block">--</strong>
+                </div>
+                <div class="p-3 rounded-xl border border-border bg-muted/20 text-center">
+                  <span class="text-[10px] uppercase font-semibold text-muted-foreground block">Visitas Feitas</span>
+                  <strong id="modalSupKpiDone" class="text-base font-mono font-bold text-foreground mt-1 block">--</strong>
+                </div>
+                <div class="p-3 rounded-xl border border-border bg-muted/20 text-center">
+                  <span class="text-[10px] uppercase font-semibold text-muted-foreground block">Visitas Pendentes</span>
+                  <strong id="modalSupKpiPending" class="text-base font-mono font-bold text-foreground mt-1 block">--</strong>
+                </div>
+                <div class="p-3 rounded-xl border border-border bg-muted/20 text-center">
+                  <span class="text-[10px] uppercase font-semibold text-muted-foreground block">Cumprimento</span>
+                  <strong id="modalSupKpiPct" class="text-base font-mono font-bold text-foreground mt-1 block">--%</strong>
+                </div>
+              </div>
+
+              <!-- Calendário Mensal de Visitas -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">Calendário de Visitas</h4>
+                  <span id="modalSupCalMonth" class="text-[11px] font-mono text-muted-foreground"></span>
+                </div>
+                <div class="grid grid-cols-7 gap-1 text-center font-semibold text-[10px] text-muted-foreground py-1 border-b border-border">
+                  <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+                </div>
+                <div id="modalSupCalendarGrid" class="grid grid-cols-7 gap-1.5">
+                  <!-- Dias preenchidos dinamicamente -->
+                </div>
+              </div>
+
+              <!-- Lista de Visitas Registradas -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">Registros de Visitas do Mês</h4>
+                  <span id="modalSupVisitsCount" class="text-[11px] text-muted-foreground font-mono">0 visitas</span>
+                </div>
+                <div id="modalSupVisitsList" class="space-y-1.5 max-h-48 overflow-y-auto">
+                  <!-- Itens de visita -->
+                </div>
+              </div>
+
+              <!-- Editor de Justificativa -->
+              <div class="space-y-2 pt-3 border-t border-border">
+                <div class="flex items-center justify-between">
+                  <h4 class="font-bold text-foreground text-xs uppercase tracking-wider">Justificativa do Mês</h4>
+                  <span class="text-[10px] text-muted-foreground">Opcional para acompanhamento regional</span>
+                </div>
+                <textarea id="modalSupJustificationInput" rows="3" placeholder="Digite a justificativa para visitas abaixo da meta no mês..." class="w-full p-3 rounded-xl border border-border bg-muted/20 text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none"></textarea>
+                <div class="flex items-center justify-between">
+                  <span id="modalSupJustificationFeedback" class="text-[11px] text-muted-foreground"></span>
+                  <button onclick="saveModalSupervisorJustification()" class="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-semibold text-xs hover:bg-primary-hover transition-colors shadow-sm flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                    <span>Salvar Justificativa</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -4825,43 +5014,718 @@
       document.getElementById('supervisionFrame')?.contentWindow?.postMessage('supervision-theme', location.origin);
     }
 
-    // ── INTEGRAÇÃO COM MÓDULO OFICIAL DE SUPERVISÃO ──
-    window.supervisionHost = {
-      apiBase: (typeof API_URL !== 'undefined') ? API_URL : '',
-      theme: () => document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-      token: () => (typeof getActiveSession === 'function' ? getActiveSession()?.token : '') || sessionStorage.getItem('painelure2_token') || '',
-      login: () => { if (typeof openLoginModal === 'function') openLoginModal(); },
-      school: (name) => {
-        if (typeof openSchoolDetail === 'function') openSchoolDetail(name);
+    // ── MÓDULO NATIVO DE SUPERVISÃO EDUCACIONAL (PLANILHA OFICIAL & METAS) ──
+    const SUPERVISORS_OFFICIAL_SEED = [
+      {
+        name: "Adilson Manoel Fogaça",
+        shortName: "Adilson",
+        initials: "AF",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "adilson.fogaca@educacao.sp.gov.br",
+        phone: "(15) 3526-6224",
+        schools: [
+          "PEI EE Jeminiano David Muzel",
+          "PEI EE Professora Cinira Daniel da Silva",
+          "EE Doutor Raul Venturelli"
+        ]
       },
-      resize: (height) => {
-        const frame = document.getElementById('supervisionFrame');
-        if (frame && height > 400) {
-          frame.style.height = `${Math.max(850, height)}px`;
-        }
+      {
+        name: "Daiane Aparecida de Oliveira Ribeiro",
+        shortName: "Daiane",
+        initials: "DR",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "daiane.ribeiro@educacao.sp.gov.br",
+        phone: "(15) 3526-6227",
+        schools: [
+          "PEI EE Oscar Kurtz Camargo",
+          "EE Bairro Ferreira dos Matos",
+          "PEI EE Professora Nicota Soares",
+          "EE Professor Gerson de Barros Margarido"
+        ]
       },
-      onSyncState: (state, text) => {}
-    };
+      {
+        name: "Edilene Silva Almeida Oliveira",
+        shortName: "Edilene",
+        initials: "EO",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "edilene.oliveira@educacao.sp.gov.br",
+        phone: "(15) 3526-6217",
+        schools: [
+          "PEI EE Otavio Ferrari",
+          "PEI EE Professora Francelina Franco",
+          "PEI EE Professor Joao Baptista do Amaral Vasconcellos"
+        ]
+      },
+      {
+        name: "Magda Gisele Silva Oliveira",
+        shortName: "Magda",
+        initials: "MO",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "magda.oliveira@educacao.sp.gov.br",
+        phone: "(15) 3526-6232",
+        schools: [
+          "PEI EE Professora Celia Vasques Ferrari Duch",
+          "PEI EE Idalicio Mendes Lima",
+          "PEI EE Padre Arlindo Vieira",
+          "EE Doutor Antonio Deffune"
+        ]
+      },
+      {
+        name: "Marcio Nunes da Cruz",
+        shortName: "Marcio",
+        initials: "MC",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "marcio.cruz@educacao.sp.gov.br",
+        phone: "(15) 3526-6208",
+        schools: [
+          "PEI EE Ricardo Campolim de Almeida Neto",
+          "PEI EE Simpliciano Campolim de Almeida",
+          "EE Professor Silverio Monteiro",
+          "PEI EE Professora Zulmira de Oliveira"
+        ]
+      },
+      {
+        name: "Maria Luiza Brisolla de Queiroz",
+        shortName: "Maria Luiza",
+        initials: "MQ",
+        role: "Supervisor de Ensino",
+        sector: "ESE Itapeva",
+        email: "maria.queiroz14@educacao.sp.gov.br",
+        phone: "(15) 3526-6216",
+        schools: [
+          "EE Bairro Boa Vista Intervales",
+          "EE Bairro Turvo dos Almeidas",
+          "PEI EE Professor Jose Vasques Ferrari"
+        ]
+      }
+    ];
 
-    function reloadSupervisionFrame() {
-      const frame = document.getElementById('supervisionFrame');
-      if (frame) {
-        try {
-          frame.contentWindow?.PainelURE?.refreshSource?.();
-        } catch(e) {
-          frame.src = frame.src;
-        }
+    const SUPERVISION_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkqZydw5EWNLREBCXdG-VpqcoOfuOf-AI2gYawdaeEwDNitR2m37okLvurfscimlSQMtpbHg_H_bzz/pub?output=csv";
+
+    let supervisionCurrentYear = 2026;
+    let supervisionCurrentMonth = 9; // 1-indexed, default Setembro/2026
+    let supervisionRawRows = [];
+    let supervisionFilterType = 'all';
+    let supervisionActiveSupervisor = null;
+
+    const MONTH_NAMES_PT = [
+      '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ];
+
+    function getSupervisionMonthKey() {
+      return `${supervisionCurrentYear}-${String(supervisionCurrentMonth).padStart(2, '0')}`;
+    }
+
+    function updateSupervisionMonthLabel() {
+      const label = document.getElementById('supervisionMonthLabel');
+      if (label) {
+        label.textContent = `${MONTH_NAMES_PT[supervisionCurrentMonth]} / ${supervisionCurrentYear}`;
       }
     }
 
-    function toggleFullscreenSupervision() {
-      const frame = document.getElementById('supervisionFrame');
-      if (!frame) return;
-      if (!document.fullscreenElement) {
-        frame.requestFullscreen().catch(e => alert('Tela cheia indisponível: ' + e.message));
-      } else {
-        document.exitFullscreen();
+    function changeSupervisionMonth(delta) {
+      supervisionCurrentMonth += delta;
+      if (supervisionCurrentMonth > 12) {
+        supervisionCurrentMonth = 1;
+        supervisionCurrentYear++;
+      } else if (supervisionCurrentMonth < 1) {
+        supervisionCurrentMonth = 12;
+        supervisionCurrentYear--;
       }
+      updateSupervisionMonthLabel();
+      renderSupervisionNative();
+    }
+
+    function parseCsvToRows(csvText) {
+      const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+      if (lines.length < 2) return [];
+      const headers = parseCsvLine(lines[0]);
+      const rows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCsvLine(lines[i]);
+        const row = {};
+        headers.forEach((h, idx) => {
+          const key = (h || '').toLowerCase().trim();
+          row[key] = (values[idx] || '').trim();
+        });
+        rows.push(row);
+      }
+      return rows;
+    }
+
+    function parseCsvLine(line) {
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current);
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      result.push(current);
+      return result;
+    }
+
+    function normalizeNameStr(str) {
+      return String(str || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^\w\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function matchSupervisorName(nameCandidate) {
+      const normCandidate = normalizeNameStr(nameCandidate);
+      return SUPERVISORS_OFFICIAL_SEED.find(s => {
+        const normSeed = normalizeNameStr(s.name);
+        const normShort = normalizeNameStr(s.shortName);
+        return normSeed.includes(normCandidate) || normCandidate.includes(normShort);
+      }) || null;
+    }
+
+    function parseDatePt(dateStr) {
+      if (!dateStr) return null;
+      const m = String(dateStr).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (m) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+      }
+      const iso = String(dateStr).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) {
+        return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+      }
+      return null;
+    }
+
+    function getWeekOfMonth(date) {
+      if (!date) return 1;
+      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      const dayOfMonth = date.getDate();
+      const firstDayOfWeek = firstDay.getDay();
+      return Math.ceil((dayOfMonth + firstDayOfWeek) / 7);
+    }
+
+    function loadSavedJustifications() {
+      try {
+        const raw = localStorage.getItem('painelure2_supervision_justifications');
+        return raw ? JSON.parse(raw) : {};
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function saveJustificationToStorage(supName, monthKey, text) {
+      const store = loadSavedJustifications();
+      if (!store[supName]) store[supName] = {};
+      if (text) {
+        store[supName][monthKey] = text;
+      } else {
+        delete store[supName][monthKey];
+      }
+      try {
+        localStorage.setItem('painelure2_supervision_justifications', JSON.stringify(store));
+      } catch (e) {}
+
+      // Se autenticado, tenta sincronizar com API do worker
+      const token = (typeof getActiveSession === 'function' ? getActiveSession()?.token : '') || sessionStorage.getItem('painelure2_token');
+      if (token && typeof API_URL !== 'undefined') {
+        fetch(`${API_URL}/api/supervision/justification`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ supervisorName: supName, monthKey, justification: text })
+        }).catch(err => console.warn('[Supervision] Falha ao persistir justificativa na nuvem:', err));
+      }
+    }
+
+    function computeSupervisorsMetrics() {
+      const monthKey = getSupervisionMonthKey();
+      const justifications = loadSavedJustifications();
+
+      // Mapeia supervisores
+      return SUPERVISORS_OFFICIAL_SEED.map(seed => {
+        const assignedCount = seed.schools.length;
+        const weeklyGoal = 3;
+        const monthlyGoal = assignedCount * 3; // regra oficial: escolas * 3 visitas
+        
+        // Filtra visitas desta pessoa para o mês selecionado
+        const visits = [];
+        supervisionRawRows.forEach(row => {
+          // Checa nome do supervisor na linha
+          const rowSupName = Object.entries(row).find(([k]) => k.includes('supervisor') || k === 'nome')?.[1] || '';
+          const matched = matchSupervisorName(rowSupName);
+          if (matched && matched.name === seed.name) {
+            // Checa data
+            const dateStr = Object.entries(row).find(([k]) => k.includes('data'))?.[1] || '';
+            const parsedDate = parseDatePt(dateStr);
+            if (parsedDate) {
+              const rowMonthKey = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}`;
+              if (rowMonthKey === monthKey) {
+                // Encontra escolas visitadas
+                const schools = [];
+                Object.entries(row).forEach(([k, v]) => {
+                  if (k.startsWith('escola') && v && v.trim().length > 1) {
+                    schools.push(v.trim());
+                  }
+                });
+                const schoolName = schools.length ? schools.join(', ') : 'Visita Registrada';
+                const type = Object.entries(row).find(([k]) => k.includes('confirma') || k.includes('tipo'))?.[1] || 'Visita';
+                visits.push({
+                  date: parsedDate,
+                  dateStr: parsedDate.toLocaleDateString('pt-BR'),
+                  day: parsedDate.getDate(),
+                  school: schoolName,
+                  type: type.includes('Confirmo') ? 'Visita Pedagógica' : type,
+                  week: getWeekOfMonth(parsedDate)
+                });
+              }
+            }
+          }
+        });
+
+        // Visitas no mês e semana atual
+        const monthlyVisits = visits.length;
+        const now = new Date();
+        const isCurrentMonthNow = (now.getFullYear() === supervisionCurrentYear && (now.getMonth() + 1) === supervisionCurrentMonth);
+        const currentWeekNum = isCurrentMonthNow ? getWeekOfMonth(now) : Math.max(1, ...visits.map(v => v.week), 4);
+        const weeklyVisits = visits.filter(v => v.week === currentWeekNum).length;
+
+        // Indicador da semana
+        let weeklyIndicator = 'warn'; // amarelo
+        let weeklyIndicatorLabel = 'Em Andamento';
+        if (weeklyVisits >= weeklyGoal) {
+          weeklyIndicator = 'ok';
+          weeklyIndicatorLabel = 'Meta Ok';
+        } else if (weeklyVisits === 0) {
+          weeklyIndicator = 'danger';
+          weeklyIndicatorLabel = 'Pendente';
+        }
+
+        // Indicador do mês
+        let monthlyIndicator = 'warn';
+        let monthlyIndicatorLabel = 'Em Andamento';
+        if (monthlyVisits >= monthlyGoal) {
+          monthlyIndicator = 'ok';
+          monthlyIndicatorLabel = 'Meta Cumprida';
+        } else if (monthlyVisits === 0) {
+          monthlyIndicator = 'danger';
+          monthlyIndicatorLabel = 'Pendente';
+        }
+
+        const pct = monthlyGoal > 0 ? Math.min(100, Math.round((monthlyVisits / monthlyGoal) * 100)) : 0;
+        const pending = Math.max(0, monthlyGoal - monthlyVisits);
+        const justText = (justifications[seed.name] && justifications[seed.name][monthKey]) || '';
+
+        return {
+          ...seed,
+          weeklyGoal,
+          weeklyVisits,
+          currentWeekNum,
+          weeklyIndicator,
+          weeklyIndicatorLabel,
+          monthlyGoal,
+          monthlyVisits,
+          monthlyIndicator,
+          monthlyIndicatorLabel,
+          pct,
+          pending,
+          visits,
+          justification: justText
+        };
+      });
+    }
+
+    function renderSupervisionNative() {
+      const data = computeSupervisorsMetrics();
+      const monthKey = getSupervisionMonthKey();
+
+      // 1. Atualiza 4 Bento KPI Cards
+      const totalSchools = 21;
+      const totalVisits = data.reduce((acc, s) => acc + s.monthlyVisits, 0);
+      const totalGoal = data.reduce((acc, s) => acc + s.monthlyGoal, 0);
+      const metGoalCount = data.filter(s => s.monthlyVisits >= s.monthlyGoal).length;
+      const regionalPct = totalGoal > 0 ? Math.round((totalVisits / totalGoal) * 100) : 0;
+
+      const elSchools = document.getElementById('kpiSupSchools');
+      const elVisits = document.getElementById('kpiSupVisits');
+      const elVisitsPct = document.getElementById('kpiSupVisitsPct');
+      const elGoalMet = document.getElementById('kpiSupGoalMet');
+      const elEff = document.getElementById('kpiSupEfficiency');
+
+      if (elSchools) elSchools.textContent = `${totalSchools} / ${totalSchools}`;
+      if (elVisits) elVisits.textContent = `${totalVisits} / ${totalGoal}`;
+      if (elVisitsPct) elVisitsPct.textContent = `${regionalPct}% de cumprimento da meta regional`;
+      if (elGoalMet) elGoalMet.textContent = `${metGoalCount} / 6`;
+      if (elEff) elEff.textContent = `${regionalPct}%`;
+
+      // 2. Renderiza Master Table
+      const tbody = document.getElementById('supervisorTableBody');
+      if (tbody) {
+        tbody.innerHTML = data.map(s => {
+          const badgeWeeklyClass = s.weeklyIndicator === 'ok'
+            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+            : s.weeklyIndicator === 'warn'
+            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+            : 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+          const dotWeeklyClass = s.weeklyIndicator === 'ok' ? 'bg-emerald-500' : s.weeklyIndicator === 'warn' ? 'bg-amber-500' : 'bg-rose-500';
+
+          const badgeMonthlyClass = s.monthlyIndicator === 'ok'
+            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+            : s.monthlyIndicator === 'warn'
+            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+            : 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+          const dotMonthlyClass = s.monthlyIndicator === 'ok' ? 'bg-emerald-500' : s.monthlyIndicator === 'warn' ? 'bg-amber-500' : 'bg-rose-500';
+
+          return `
+            <tr class="supervisor-row hover:bg-muted/30 transition-colors border-b border-border" data-name="${s.name.toLowerCase()}" data-status="${s.monthlyIndicator}">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 text-primary font-bold text-xs flex items-center justify-center flex-shrink-0">
+                    ${s.initials}
+                  </div>
+                  <div>
+                    <div class="font-semibold text-foreground leading-tight">${s.name}</div>
+                    <a href="mailto:${s.email}" class="text-[11px] text-muted-foreground hover:text-primary transition-colors block mt-0.5">${s.email}</a>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-3">
+                <div class="flex flex-wrap gap-1 max-w-xs">
+                  ${s.schools.map(sch => `<span class="inline-block px-1.5 py-0.5 rounded bg-muted text-muted-foreground text-[10px] border border-border truncate max-w-[200px]" title="${sch}">${sch}</span>`).join('')}
+                </div>
+              </td>
+              <td class="px-3 py-3 text-center font-mono text-muted-foreground">
+                ${s.weeklyGoal}
+              </td>
+              <td class="px-3 py-3 text-center font-mono font-bold text-foreground">
+                ${s.weeklyVisits} / ${s.weeklyGoal}
+              </td>
+              <td class="px-3 py-3 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeWeeklyClass} border">
+                  <span class="w-1.5 h-1.5 rounded-full ${dotWeeklyClass}"></span>
+                  ${s.weeklyIndicatorLabel}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-center">
+                <div class="inline-flex flex-col items-center">
+                  <span class="font-mono font-bold text-foreground">${s.monthlyVisits} / ${s.monthlyGoal} (${s.pct}%)</span>
+                  <div class="w-20 h-1.5 bg-muted rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-primary rounded-full transition-all" style="width: ${Math.max(4, s.pct)}%"></div>
+                  </div>
+                </div>
+              </td>
+              <td class="px-3 py-3 text-center">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeMonthlyClass} border">
+                  <span class="w-1.5 h-1.5 rounded-full ${dotMonthlyClass}"></span>
+                  ${s.monthlyIndicatorLabel}
+                </span>
+              </td>
+              <td class="px-4 py-3 max-w-[180px]">
+                ${s.justification ? `
+                  <div class="text-[11px] text-foreground truncate cursor-pointer hover:text-primary transition-colors" title="${s.justification}" onclick="openSupervisorDetailModal('${s.name}')">
+                    "${s.justification}"
+                  </div>
+                ` : `
+                  <button onclick="openSupervisorDetailModal('${s.name}')" class="text-[11px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+                    <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>Justificar</span>
+                  </button>
+                `}
+              </td>
+              <td class="px-4 py-3 text-right">
+                <button onclick="openSupervisorDetailModal('${s.name}')" class="px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-muted text-foreground text-[11px] font-semibold transition-colors inline-flex items-center gap-1">
+                  <span>Detalhes</span>
+                  <svg class="w-3 h-3 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 3. Renderiza Grid de Cards Bento
+      const cardsGrid = document.getElementById('supervisorsCardsGrid');
+      if (cardsGrid) {
+        cardsGrid.innerHTML = data.map(s => {
+          const badgeMonthlyClass = s.monthlyIndicator === 'ok'
+            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
+            : s.monthlyIndicator === 'warn'
+            ? 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+            : 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+          const dotMonthlyClass = s.monthlyIndicator === 'ok' ? 'bg-emerald-500' : s.monthlyIndicator === 'warn' ? 'bg-amber-500' : 'bg-rose-500';
+
+          return `
+            <div class="supervisor-card rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4 hover:border-foreground/20 transition-all flex flex-col justify-between" data-name="${s.name.toLowerCase()}" data-status="${s.monthlyIndicator}">
+              <div class="space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-xs text-primary flex-shrink-0">
+                      ${s.initials}
+                    </div>
+                    <div>
+                      <h3 class="font-semibold text-sm text-foreground leading-snug">${s.name}</h3>
+                      <p class="text-[11px] text-muted-foreground">${s.role} • ${s.sector}</p>
+                    </div>
+                  </div>
+                  <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeMonthlyClass} border">
+                    <span class="w-1.5 h-1.5 rounded-full ${dotMonthlyClass}"></span>
+                    ${s.monthlyIndicatorLabel}
+                  </span>
+                </div>
+
+                <div class="space-y-1.5 pt-2 border-t border-border">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="text-muted-foreground">Visitas no Mês:</span>
+                    <span class="font-mono font-bold text-foreground">${s.monthlyVisits} / ${s.monthlyGoal} (${s.pct}%)</span>
+                  </div>
+                  <div class="h-2 w-full bg-muted rounded-full overflow-hidden">
+                    <div class="h-full bg-primary rounded-full transition-all" style="width: ${Math.max(4, s.pct)}%"></div>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5 pt-2">
+                  <span class="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">Escolas Atribuídas (${s.schools.length}):</span>
+                  <div class="flex flex-wrap gap-1">
+                    ${s.schools.map(sch => `<span class="inline-block px-2 py-0.5 rounded-md bg-muted text-muted-foreground text-[10.5px] border border-border truncate max-w-full font-medium" title="${sch}">${sch}</span>`).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-border flex items-center justify-between gap-2 text-xs">
+                <a href="tel:${s.phone.replace(/\D/g, '')}" class="py-1.5 px-2.5 rounded-lg border border-border bg-muted/30 hover:bg-muted text-center font-medium text-foreground transition-colors flex items-center gap-1.5" title="Ligar no ramal">
+                  <svg class="w-3.5 h-3.5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  <span>${s.phone}</span>
+                </a>
+                <button onclick="openSupervisorDetailModal('${s.name}')" class="py-1.5 px-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary-hover transition-colors flex items-center gap-1 shadow-sm">
+                  <span>Ver Detalhes</span>
+                  <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      filterSupervisorsNative();
+    }
+
+    function filterSupervisorsNative() {
+      const q = (document.getElementById('supervisorSearchInput')?.value || '').toLowerCase().trim();
+      
+      // Filtra linhas da tabela
+      const rows = document.querySelectorAll('.supervisor-row');
+      rows.forEach(r => {
+        const text = (r.textContent || '').toLowerCase();
+        const status = r.getAttribute('data-status') || '';
+        const matchSearch = !q || text.includes(q);
+        const matchFilter = (supervisionFilterType === 'all') || (status === supervisionFilterType);
+        r.style.display = (matchSearch && matchFilter) ? '' : 'none';
+      });
+
+      // Filtra cards
+      const cards = document.querySelectorAll('.supervisor-card');
+      cards.forEach(c => {
+        const text = (c.textContent || '').toLowerCase();
+        const status = c.getAttribute('data-status') || '';
+        const matchSearch = !q || text.includes(q);
+        const matchFilter = (supervisionFilterType === 'all') || (status === supervisionFilterType);
+        c.style.display = (matchSearch && matchFilter) ? 'flex' : 'none';
+      });
+    }
+
+    function setSupervisorFilter(type, btn) {
+      supervisionFilterType = type;
+      document.querySelectorAll('.sup-filter-chip').forEach(c => {
+        c.className = 'sup-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
+      });
+      if (btn) {
+        btn.className = 'sup-filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-foreground text-background transition-all';
+      }
+      filterSupervisorsNative();
+    }
+
+    // Modal de Detalhes do Supervisor (Drilldown)
+    function openSupervisorDetailModal(name) {
+      const data = computeSupervisorsMetrics();
+      const supervisor = data.find(s => s.name === name) || data[0];
+      if (!supervisor) return;
+      supervisionActiveSupervisor = supervisor;
+
+      document.getElementById('modalSupAvatar').textContent = supervisor.initials;
+      document.getElementById('modalSupName').textContent = supervisor.name;
+      document.getElementById('modalSupMeta').textContent = `${supervisor.role} • ${supervisor.phone} • ${supervisor.email}`;
+      document.getElementById('modalSupKpiMeta').textContent = `${supervisor.monthlyGoal} visitas`;
+      document.getElementById('modalSupKpiDone').textContent = `${supervisor.monthlyVisits}`;
+      document.getElementById('modalSupKpiPending').textContent = `${supervisor.pending}`;
+      document.getElementById('modalSupKpiPct').textContent = `${supervisor.pct}%`;
+
+      document.getElementById('modalSupCalMonth').textContent = `${MONTH_NAMES_PT[supervisionCurrentMonth]} / ${supervisionCurrentYear}`;
+      document.getElementById('modalSupVisitsCount').textContent = `${supervisor.visits.length} visita(s)`;
+
+      // Constrói Calendário do Mês
+      const grid = document.getElementById('modalSupCalendarGrid');
+      if (grid) {
+        const firstDayOfMonth = new Date(supervisionCurrentYear, supervisionCurrentMonth - 1, 1).getDay();
+        const daysInMonth = new Date(supervisionCurrentYear, supervisionCurrentMonth, 0).getDate();
+        const visitedDays = new Set(supervisor.visits.map(v => v.day));
+
+        let cellsHtml = '';
+        // Células vazias antes do primeiro dia
+        for (let i = 0; i < firstDayOfMonth; i++) {
+          cellsHtml += `<div class="p-2 rounded-lg bg-muted/10 border border-transparent text-center opacity-30"></div>`;
+        }
+        // Dias do mês
+        for (let d = 1; d <= daysInMonth; d++) {
+          const hasVisit = visitedDays.has(d);
+          const visitsOnDay = supervisor.visits.filter(v => v.day === d);
+          if (hasVisit) {
+            cellsHtml += `
+              <div class="p-2 rounded-lg border border-primary/40 bg-primary/10 text-primary font-bold text-center space-y-0.5 cursor-pointer hover:bg-primary/20 transition-colors" title="${visitsOnDay.map(v => v.school).join(', ')}">
+                <span class="block font-mono text-xs">${d}</span>
+                <span class="block text-[9px] font-semibold">${visitsOnDay.length} vis.</span>
+              </div>
+            `;
+          } else {
+            cellsHtml += `
+              <div class="p-2 rounded-lg border border-border/50 bg-muted/20 text-muted-foreground text-center font-mono text-xs">
+                ${d}
+              </div>
+            `;
+          }
+        }
+        grid.innerHTML = cellsHtml;
+      }
+
+      // Constrói Lista de Visitas
+      const listEl = document.getElementById('modalSupVisitsList');
+      if (listEl) {
+        if (!supervisor.visits.length) {
+          listEl.innerHTML = `<p class="text-xs text-muted-foreground italic py-3 text-center">Nenhuma visita registrada na planilha para este mês.</p>`;
+        } else {
+          listEl.innerHTML = supervisor.visits.map(v => `
+            <div class="p-2.5 rounded-xl border border-border bg-muted/20 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0"></span>
+                <div>
+                  <strong class="text-foreground text-xs block leading-snug">${v.school}</strong>
+                  <span class="text-[11px] text-muted-foreground">${v.type}</span>
+                </div>
+              </div>
+              <span class="font-mono text-xs text-muted-foreground px-2 py-1 rounded bg-card border border-border flex-shrink-0">${v.dateStr}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Justificativa
+      const justInput = document.getElementById('modalSupJustificationInput');
+      if (justInput) {
+        justInput.value = supervisor.justification || '';
+      }
+      const feedback = document.getElementById('modalSupJustificationFeedback');
+      if (feedback) feedback.textContent = '';
+
+      const modal = document.getElementById('supervisorDetailModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSupervisorDetailModal() {
+      const modal = document.getElementById('supervisorDetailModal');
+      if (modal) modal.classList.add('hidden');
+      supervisionActiveSupervisor = null;
+    }
+
+    function saveModalSupervisorJustification() {
+      if (!supervisionActiveSupervisor) return;
+      const text = (document.getElementById('modalSupJustificationInput')?.value || '').trim();
+      const monthKey = getSupervisionMonthKey();
+      saveJustificationToStorage(supervisionActiveSupervisor.name, monthKey, text);
+      const feedback = document.getElementById('modalSupJustificationFeedback');
+      if (feedback) {
+        feedback.innerHTML = '<span class="text-emerald-500 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Justificativa salva com sucesso!</span>';
+        setTimeout(() => { if (feedback) feedback.textContent = ''; }, 3000);
+      }
+      renderSupervisionNative();
+    }
+
+    // Sincronização com Google Sheets CSV Oficial
+    async function syncOfficialSupervision(isManual = false) {
+      const icon = document.getElementById('syncSupervisionIcon');
+      const dot = document.getElementById('supervisionStatusDot');
+      const statusText = document.getElementById('supervisionStatusText');
+      const statusTime = document.getElementById('supervisionStatusTime');
+      const footerUpdated = document.getElementById('supFooterUpdated');
+
+      if (icon) icon.classList.add('animate-spin');
+      if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+      if (statusText) statusText.textContent = 'Baixando dados mais recentes da planilha oficial...';
+
+      try {
+        const response = await fetch(SUPERVISION_SHEET_URL, { signal: AbortSignal.timeout(12000) });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const csvText = await response.text();
+        const rows = parseCsvToRows(csvText);
+        if (rows.length) {
+          supervisionRawRows = rows;
+          try {
+            localStorage.setItem('painelure2_supervision_raw_cache', JSON.stringify({
+              rows,
+              updatedAt: new Date().toISOString()
+            }));
+          } catch (e) {}
+
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+          if (statusText) statusText.textContent = `Planilha oficial sincronizada às ${timeStr} • 6 supervisores monitorados (${rows.length} registros)`;
+          if (statusTime) statusTime.textContent = `Atualizado às ${timeStr}`;
+          if (footerUpdated) footerUpdated.textContent = `Última sincronização com Google Sheets às ${timeStr}`;
+        }
+      } catch (err) {
+        console.warn('[Supervision] Falha na sincronização online:', err.message);
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        if (statusText) statusText.textContent = `Planilha oficial indisponível (${err.message}). Exibindo dados do cache local.`;
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+        renderSupervisionNative();
+      }
+    }
+
+    function initSupervisionNative() {
+      updateSupervisionMonthLabel();
+      // Tenta ler do cache offline
+      try {
+        const cached = localStorage.getItem('painelure2_supervision_raw_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed?.rows?.length) {
+            supervisionRawRows = parsed.rows;
+            const updated = parsed.updatedAt ? new Date(parsed.updatedAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+            const statusTime = document.getElementById('supervisionStatusTime');
+            if (statusTime && updated) statusTime.textContent = `Cache de ${updated}`;
+          }
+        }
+      } catch (e) {}
+
+      renderSupervisionNative();
+      syncOfficialSupervision(false);
     }
 
     // Inicialização por Hash da URL
@@ -5668,6 +6532,7 @@
     renderDirectory();
     renderRede2026(REDE_DATA);
     renderSupport(SUPPORT_DATA);
+    initSupervisionNative();
     
     // Inicialização de Sessão do Usuário
     const currentSession = getActiveSession();
