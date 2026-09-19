@@ -432,7 +432,7 @@
             <div>
               <div class="text-2xl font-bold tracking-tight text-foreground">2 <span class="text-sm font-normal text-muted-foreground">veículos</span></div>
               <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                <span id="overviewFleetReservations" class="text-emerald-500 font-medium">0 reservas</span>
+                <span id="overviewFleetReservations" class="text-emerald-500 font-medium">3 reservas</span>
                 <span>este mês</span>
               </div>
             </div>
@@ -1277,129 +1277,29 @@
 
       <!-- ── VIEW 8: FROTA & VIAGENS (#fleet) ── -->
       <div id="view-fleet" class="view-content space-y-4">
-        <!-- Topo da View de Frota -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div class="flex items-center gap-2.5">
-              <h1 class="text-2xl font-bold tracking-tight text-foreground">Frota Oficial</h1>
-              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-500 border border-purple-500/20 flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                2 Veículos Ativos
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl font-bold tracking-tight text-foreground">Carros Oficiais</h1>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                Agendamentos & Motoristas
               </span>
             </div>
-            <p class="text-sm text-muted-foreground mt-0.5">Agendamento de veículos oficiais, itinerários, condutores e viagens institucionais da URE Itapeva.</p>
+            <p class="text-sm text-muted-foreground mt-0.5">Agendamento de carros oficiais, destinos, motoristas e integração com o SharePoint da regional.</p>
           </div>
-
-          <!-- Controles de Mês & Ações -->
-          <div class="flex flex-wrap items-center gap-2.5">
-            <!-- Seletor de Mês -->
-            <div class="inline-flex items-center bg-card border border-border rounded-xl p-1 shadow-sm">
-              <button onclick="changeFleetMonth(-1)" class="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" title="Mês anterior">
-                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="m15 18-6-6 6-6"/></svg>
-              </button>
-              <span id="fleetMonthLabel" class="px-3 text-xs font-bold text-foreground select-none font-mono min-w-[120px] text-center">Setembro / 2026</span>
-              <button onclick="changeFleetMonth(1)" class="w-7 h-7 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors" title="Próximo mês">
-                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            </div>
-
-            <!-- Botão SharePoint Oficial -->
-            <a href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl border border-border bg-card hover:bg-muted text-foreground text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm active:scale-95" title="Abrir planilha de agendamento no SharePoint">
-              <svg class="w-3.5 h-3.5 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
-              <span>SharePoint ↗</span>
+          <div class="flex items-center gap-2">
+            <a href="https://seesp-my.sharepoint.com/:l:/g/personal/itv_seintec_educacao_sp_gov_br/JACaDeD8XkaHRaX2WSJPMXJ6AUCrQaodqExoAqBNE7w0JR4?e=LdJz8u" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary-hover transition-colors flex items-center gap-1.5 shadow-sm">
+              <span>Abrir no SharePoint ↗</span>
+            </a>
+            <a href="assets/cars.html" target="_blank" class="p-1.5 rounded-lg border border-border bg-card hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Abrir em Nova Aba">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
             </a>
           </div>
         </div>
 
-        <!-- 4 Bento Cards de KPIs da Frota -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
-            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Frota Oficial</span>
-            <div id="kpiFleetVehicles" class="text-2xl font-bold tracking-tight text-foreground font-mono">2 veículos</div>
-            <p class="text-xs text-muted-foreground">Carro Oficial 1 e Carro Oficial 2</p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
-            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Reservas no Mês</span>
-            <div id="kpiFleetMonthBookings" class="text-2xl font-bold tracking-tight text-foreground font-mono">5 reservas</div>
-            <p id="kpiFleetMonthSub" class="text-xs text-muted-foreground">Registradas para o período</p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
-            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status Operacional</span>
-            <div id="kpiFleetStatus" class="text-2xl font-bold tracking-tight text-foreground font-mono">4 conf. • 1 pend.</div>
-            <p class="text-xs text-muted-foreground">Viagens programadas da regional</p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-5 space-y-2 shadow-sm">
-            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Municípios / Destinos</span>
-            <div id="kpiFleetDestinations" class="text-2xl font-bold tracking-tight text-foreground font-mono">4 cidades</div>
-            <p class="text-xs text-muted-foreground">Itapeva, Capão Bonito, Buri, etc.</p>
-          </div>
-        </div>
-
-        <!-- Barra de Busca e Filtros -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          <div class="relative flex-1 max-w-md">
-            <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="fleetSearchInput" oninput="filterFleetBookings()" placeholder="Buscar por destino, solicitante, condutor ou finalidade..." class="w-full pl-9 pr-4 py-2 rounded-xl border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
-          </div>
-          <div class="flex flex-wrap items-center gap-1.5">
-            <button onclick="setFleetFilter('all', this)" class="fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-foreground text-background transition-all">Todas as Reservas</button>
-            <button onclick="setFleetFilter('carro1', this)" class="fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Carro Oficial 1</button>
-            <button onclick="setFleetFilter('carro2', this)" class="fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Carro Oficial 2</button>
-            <button onclick="setFleetFilter('reservado', this)" class="fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Confirmadas</button>
-            <button onclick="setFleetFilter('pendente', this)" class="fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all">Pendentes</button>
-          </div>
-        </div>
-
-        <!-- Tabela Oficial de Agendamentos (Tabela Direta, sem Card dentro de Card) -->
-        <div class="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-          <div class="p-4 sm:p-5 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div class="flex items-center gap-2.5">
-              <h2 class="text-base font-bold text-foreground">Escala de Viagens e Reservas</h2>
-              <span class="text-xs text-muted-foreground font-mono" id="fleetTableCount">0 agendamentos</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="text-[11px] text-muted-foreground">Dados sincronizados da frota oficial da Diretoria</span>
-            </div>
-          </div>
-
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
-                <tr>
-                  <th class="px-5 py-3">Código</th>
-                  <th class="px-4 py-3">Veículo</th>
-                  <th class="px-4 py-3">Data / Horário</th>
-                  <th class="px-4 py-3">Solicitante & Setor</th>
-                  <th class="px-4 py-3">Destino</th>
-                  <th class="px-4 py-3">Condutor</th>
-                  <th class="px-4 py-3 text-center">Status</th>
-                  <th class="px-5 py-3">Finalidade / Observações</th>
-                </tr>
-              </thead>
-              <tbody id="fleetTableRows" class="divide-y divide-border">
-                <!-- Linhas populadas dinamicamente -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rodapé da Tabela -->
-          <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
-            <span id="fleetResultsCount">Carregando agendamentos...</span>
-            <div class="flex items-center gap-4 text-[11px]">
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Confirmado / Reservado
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                Aguardando Condutor / Pendente
-              </span>
-              <span class="flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                Viagem Realizada
-              </span>
-            </div>
-          </div>
+        <!-- Módulo Oficial de Carros (Original do PainelURE) -->
+        <div class="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col">
+          <iframe id="carsFrame" src="assets/cars.html" class="w-full" style="height: calc(100vh - 210px); min-height: 850px; border: none;" allow="fullscreen"></iframe>
         </div>
       </div>
 
@@ -3192,32 +3092,38 @@
       'user': 'Minha Conta & Preferências'
     };
 
-    // Base de Reservas da Frota Oficial (2 Veículos)
+    // Base de Reservas da Frota Oficial (Original PainelURE 2)
     const FLEET_RESERVATIONS = [
-      // Setembro 2026 (Mês Vigente)
-      { id: "RES-26/0901", vehicle: "Carro oficial 1", date: "2026-09-15", time: "08:00", returnTime: "17:00", requester: "Gabinete", sector: "GAB", destination: "Itapeva", driver: "João Silva", status: "reservado", note: "Deslocamento institucional para acompanhamento regional." },
-      { id: "RES-26/0902", vehicle: "Carro oficial 2", date: "2026-09-15", time: "13:30", returnTime: "18:00", requester: "SETEC / SEINTEC", sector: "SETEC", destination: "Ribeirão Grande", driver: "A definir", status: "pendente", note: "Atendimento técnico presencial e validação de conectividade." },
-      { id: "RES-26/0903", vehicle: "Carro oficial 1", date: "2026-09-16", time: "09:00", returnTime: "16:30", requester: "Supervisão", sector: "ESE", destination: "Capão Bonito", driver: "Carlos Souza", status: "reservado", note: "Visita e acompanhamento pedagógico nas escolas polo." },
-      { id: "RES-26/0904", vehicle: "Carro oficial 2", date: "2026-09-22", time: "08:30", returnTime: "17:00", requester: "SEAFIN", sector: "SEAFIN", destination: "Buri", driver: "A definir", status: "reservado", note: "Entrega de suprimentos e materiais administrativos." },
-      { id: "RES-26/0905", vehicle: "Carro oficial 1", date: "2026-09-25", time: "08:00", returnTime: "14:00", requester: "Gabinete", sector: "GAB", destination: "Taquarivaí", driver: "João Silva", status: "reservado", note: "Reunião de alinhamento com equipe gestora municipal." },
-      // Maio 2026 (Histórico)
-      { id: "RES-26/0501", vehicle: "Carro oficial 1", date: "2026-05-15", time: "08:00", returnTime: "17:00", requester: "Gabinete", sector: "GAB", destination: "Itapeva", driver: "A definir", status: "realizado", note: "Reserva operacional para deslocamento institucional." },
-      { id: "RES-26/0502", vehicle: "Carro oficial 2", date: "2026-05-15", time: "13:30", returnTime: "18:00", requester: "SETEC", sector: "SETEC", destination: "Ribeirão Grande", driver: "A definir", status: "realizado", note: "Aguardando confirmação de motorista." },
-      { id: "RES-26/0503", vehicle: "Carro oficial 1", date: "2026-05-16", time: "09:00", returnTime: "16:30", requester: "Supervisão", sector: "ESE", destination: "Capao Bonito", driver: "A definir", status: "realizado", note: "Agenda de visita e acompanhamento escolar." }
+      { vehicle: "Carro oficial 1", date: "2026-05-15", time: "08:00", requester: "Gabinete", destination: "Itapeva", driver: "A definir", status: "reservado", note: "Reserva operacional para deslocamento institucional." },
+      { vehicle: "Carro oficial 2", date: "2026-05-15", time: "13:30", requester: "SETEC", destination: "Ribeirão Grande", driver: "A definir", status: "pendente", note: "Aguardando confirmação de motorista." },
+      { vehicle: "Carro oficial 1", date: "2026-05-16", time: "09:00", requester: "Supervisão", destination: "Capao Bonito", driver: "A definir", status: "reservado", note: "Agenda de visita e acompanhamento escolar." }
     ];
 
     function updateOverviewFleetReservations() {
       let list = FLEET_RESERVATIONS;
       try {
-        const saved = localStorage.getItem('painelure_cars') || localStorage.getItem('painelure_seed_cars');
-        if (saved) {
-          const parsed = JSON.parse(saved);
+        const cached = localStorage.getItem('painelure2_cars_cache') || localStorage.getItem('painelure_cars') || localStorage.getItem('painelure_seed_cars');
+        if (cached) {
+          const parsed = JSON.parse(cached);
           if (Array.isArray(parsed)) list = parsed;
+          else if (parsed && Array.isArray(parsed.cars)) list = parsed.cars;
         }
       } catch (e) {}
+
       const now = new Date();
       const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const count = list.filter(r => r.date && r.date.startsWith(currentYM)).length;
+      let count = list.filter(r => r.date && r.date.startsWith(currentYM)).length;
+      if (count === 0 && list.length > 0) {
+        const sampleDate = list[0]?.date;
+        if (sampleDate && sampleDate.length >= 7) {
+          const dataYM = sampleDate.substring(0, 7);
+          const dataCount = list.filter(r => r.date && r.date.startsWith(dataYM)).length;
+          count = dataCount > 0 ? dataCount : list.length;
+        } else {
+          count = list.length;
+        }
+      }
+
       const el = document.getElementById('overviewFleetReservations');
       if (el) {
         el.textContent = `${count} ${count === 1 ? 'reserva' : 'reservas'}`;
@@ -3244,8 +3150,6 @@
 
       if (viewKey === 'overview') {
         updateOverviewFleetReservations();
-      } else if (viewKey === 'fleet') {
-        renderFleetNative();
       }
 
       if (viewKey === 'calls') {
@@ -3319,144 +3223,6 @@
         secTeam.classList.remove('hidden');
         secDash.classList.add('hidden');
       }
-    }
-
-    // ── MÓDULO NATIVO DE FROTA OFICIAL (2 VEÍCULOS) ──
-    let fleetCurrentMonth = 9; // 1-indexed, default Setembro/2026
-    let fleetCurrentYear = 2026;
-    let fleetActiveFilter = 'all';
-
-    function getFleetMonthKey() {
-      return `${fleetCurrentYear}-${String(fleetCurrentMonth).padStart(2, '0')}`;
-    }
-
-    function changeFleetMonth(delta) {
-      fleetCurrentMonth += delta;
-      if (fleetCurrentMonth > 12) {
-        fleetCurrentMonth = 1;
-        fleetCurrentYear++;
-      } else if (fleetCurrentMonth < 1) {
-        fleetCurrentMonth = 12;
-        fleetCurrentYear--;
-      }
-      const label = document.getElementById('fleetMonthLabel');
-      const monthNames = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-      if (label) label.textContent = `${monthNames[fleetCurrentMonth]} / ${fleetCurrentYear}`;
-      renderFleetNative();
-    }
-
-    function setFleetFilter(filter, btn) {
-      fleetActiveFilter = filter;
-      document.querySelectorAll('.fleet-filter-chip').forEach(el => {
-        el.className = 'fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-medium border border-border text-muted-foreground hover:text-foreground transition-all';
-      });
-      if (btn) {
-        btn.className = 'fleet-filter-chip px-3 py-1.5 rounded-xl text-xs font-semibold bg-foreground text-background transition-all';
-      }
-      renderFleetNative();
-    }
-
-    function filterFleetBookings() {
-      renderFleetNative();
-    }
-
-    function renderFleetNative() {
-      const q = (document.getElementById('fleetSearchInput')?.value || '').toLowerCase().trim();
-      const monthKey = getFleetMonthKey();
-      const tbody = document.getElementById('fleetTableRows');
-      if (!tbody) return;
-
-      // Obtém reservas do mês selecionado
-      const monthBookings = FLEET_RESERVATIONS.filter(r => r.date && r.date.startsWith(monthKey));
-
-      // Atualiza KPIs da Frota
-      const kpiVehicles = document.getElementById('kpiFleetVehicles');
-      const kpiMonth = document.getElementById('kpiFleetMonthBookings');
-      const kpiMonthSub = document.getElementById('kpiFleetMonthSub');
-      const kpiStatus = document.getElementById('kpiFleetStatus');
-      const kpiDestinations = document.getElementById('kpiFleetDestinations');
-
-      const confirmedCount = monthBookings.filter(b => b.status === 'reservado' || b.status === 'realizado').length;
-      const pendingCount = monthBookings.filter(b => b.status === 'pendente').length;
-      const uniqueDest = [...new Set(monthBookings.map(b => b.destination).filter(Boolean))];
-
-      if (kpiVehicles) kpiVehicles.textContent = '2 veículos';
-      if (kpiMonth) kpiMonth.textContent = `${monthBookings.length} ${monthBookings.length === 1 ? 'reserva' : 'reservas'}`;
-      if (kpiMonthSub) kpiMonthSub.textContent = `Registradas em ${monthKey}`;
-      if (kpiStatus) kpiStatus.textContent = `${confirmedCount} conf. • ${pendingCount} pend.`;
-      if (kpiDestinations) kpiDestinations.textContent = `${uniqueDest.length} ${uniqueDest.length === 1 ? 'cidade' : 'cidades'}`;
-
-      // Aplica filtros ativos
-      const filtered = monthBookings.filter(item => {
-        if (fleetActiveFilter === 'carro1' && !item.vehicle.toLowerCase().includes('1')) return false;
-        if (fleetActiveFilter === 'carro2' && !item.vehicle.toLowerCase().includes('2')) return false;
-        if (fleetActiveFilter === 'reservado' && item.status !== 'reservado') return false;
-        if (fleetActiveFilter === 'pendente' && item.status !== 'pendente') return false;
-
-        if (!q) return true;
-        const text = [item.id, item.vehicle, item.requester, item.sector, item.destination, item.driver, item.note, item.status].join(' ').toLowerCase();
-        return text.includes(q);
-      });
-
-      const countEl = document.getElementById('fleetTableCount');
-      if (countEl) countEl.textContent = `${filtered.length} agendamento(s)`;
-
-      const resultsEl = document.getElementById('fleetResultsCount');
-      if (resultsEl) resultsEl.textContent = `Mostrando ${filtered.length} de ${monthBookings.length} agendamento(s) em ${monthKey}`;
-
-      if (!filtered.length) {
-        tbody.innerHTML = `<tr><td colspan="8" class="px-5 py-10 text-center text-muted-foreground text-xs">
-          <div class="max-w-xs mx-auto space-y-1">
-            <p class="font-semibold text-foreground">Nenhum agendamento encontrado</p>
-            <p class="text-[11px] text-muted-foreground">Não há reservas para o filtro ou mês selecionado (${monthKey}).</p>
-          </div>
-        </td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = filtered.map(item => {
-        const isCar1 = item.vehicle.toLowerCase().includes('1');
-        const vehicleBadge = isCar1
-          ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/10 text-purple-500 border border-purple-500/20"><svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>Carro 1</span>'
-          : '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20"><svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>Carro 2</span>';
-
-        let statusBadge = '';
-        if (item.status === 'reservado') {
-          statusBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Reservado</span>';
-        } else if (item.status === 'pendente') {
-          statusBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Pendente</span>';
-        } else {
-          statusBadge = '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Realizado</span>';
-        }
-
-        const dateParts = (item.date || '').split('-');
-        const dateFormatted = dateParts.length === 3 ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}` : item.date;
-        const timeRange = item.returnTime ? `${item.time || '--:--'} às ${item.returnTime}` : (item.time || '--:--');
-
-        return `<tr class="hover:bg-muted/30 transition-colors">
-          <td class="px-5 py-3.5 font-mono text-[11px] font-semibold text-foreground">${item.id || 'RES'}</td>
-          <td class="px-4 py-3.5">${vehicleBadge}</td>
-          <td class="px-4 py-3.5">
-            <div class="font-medium text-foreground">${dateFormatted}</div>
-            <div class="text-[11px] text-muted-foreground font-mono">${timeRange}</div>
-          </td>
-          <td class="px-4 py-3.5">
-            <div class="font-semibold text-foreground">${item.requester || 'Solicitante'}</div>
-            <div class="text-[10px] uppercase font-mono text-muted-foreground">${item.sector || ''}</div>
-          </td>
-          <td class="px-4 py-3.5 font-medium text-foreground">
-            <span class="inline-flex items-center gap-1">
-              <svg class="w-3 h-3 text-primary shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              ${item.destination || 'Itapeva'}
-            </span>
-          </td>
-          <td class="px-4 py-3.5 text-muted-foreground">
-            <span class="font-medium text-foreground/90">${item.driver || 'A definir'}</span>
-          </td>
-          <td class="px-4 py-3.5 text-center">${statusBadge}</td>
-          <td class="px-5 py-3.5 text-muted-foreground max-w-xs truncate" title="${item.note || ''}">${item.note || '—'}</td>
-        </tr>`;
-      }).join('');
     }
 
     // ── BASE DE CONEXÕES INTRAGOV & GATEWAYS (21 ESCOLAS) ──
@@ -6766,10 +6532,8 @@
 
     renderTable();
     updateOverviewFleetReservations();
-    renderFleetNative();
     renderSchools();
     renderInternal();
-    renderSchools();
     renderDirectory();
     renderRede2026(REDE_DATA);
     renderSupport(SUPPORT_DATA);
