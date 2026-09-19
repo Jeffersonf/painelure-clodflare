@@ -97,10 +97,10 @@
       
       if (!hasLocalData) {
         updateProgressBar(20, true);
-        status.innerHTML = '<span>⏳</span> Carregando metas e visitas da planilha oficial...';
+        status.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#f59e0b;margin-right:6px;box-shadow:0 0 6px rgba(245,158,11,0.6);"></span>Carregando metas e visitas da planilha oficial...';
         host?.onSyncState?.('syncing', 'Baixando planilha...');
       } else {
-        status.innerHTML = '<span>🔄</span> Sincronizando novas atualizações da planilha...';
+        status.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#3b82f6;margin-right:6px;box-shadow:0 0 6px rgba(59,130,246,0.6);"></span>Sincronizando novas atualizações da planilha...';
         host?.onSyncState?.('syncing', 'Buscando atualizações...');
       }
 
@@ -135,13 +135,13 @@
         }
 
         updateProgressBar(100, false);
-        status.innerHTML = `<span>✅</span> Planilha oficial atualizada em ${new Date(result.updatedAt || Date.now()).toLocaleTimeString('pt-BR')}. ${appData.supervisors.length} supervisores.`;
+        status.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#10b981;margin-right:6px;box-shadow:0 0 6px rgba(16,185,129,0.6);"></span>Planilha oficial sincronizada às ' + new Date(result.updatedAt || Date.now()).toLocaleTimeString('pt-BR') + ' • ' + appData.supervisors.length + ' supervisores.';
         host?.onSyncState?.('synced', 'Sincronizado');
         P.renderApp();
         return result;
       } catch (error) {
         updateProgressBar(0, false);
-        status.innerHTML = `<span>⚠️</span> Não foi possível atualizar agora (${error.message}). ${appData.supervisors.length ? 'Exibindo dados offline.' : 'Tente Atualizar novamente.'}`;
+        status.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;margin-right:6px;box-shadow:0 0 6px rgba(239,68,68,0.6);"></span>Erro na sincronização (' + error.message + '). ' + (appData.supervisors.length ? 'Exibindo dados do cache local.' : 'Tente atualizar novamente.');
         host?.onSyncState?.(appData.supervisors.length ? 'cached' : 'error', appData.supervisors.length ? 'Modo Offline' : 'Erro de rede');
         return { status: 'error' };
       } finally {
@@ -179,7 +179,7 @@
         const parsed = JSON.parse(cached);
         if (parsed?.supervisors?.length) {
           appData.supervisors = parsed.supervisors;
-          status.innerHTML = `<span>📦</span> Dados offline carregados. Sincronizando com a planilha...`;
+          status.innerHTML = '<span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#a1a1aa;margin-right:6px;"></span>Dados offline carregados. Sincronizando com a planilha...';
         }
       }
     } catch (e) {

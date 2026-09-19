@@ -242,7 +242,7 @@
         ${supervisionAprilWarningMarkup()}
         <article class="box" id="painelSupervisor">
           <div class="box-head supervisor-original-box-head">
-            <div><strong>🧭 Painel de supervisores</strong><small>Resumo mensal das visitas, metas e indicadores da planilha oficial.</small></div>
+            <div><strong><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>Painel de Supervisores</strong><small>Resumo mensal das visitas, metas e indicadores da planilha oficial.</small></div>
             <div class="mini-actions">
               <button class="btn btn-p btn-sm" id="syncSupervisorSourcesBtn" type="button">Atualizar planilha</button>
               <button class="btn btn-g btn-sm" id="supervisorFullscreenBtn" type="button">Apresentar</button>
