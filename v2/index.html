@@ -136,7 +136,7 @@
           </button>
           <button onclick="navTo('network')" data-nav="network" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
-            <span>Rede & Zabbix</span>
+            <span>Rede e Monitoramento</span>
           </button>
           <button onclick="navTo('dvr')" data-nav="dvr" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
@@ -281,7 +281,7 @@
         </a>
 
         <!-- Botão de Monitor ao Vivo Rápido -->
-        <button onclick="navTo('network'); setTimeout(() => { document.getElementById('monitorImageCard')?.scrollIntoView({ behavior: 'smooth' }); }, 150)" title="Abrir Monitor Zabbix & Meraki Ao Vivo" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all">
+        <button onclick="navTo('network'); setTimeout(() => { document.getElementById('monitorImageCard')?.scrollIntoView({ behavior: 'smooth' }); }, 150)" title="Abrir Rede e Monitoramento Ao Vivo" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all">
           <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
           <span class="hidden md:inline">Ao Vivo</span>
         </button>
@@ -752,9 +752,125 @@
 
       </div>
 
-      <!-- ── VIEW 2: REDE & ZABBIX (#network) ── -->
-      <div id="view-network" class="view-content space-y-6">
-        <!-- ── MONITOR AO VIVO ZABBIX & MERAKI (FOTO AO VIVO) ── -->
+      <!-- ── VIEW 2: REDE E MONITORAMENTO (#network) ── -->
+      <div id="view-network" class="view-content space-y-8">
+        
+        <!-- ── 1. RESUMO DAS CONEXÕES (TOPO) ── -->
+        <div class="space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold tracking-tight text-foreground">Rede e Monitoramento</h1>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Links Intragov 100% Operacionais
+                </span>
+              </div>
+              <p class="text-sm text-muted-foreground mt-0.5">Resumo das conexões dos circuitos Intragov, sub-redes e gateways das 21 unidades escolares da regional.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="document.getElementById('monitorImageCard')?.scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all shadow-sm">
+                <svg class="w-3.5 h-3.5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>
+                <span>Ir para Foto ao Vivo</span>
+              </button>
+              <button onclick="document.getElementById('dvrNetworkSection')?.scrollIntoView({ behavior: 'smooth' })" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-foreground transition-all shadow-sm">
+                <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+                <span>Ir para Videomonitoramento</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 KPIs Sóbrios de Conectividade -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Circuitos Intragov</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+              <div class="text-2xl font-bold text-foreground font-mono">21 Escolas</div>
+              <p class="text-xs text-muted-foreground">100% dos links primários ativos e sincronizados com a Prodesp.</p>
+            </div>
+
+            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sub-redes Mapeadas</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+              <div class="text-2xl font-bold text-foreground font-mono">42 Gateways</div>
+              <p class="text-xs text-muted-foreground">Segmentação entre rede Administrativa e rede Pedagógica.</p>
+            </div>
+
+            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Latência Média</span>
+                <span class="font-mono text-xs font-bold text-emerald-500">11ms</span>
+              </div>
+              <div class="text-2xl font-bold text-foreground">Excelente</div>
+              <p class="text-xs text-muted-foreground">Tempo de resposta estável com os servidores centrais da SEDUC.</p>
+            </div>
+
+            <div class="rounded-xl border border-border bg-card p-5 space-y-2 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Alertas Zabbix</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+              <div class="text-2xl font-bold text-foreground">0 Desastres</div>
+              <p class="text-xs text-muted-foreground">Nenhum incidente crítico bloqueando a conectividade regional.</p>
+            </div>
+          </div>
+
+          <!-- Tabela de Conexões e Gateways das 21 Escolas -->
+          <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-border space-y-3">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 class="text-sm font-semibold text-foreground tracking-tight">Detalhamento dos Circuitos & Sub-redes</h3>
+                  <p class="text-xs text-muted-foreground mt-0.5">Endereçamento IP oficial dos roteadores de borda (Gateways ADM e Pedagógico).</p>
+                </div>
+                <div class="relative w-full sm:w-72">
+                  <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                  <input type="text" id="networkSearchInput" oninput="filterNetworkTable()" placeholder="Filtrar por escola, cidade, IP ou CIE..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
+                  <tr>
+                    <th class="px-5 py-3">Unidade Escolar</th>
+                    <th class="px-4 py-3">Município</th>
+                    <th class="px-4 py-3">CIE</th>
+                    <th class="px-4 py-3">Gateway ADM</th>
+                    <th class="px-4 py-3">Gateway Pedagógico</th>
+                    <th class="px-4 py-3 text-center">Status Link</th>
+                    <th class="px-4 py-3 text-center">Latência</th>
+                  </tr>
+                </thead>
+                <tbody id="networkTableRows" class="divide-y divide-border">
+                  <!-- Inserido dinamicamente por renderNetworkTable() -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Footer da Tabela de Conexões -->
+            <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
+              <span id="networkResultsCount">Mostrando 21 de 21 escolas conectadas</span>
+              <div class="flex items-center gap-4 text-[11px]">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Intragov Operacional
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                  Dupla Sub-rede (ADM + PED)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 2. A FOTO AO VIVO (MEIO) ── -->
         <div id="monitorImageCard" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-5 space-y-4">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
@@ -825,43 +941,22 @@
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground">Infraestrutura & Conectividade Zabbix</h1>
-            <p class="text-sm text-muted-foreground mt-0.5">Monitoramento dos links Intragov, switches e Access Points Meraki das 21 escolas.</p>
+        <!-- ── 3. VIDEOMONITORAMENTO (EMBAIXO) ── -->
+        <div id="dvrNetworkSection" class="space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-xl font-bold tracking-tight text-foreground">Videomonitoramento Regional CONVIVA</h2>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">33 Gravadores</span>
+              </div>
+              <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre a planilha oficial da SEDUC e o teste ICMP de ping na Intragov.</p>
+            </div>
           </div>
-          <button onclick="navTo('dvr')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-semibold shadow-sm hover:bg-primary-hover transition-colors">
-            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
-            <span>Ver Gravadores CONVIVA</span>
-          </button>
+
+          <!-- Ponto de ancoragem dinâmica do componente #dvrTableSection -->
+          <div id="dvrNetworkPlaceholder"></div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-muted-foreground uppercase">Alertas Zabbix</span>
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            </div>
-            <div class="text-2xl font-bold text-foreground">0 Desastres</div>
-            <p class="text-xs text-muted-foreground">Nenhum incidente crítico bloqueando a conectividade estadual no momento.</p>
-          </div>
-          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-muted-foreground uppercase">Access Points Meraki</span>
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            </div>
-            <div class="text-2xl font-bold text-foreground">100% Operacionais</div>
-            <p class="text-xs text-muted-foreground">Cobertura Wi-Fi ativa nas salas de aula e secretarias da regional.</p>
-          </div>
-          <div class="rounded-xl border border-border bg-card p-5 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-semibold text-muted-foreground uppercase">Latência Média</span>
-              <span class="font-mono text-xs font-bold text-emerald-500">11ms</span>
-            </div>
-            <div class="text-2xl font-bold text-foreground">Excelente</div>
-            <p class="text-xs text-muted-foreground">Tempo de resposta estável com os servidores centrais da SEDUC.</p>
-          </div>
-        </div>
       </div>
 
       <!-- ── VIEW 3: DVRS DEDICADO (#dvr) ── -->
@@ -3163,7 +3258,7 @@
     // NAVEGAÇÃO DE VIEWS
     const viewTitles = {
       'overview': 'Visão Executiva',
-      'network': 'Rede & Zabbix',
+      'network': 'Rede e Monitoramento',
       'dvr': 'DVRs (CONVIVA)',
       'calls': 'Central de Chamados CTC',
       'supervision': 'Supervisores',
@@ -3198,11 +3293,14 @@
       const bTitle = document.getElementById('currentViewBreadcrumb');
       if (bTitle && viewTitles[viewKey]) bTitle.textContent = viewTitles[viewKey];
 
-      // Re-ancora tabela de DVR se for para a view dvr dedicada ou overview
+            // Re-ancora tabela de DVR se for para a view dvr dedicada, network ou overview
       const tableSec = document.getElementById('dvrTableSection');
       const ovPlace = document.getElementById('dvrOverviewPlaceholder');
       const dedPlace = document.getElementById('dvrDedicatedPlaceholder');
-      if (viewKey === 'dvr' && dedPlace && tableSec) {
+      const netPlace = document.getElementById('dvrNetworkPlaceholder');
+      if (viewKey === 'network' && netPlace && tableSec) {
+        netPlace.appendChild(tableSec);
+      } else if (viewKey === 'dvr' && dedPlace && tableSec) {
         dedPlace.appendChild(tableSec);
       } else if (tableSec && viewKey === 'overview' && ovPlace) {
         ovPlace.appendChild(tableSec);
@@ -3292,6 +3390,95 @@
         secCal.classList.remove('hidden');
         secCards.classList.add('hidden');
       }
+    }
+
+    // ── BASE DE CONEXÕES INTRAGOV & GATEWAYS (21 ESCOLAS) ──
+    const NETWORK_CONNECTIONS = [
+      { school: "EE Bairro Boa Vista Intervales", city: "Ribeirão Grande", admGw: "10.109.42.129", pedGw: "10.121.243.1", cie: "915075", status: "Operacional", ping: "14ms" },
+      { school: "EE Bairro Ferreira dos Matos", city: "Ribeirão Grande", admGw: "10.109.42.161", pedGw: "10.121.243.129", cie: "915087", status: "Operacional", ping: "12ms" },
+      { school: "EE Bairro Turvo dos Almeidas", city: "Capão Bonito", admGw: "10.109.40.129", pedGw: "10.120.218.1", cie: "926036", status: "Operacional", ping: "16ms" },
+      { school: "EE Doutor Antonio Deffune", city: "Itapeva", admGw: "10.109.41.33", pedGw: "10.113.9.129", cie: "049323", status: "Operacional", ping: "8ms" },
+      { school: "EE Doutor Raul Venturelli", city: "Capão Bonito", admGw: "10.109.40.161", pedGw: "10.113.11.129", cie: "015222", status: "Operacional", ping: "11ms" },
+      { school: "EE Professor Gerson de Barros Margarido", city: "Itapeva", admGw: "10.109.41.129", pedGw: "10.113.136.1", cie: "043412", status: "Operacional", ping: "10ms" },
+      { school: "EE Professor Silverio Monteiro", city: "Itapeva", admGw: "10.109.41.193", pedGw: "10.121.245.1", cie: "035336", status: "Operacional", ping: "9ms" },
+      { school: "PEI EE Idalicio Mendes Lima", city: "Itapeva", admGw: "10.109.41.1", pedGw: "10.121.7.1", cie: "905227", status: "Operacional", ping: "15ms" },
+      { school: "PEI EE Jeminiano David Muzel", city: "Itapeva", admGw: "10.109.41.65", pedGw: "10.113.11.1", cie: "015477", status: "Operacional", ping: "7ms" },
+      { school: "PEI EE Oscar Kurtz Camargo", city: "Ribeirão Grande", admGw: "10.109.42.193", pedGw: "10.119.161.1", cie: "015076", status: "Operacional", ping: "13ms" },
+      { school: "PEI EE Otavio Ferrari", city: "Itapeva", admGw: "10.109.41.97", pedGw: "10.119.159.1", cie: "015404", status: "Operacional", ping: "6ms" },
+      { school: "PEI EE Padre Arlindo Vieira", city: "Capão Bonito", admGw: "10.109.40.193", pedGw: "10.173.40.1", cie: "015118", status: "Operacional", ping: "12ms" },
+      { school: "PEI EE Professor Joao Baptista do Amaral Vasconcellos", city: "Capão Bonito", admGw: "10.109.40.225", pedGw: "10.119.127.1", cie: "910077", status: "Operacional", ping: "11ms" },
+      { school: "PEI EE Professor Jose Vasques Ferrari", city: "Itapeva", admGw: "10.109.41.161", pedGw: "10.173.48.1", cie: "015519", status: "Operacional", ping: "8ms" },
+      { school: "PEI EE Professora Celia Vasques Ferrari Duch", city: "Taquarivai", admGw: "10.109.42.225", pedGw: "10.119.127.129", cie: "039731", status: "Operacional", ping: "14ms" },
+      { school: "PEI EE Professora Cinira Daniel da Silva", city: "Itapeva", admGw: "10.109.41.225", pedGw: "10.113.10.129", cie: "035348", status: "Operacional", ping: "11ms" },
+      { school: "PEI EE Professora Francelina Franco", city: "Buri", admGw: "10.109.40.97", pedGw: "10.119.128.1", cie: "015568", status: "Operacional", ping: "15ms" },
+      { school: "PEI EE Professora Nicota Soares", city: "Itapeva", admGw: "10.109.42.1", pedGw: "10.173.46.1", cie: "015489", status: "Operacional", ping: "7ms" },
+      { school: "PEI EE Professora Zulmira de Oliveira", city: "Itapeva", admGw: "10.109.42.33", pedGw: "10.119.160.129", cie: "015544", status: "Operacional", ping: "6ms" },
+      { school: "PEI EE Ricardo Campolim de Almeida Neto", city: "Nova Campina", admGw: "10.109.42.65", pedGw: "10.120.162.129", cie: "915117", status: "Operacional", ping: "13ms" },
+      { school: "PEI EE Simpliciano Campolim de Almeida", city: "Nova Campina", admGw: "10.109.42.97", pedGw: "10.121.242.129", cie: "015428", status: "Operacional", ping: "14ms" }
+    ];
+
+    function renderNetworkTable() {
+      const q = (document.getElementById('networkSearchInput')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('networkTableRows');
+      if (!tbody) return;
+
+      const filtered = NETWORK_CONNECTIONS.filter(conn => {
+        if (!q) return true;
+        return conn.school.toLowerCase().includes(q) ||
+               conn.city.toLowerCase().includes(q) ||
+               conn.cie.includes(q) ||
+               conn.admGw.includes(q) ||
+               conn.pedGw.includes(q);
+      });
+
+      const countEl = document.getElementById('networkResultsCount');
+      if (countEl) {
+        countEl.textContent = 'Mostrando ' + filtered.length + ' de ' + NETWORK_CONNECTIONS.length + ' escolas conectadas';
+      }
+
+      if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-5 py-8 text-center text-muted-foreground text-xs">Nenhuma conexão encontrada para o termo pesquisado.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(conn => {
+        return '<tr class="hover:bg-muted/30 transition-colors">' +
+          '<td class="px-5 py-3 font-semibold text-foreground">' + conn.school + '</td>' +
+          '<td class="px-4 py-3 text-muted-foreground font-medium">' + conn.city + '</td>' +
+          '<td class="px-4 py-3 font-mono text-muted-foreground">' + conn.cie + '</td>' +
+          '<td class="px-4 py-3">' +
+            '<div class="inline-flex items-center gap-1.5">' +
+              '<code class="font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground">' + conn.admGw + '</code>' +
+              '<button onclick="copyIp(\'' + conn.admGw + '\', this)" class="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copiar Gateway ADM">' +
+                '<svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
+              '</button>' +
+            '</div>' +
+          '</td>' +
+          '<td class="px-4 py-3">' +
+            '<div class="inline-flex items-center gap-1.5">' +
+              '<code class="font-mono text-xs px-2 py-0.5 rounded bg-muted/60 text-foreground">' + conn.pedGw + '</code>' +
+              '<button onclick="copyIp(\'' + conn.pedGw + '\', this)" class="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Copiar Gateway Pedagógico">' +
+                '<svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>' +
+              '</button>' +
+            '</div>' +
+          '</td>' +
+          '<td class="px-4 py-3 text-center">' +
+            '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">' +
+              '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>' +
+              'Operacional' +
+            '</span>' +
+          '</td>' +
+          '<td class="px-4 py-3 text-center font-mono font-bold text-emerald-500">' + conn.ping + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function filterNetworkTable() {
+      renderNetworkTable();
+    }
+
+    function filterTable() {
+      renderTable();
     }
 
     // 1. RENDERIZADOR DA TABELA CONVIVA
@@ -3759,6 +3946,7 @@
     }
 
     renderTable();
+    renderNetworkTable();
     renderSchools();
     renderInternal();
     }
