@@ -148,7 +148,7 @@
         <nav class="space-y-0.5">
           <button onclick="navTo('overview')" data-nav="overview" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors bg-muted text-foreground">
             <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
-            <span>Visão Executiva</span>
+            <span>Visão Geral</span>
           </button>
           <button onclick="navTo('network')" data-nav="network" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
@@ -183,7 +183,7 @@
           <button onclick="navTo('fleet')" data-nav="fleet" class="nav-link w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
             <span>Frota Oficial</span>
-            <span class="ml-auto text-[11px] font-mono text-muted-foreground">3</span>
+            <span class="ml-auto text-[11px] font-mono text-muted-foreground">2</span>
           </button>
         </nav>
       </div>
@@ -271,7 +271,7 @@
         <div class="flex items-center gap-2 text-xs">
           <span class="text-muted-foreground font-medium hidden sm:inline">PainelURE</span>
           <span class="text-muted-foreground/40 hidden sm:inline">/</span>
-          <span id="currentViewBreadcrumb" class="font-semibold text-foreground">Visão Executiva</span>
+          <span id="currentViewBreadcrumb" class="font-semibold text-foreground">Visão Geral</span>
         </div>
       </div>
 
@@ -350,13 +350,13 @@
     <!-- Content Views Container -->
     <div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto w-full">
       
-      <!-- ── VIEW 1: VISÃO EXECUTIVA (#overview) ── -->
+      <!-- ── VIEW 1: VISÃO GERAL (#overview) ── -->
       <div id="view-overview" class="view-content active space-y-6">
         
         <!-- Header da View -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 class="text-2xl font-bold tracking-tight text-foreground">Visão Executiva Regional</h1>
+            <h1 class="text-2xl font-bold tracking-tight text-foreground">Visão Geral</h1>
             <p class="text-sm text-muted-foreground mt-0.5">Operações críticas, videomonitoramento CONVIVA e chamados de suporte técnico em tempo real.</p>
           </div>
           <div class="flex items-center gap-2">
@@ -371,25 +371,25 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           
           <!-- KPI 1: Conectividade -->
-          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3 cursor-pointer hover:border-primary/40 transition-colors" onclick="navTo('network')">
             <div class="flex items-center justify-between text-muted-foreground">
-              <span class="text-xs font-semibold uppercase tracking-wider">Conectividade Regional</span>
+              <span class="text-xs font-semibold uppercase tracking-wider">Conectividade</span>
               <svg class="w-4 h-4 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" x2="12.01" y1="20" y2="20"/></svg>
             </div>
             <div>
-              <div class="text-2xl font-bold tracking-tight text-foreground">95.2%</div>
+              <div class="text-2xl font-bold tracking-tight text-foreground">100%</div>
               <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                <span class="text-emerald-500 font-medium">20 de 21 escolas</span>
+                <span class="text-emerald-500 font-medium">21 de 21 escolas</span>
                 <span>com link ativo</span>
               </div>
             </div>
             <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-              <div class="h-full bg-emerald-500 rounded-full" style="width: 95.2%"></div>
+              <div class="h-full bg-emerald-500 rounded-full" style="width: 100%"></div>
             </div>
           </div>
 
           <!-- KPI 2: Videomonitoramento CONVIVA -->
-          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3 cursor-pointer hover:border-primary/40 transition-colors" onclick="navTo('dvr')">
             <div class="flex items-center justify-between text-muted-foreground">
               <span class="text-xs font-semibold uppercase tracking-wider">DVRs CONVIVA</span>
               <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
@@ -406,17 +406,15 @@
             </div>
           </div>
 
-          <!-- KPI 3: Central de Chamados CTC -->
+          <!-- KPI 3: Central de Chamados -->
           <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3 cursor-pointer hover:border-primary/40 transition-colors" onclick="navTo('calls')">
             <div class="flex items-center justify-between text-muted-foreground">
-              <span class="text-xs font-semibold uppercase tracking-wider">Central de Chamados CTC</span>
+              <span class="text-xs font-semibold uppercase tracking-wider">Central de Chamados</span>
               <svg class="w-4 h-4 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
             </div>
             <div>
               <div class="text-2xl font-bold tracking-tight text-foreground">Portal CTC</div>
               <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-emerald-500 font-medium">Ao Vivo</span>
                 <span>Base oficial integrada</span>
               </div>
             </div>
@@ -426,16 +424,16 @@
           </div>
 
           <!-- KPI 4: Frota Oficial -->
-          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3">
+          <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-3 cursor-pointer hover:border-primary/40 transition-colors" onclick="navTo('fleet')">
             <div class="flex items-center justify-between text-muted-foreground">
               <span class="text-xs font-semibold uppercase tracking-wider">Frota Oficial</span>
               <svg class="w-4 h-4 text-purple-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2.1 11 2 11.5 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
             </div>
             <div>
-              <div class="text-2xl font-bold tracking-tight text-foreground">3 <span class="text-sm font-normal text-muted-foreground">viaturas</span></div>
+              <div class="text-2xl font-bold tracking-tight text-foreground">2 <span class="text-sm font-normal text-muted-foreground">veículos</span></div>
               <div class="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                <span class="text-emerald-500 font-medium">3 reservas</span>
-                <span>registradas</span>
+                <span id="overviewFleetReservations" class="text-emerald-500 font-medium">0 reservas</span>
+                <span>este mês</span>
               </div>
             </div>
             <div class="h-1.5 w-full bg-muted rounded-full overflow-hidden">
@@ -500,20 +498,20 @@
           <div class="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4 flex flex-col justify-between">
             <div>
               <h2 class="text-base font-semibold text-foreground tracking-tight">Demandas de Suporte</h2>
-              <p class="text-xs text-muted-foreground mt-0.5">Classificação por categoria de atendimento técnico.</p>
+              <p class="text-xs text-muted-foreground mt-0.5">Classificação por categoria na base oficial (405 chamados).</p>
             </div>
 
             <div class="flex items-center justify-center py-2">
               <div class="relative w-36 h-36">
                 <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
                   <circle cx="18" cy="18" r="15.9155" fill="none" stroke="currentColor" stroke-opacity="0.08" stroke-width="3.8"/>
-                  <path stroke="#dc2626" stroke-width="3.8" stroke-dasharray="48, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
-                  <path stroke="#3b82f6" stroke-width="3.8" stroke-dasharray="32, 100" stroke-dashoffset="-48" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
-                  <path stroke="#10b981" stroke-width="3.8" stroke-dasharray="20, 100" stroke-dashoffset="-80" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+                  <path stroke="#dc2626" stroke-width="3.8" stroke-dasharray="72, 100" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+                  <path stroke="#3b82f6" stroke-width="3.8" stroke-dasharray="16, 100" stroke-dashoffset="-72" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
+                  <path stroke="#10b981" stroke-width="3.8" stroke-dasharray="12, 100" stroke-dashoffset="-88" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" stroke-linecap="round"/>
                 </svg>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                   <span class="text-xs font-bold text-foreground">Triagem</span>
-                  <span class="text-[10px] text-muted-foreground uppercase font-medium">Ao Vivo</span>
+                  <span class="text-[10px] text-muted-foreground uppercase font-medium">Base Oficial</span>
                 </div>
               </div>
             </div>
@@ -522,23 +520,23 @@
               <div class="flex items-center justify-between">
                 <span class="flex items-center gap-2 text-muted-foreground">
                   <span class="w-2 h-2 rounded-full bg-primary"></span>
-                  Hardware / Peças
+                  Equipamentos / Hardware
                 </span>
-                <span class="font-mono font-medium text-foreground">48%</span>
+                <span class="font-mono font-medium text-foreground">72%</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="flex items-center gap-2 text-muted-foreground">
                   <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                   Rede & Conectividade
                 </span>
-                <span class="font-mono font-medium text-foreground">32%</span>
+                <span class="font-mono font-medium text-foreground">16%</span>
               </div>
               <div class="flex items-center justify-between">
                 <span class="flex items-center gap-2 text-muted-foreground">
                   <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  Sistemas & Software
+                  Outros & Sistemas
                 </span>
-                <span class="font-mono font-medium text-foreground">20%</span>
+                <span class="font-mono font-medium text-foreground">12%</span>
               </div>
             </div>
 
@@ -546,94 +544,7 @@
 
         </div>
 
-        <!-- 3. TABELA OFICIAL DE VIDEOMONITORAMENTO CONVIVA VS PING REAL (CONTAINER FIXO) -->
-        <div id="dvrOverviewPlaceholder">
-          <div id="dvrTableSection" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-border space-y-4">
-              
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional</h2>
-                    <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">Planilha CONVIVA vs Ping Real</span>
-                  </div>
-                  <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre os 33 gravadores da SEDUC e o teste ICMP na Intragov.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  <button onclick="copyDvrReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-                    <span>Copiar Relatório</span>
-                  </button>
-                </div>
-              </div>
 
-              <!-- Toolbar with Search & Filter Chips -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div class="relative flex-1">
-                  <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                  <input type="text" id="dvrTableSearch" oninput="filterTable()" placeholder="Filtrar por escola, IP (ex: 10.109), DVR..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
-                </div>
-
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                  <button onclick="setFilter('all', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background">
-                    Todos (33)
-                  </button>
-                  <button onclick="setFilter('divergent', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-amber-500/30 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center gap-1.5">
-                    <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
-                    Divergências (5)
-                  </button>
-                  <button onclick="setFilter('ping-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                    Ping Offline (8)
-                  </button>
-                  <button onclick="setFilter('sp-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500/70"></span>
-                    Planilha Offline (5)
-                  </button>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- Table View -->
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
-                  <tr>
-                    <th class="px-5 py-3">Unidade Escolar</th>
-                    <th class="px-4 py-3">Dispositivo</th>
-                    <th class="px-4 py-3">Endereço IP</th>
-                    <th class="px-4 py-3 text-center">Planilha CONVIVA (SP)</th>
-                    <th class="px-4 py-3 text-center">Status Real (Ping)</th>
-                    <th class="px-5 py-3 text-center">Comparativo / Divergência</th>
-                  </tr>
-                </thead>
-                <tbody id="dvrTableRows" class="divide-y divide-border">
-                  <!-- Linhas populadas dinamicamente -->
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Table Footer -->
-            <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
-              <span id="tableResultsCount">Mostrando 33 gravadores</span>
-              <div class="flex items-center gap-4 text-[11px]">
-                <span class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Concordante Online
-                </span>
-                <span class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                  Ambos Offline
-                </span>
-                <span class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                  Divergência Detectada
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- 4. ATALHOS RÁPIDOS E CHAMADOS RECENTES -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -652,13 +563,13 @@
     <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-xs font-semibold text-foreground">CTC-26/0412</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Aguardando Análise do Fornecedor</span>
+          <span class="font-mono text-xs font-semibold text-foreground">STI-26/62437</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Concluído</span>
         </div>
-        <div class="text-xs text-muted-foreground truncate mt-0.5">EE Professor Silverio Monteiro • Equipamentos - Hardware</div>
+        <div class="text-xs text-muted-foreground truncate mt-0.5">EE Padre Arlindo Vieira • Equipamentos - Hardware</div>
       </div>
       <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
-        <div>28/05/2026</div>
+        <div>10/09/2026</div>
         <div class="text-foreground/80 font-medium">Connectcom</div>
       </div>
     </div>
@@ -666,13 +577,13 @@
     <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-xs font-semibold text-foreground">CTC-26/0411</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Aguardando Análise do Fornecedor</span>
+          <span class="font-mono text-xs font-semibold text-foreground">STI-26/62428</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20">Em Atendimento</span>
         </div>
-        <div class="text-xs text-muted-foreground truncate mt-0.5">EE Professor Gerson de Barros Margarido • Equipamentos - Hardware</div>
+        <div class="text-xs text-muted-foreground truncate mt-0.5">EE Professora Zulmira de Oliveira • Equipamentos - Software</div>
       </div>
       <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
-        <div>28/05/2026</div>
+        <div>10/09/2026</div>
         <div class="text-foreground/80 font-medium">Connectcom</div>
       </div>
     </div>
@@ -680,13 +591,13 @@
     <div class="p-3 rounded-lg border border-border bg-muted/20 flex items-center justify-between gap-3">
       <div class="min-w-0">
         <div class="flex items-center gap-2">
-          <span class="font-mono text-xs font-semibold text-foreground">CTC-26/0409</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/10 text-amber-500 border border-amber-500/20">Pendente Atendimento</span>
+          <span class="font-mono text-xs font-semibold text-foreground">STI-26/62397</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Concluído</span>
         </div>
-        <div class="text-xs text-muted-foreground truncate mt-0.5">PEI EE Simpliciano Campolim de Almeida • Equipamentos - Hardware</div>
+        <div class="text-xs text-muted-foreground truncate mt-0.5">URE Itapeva • Equipamentos - Hardware</div>
       </div>
       <div class="text-[11px] text-muted-foreground text-right flex-shrink-0">
-        <div>27/05/2026</div>
+        <div>10/09/2026</div>
         <div class="text-foreground/80 font-medium">Connectcom</div>
       </div>
     </div>
@@ -983,7 +894,91 @@
             <p class="text-sm text-muted-foreground mt-0.5">Auditoria detalhada entre o status registrado na SEDUC/SP e o teste real de ping na regional.</p>
           </div>
         </div>
-        <div id="dvrDedicatedPlaceholder"></div>
+        <div id="dvrTableSection" class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-border space-y-4">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h2 class="text-base font-semibold text-foreground tracking-tight">Videomonitoramento Regional</h2>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-muted text-muted-foreground border border-border">Planilha CONVIVA vs Ping Real</span>
+                </div>
+                <p class="text-xs text-muted-foreground mt-0.5">Auditoria contínua de integridade entre os 33 gravadores da SEDUC e o teste ICMP na Intragov.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyDvrReport()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted/50 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                  <span>Copiar Relatório</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Toolbar with Search & Filter Chips -->
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div class="relative flex-1">
+                <svg class="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" id="dvrTableSearch" oninput="filterTable()" placeholder="Filtrar por escola, IP (ex: 10.109), DVR..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-border bg-muted/30 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+              </div>
+
+              <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                <button onclick="setFilter('all', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-foreground text-background">
+                  Todos (33)
+                </button>
+                <button onclick="setFilter('divergent', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-amber-500/30 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-all flex items-center gap-1.5">
+                  <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12.01" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                  Divergências (5)
+                </button>
+                <button onclick="setFilter('ping-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  Ping Offline (8)
+                </button>
+                <button onclick="setFilter('sp-off', this)" class="filter-chip px-3 py-1.5 rounded-lg text-xs font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500/70"></span>
+                  Planilha Offline (5)
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Table View -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-border bg-muted/30 text-muted-foreground uppercase text-[10px] font-semibold tracking-wider">
+                <tr>
+                  <th class="px-5 py-3">Unidade Escolar</th>
+                  <th class="px-4 py-3">Dispositivo</th>
+                  <th class="px-4 py-3">Endereço IP</th>
+                  <th class="px-4 py-3 text-center">Planilha CONVIVA (SP)</th>
+                  <th class="px-4 py-3 text-center">Status Real (Ping)</th>
+                  <th class="px-5 py-3 text-center">Comparativo / Divergência</th>
+                </tr>
+              </thead>
+              <tbody id="dvrTableRows" class="divide-y divide-border">
+                <!-- Linhas populadas dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer -->
+          <div class="px-5 py-3 border-t border-border bg-muted/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span id="tableResultsCount">Mostrando 33 gravadores</span>
+            <div class="flex items-center gap-4 text-[11px]">
+              <span class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                Concordante Online
+              </span>
+              <span class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                Ambos Offline
+              </span>
+              <span class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Divergência Detectada
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- ── VIEW 4: CENTRAL DE CHAMADOS CTC (#calls) ── -->
@@ -3079,7 +3074,7 @@
 
     // NAVEGAÇÃO DE VIEWS
     const viewTitles = {
-      'overview': 'Visão Executiva',
+      'overview': 'Visão Geral',
       'network': 'Rede e Monitoramento',
       'dvr': 'DVRs (CONVIVA)',
       'calls': 'Central de Chamados CTC',
@@ -3096,6 +3091,31 @@
       'admin': 'Governança & Admin',
       'user': 'Minha Conta & Preferências'
     };
+
+    // Base de Reservas da Frota Oficial
+    const FLEET_RESERVATIONS = [
+      { vehicle: "Carro oficial 1", date: "2026-05-15", time: "08:00", requester: "Gabinete", destination: "Itapeva", driver: "A definir", status: "reservado", note: "Reserva operacional para deslocamento institucional." },
+      { vehicle: "Carro oficial 2", date: "2026-05-15", time: "13:30", requester: "SETEC", destination: "Ribeirão Grande", driver: "A definir", status: "pendente", note: "Aguardando confirmação de motorista." },
+      { vehicle: "Carro oficial 1", date: "2026-05-16", time: "09:00", requester: "Supervisão", destination: "Capao Bonito", driver: "A definir", status: "reservado", note: "Agenda de visita e acompanhamento escolar." }
+    ];
+
+    function updateOverviewFleetReservations() {
+      let list = FLEET_RESERVATIONS;
+      try {
+        const saved = localStorage.getItem('painelure_cars') || localStorage.getItem('painelure_seed_cars');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) list = parsed;
+        }
+      } catch (e) {}
+      const now = new Date();
+      const currentYM = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      const count = list.filter(r => r.date && r.date.startsWith(currentYM)).length;
+      const el = document.getElementById('overviewFleetReservations');
+      if (el) {
+        el.textContent = `${count} ${count === 1 ? 'reserva' : 'reservas'}`;
+      }
+    }
 
     function navTo(viewKey, pushHash = true) {
       document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
@@ -3115,17 +3135,8 @@
       const bTitle = document.getElementById('currentViewBreadcrumb');
       if (bTitle && viewTitles[viewKey]) bTitle.textContent = viewTitles[viewKey];
 
-            // Re-ancora tabela de DVR se for para a view dvr dedicada, network ou overview
-      const tableSec = document.getElementById('dvrTableSection');
-      const ovPlace = document.getElementById('dvrOverviewPlaceholder');
-      const dedPlace = document.getElementById('dvrDedicatedPlaceholder');
-      const netPlace = document.getElementById('dvrNetworkPlaceholder');
-      if (viewKey === 'network' && netPlace && tableSec) {
-        netPlace.appendChild(tableSec);
-      } else if (viewKey === 'dvr' && dedPlace && tableSec) {
-        dedPlace.appendChild(tableSec);
-      } else if (tableSec && viewKey === 'overview' && ovPlace) {
-        ovPlace.appendChild(tableSec);
+      if (viewKey === 'overview') {
+        updateOverviewFleetReservations();
       }
 
       if (viewKey === 'calls') {
@@ -6526,6 +6537,7 @@
     }
 
     renderTable();
+    updateOverviewFleetReservations();
     renderSchools();
     renderInternal();
     renderSchools();
